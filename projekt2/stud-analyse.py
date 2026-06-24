@@ -18,13 +18,24 @@ def load_category_totals(engine):
         join classes as cl on sc.class_id = cl.id
         join categories as c on cl.category_id = c.id
         group by sc.student_id, sc.semester, c.id
-        order by sc.student_id, sc.semester, c.name
+        order by
+            sc.student_id,
+            sc.semester,
+            c.name
         """
     )
+    # order by
+    #     sc.student_id,
+    #     case substr(sc.semester, 1, 4)
+    #         when 'SoSe' then 1
+    #         when 'WiSe' then 2
+    #         else 3
+    #     end + cast(substr(sc.semester, 5, 8) as int) * 10,
+    #     c.name
     return pd.read_sql(query, engine)
 
 
-def plot_category_totals(df):
+def plot_category_totals(df: pd.DataFrame):
     """Plot total points per student/semester by category."""
     if df.empty:
         print("No data available to plot category totals.")
@@ -67,33 +78,13 @@ def plot_category_heatmap(df):
     )
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    im = ax.imshow(pivot, aspect="auto", cmap="Blues")
+    im = ax.imshow(pivot, aspect="auto", cmap="Reds")
     ax.set_xticks(range(len(pivot.columns)))
     ax.set_xticklabels(pivot.columns, rotation=45, ha="right")
     ax.set_yticks(range(len(pivot.index)))
     ax.set_yticklabels(pivot.index)
     ax.set_title("Total Points by Semester and Category")
     fig.colorbar(im, ax=ax, label="Points")
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_top_categories(df, top_n=10):
-    """Plot the top categories by total points across all students."""
-    if df.empty:
-        print("No data available to plot top categories.")
-        return
-
-    totals = (
-        df.groupby("category")
-        .total_points.sum()
-        .sort_values(ascending=False)
-        .head(top_n)
-    )
-    ax = totals.plot(kind="barh", figsize=(10, 6), color="#5A9")
-    ax.invert_yaxis()
-    ax.set_title(f"Top {top_n} Categories by Total Points")
-    ax.set_xlabel("Points")
     plt.tight_layout()
     plt.show()
 
@@ -128,11 +119,10 @@ def plot_student_progress(df, student_id):
 if __name__ == "__main__":
     df = load_category_totals(engine)
     print("Loaded category totals:")
-    print(df.head(20).to_string(index=False))
+    print(df.to_string(index=False))
 
     plot_category_totals(df)
     plot_category_heatmap(df)
-    plot_top_categories(df, top_n=8)
 
     # Choose a student to inspect. Replace 1 with any existing student ID.
-    plot_student_progress(df, student_id=2)
+    plot_student_progress(df, student_id=1)
