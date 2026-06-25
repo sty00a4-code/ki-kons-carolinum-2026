@@ -13,7 +13,7 @@ Kl-gestützte Analyse und Visualisierung klinischer Lernverläufe in zahnmedizin
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/sty00a4-code/ki-kons-carolinum-2026.git
 cd ki-kons-carolinum-2026
 ```
 
