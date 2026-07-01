@@ -21,17 +21,80 @@ def load_category_totals(engine):
         order by
             sc.student_id,
             sc.semester,
-            c.name
+            c.name;
         """
     )
-    # order by
-    #     sc.student_id,
-    #     case substr(sc.semester, 1, 4)
-    #         when 'SoSe' then 1
-    #         when 'WiSe' then 2
-    #         else 3
-    #     end + cast(substr(sc.semester, 5, 8) as int) * 10,
-    #     c.name
+    return pd.read_sql(query, engine)
+
+
+def load_category_overview(engine):
+    """Load total points per student / semester / category."""
+    query = text(
+        """
+        select
+            c.name as category,
+            sc.student_id,
+            sum(sc.points) as total_points,
+            c.min_points as min,
+            (sum(sc.points) >= c.min_points) as done
+        from students_classes as sc
+        join classes as cl on sc.class_id = cl.id
+        join categories as c on cl.category_id = c.id
+        group by c.id, sc.student_id
+        order by
+            c.id,
+            sc.student_id,
+            c.name;
+        """
+    )
+    return pd.read_sql(query, engine)
+
+
+def load_category_done(engine):
+    """Load total points per student / semester / category."""
+    query = text(
+        """
+        select category, student_id, total_points, min from (select
+            c.name as category,
+            sc.student_id,
+            sum(sc.points) as total_points,
+            c.min_points as min,
+            (sum(sc.points) >= c.min_points) as done
+        from students_classes as sc
+        join classes as cl on sc.class_id = cl.id
+        join categories as c on cl.category_id = c.id
+        group by c.id, sc.student_id
+        order by
+            c.id,
+            sc.student_id,
+            c.name)
+        where done;
+        """
+    )
+    return pd.read_sql(query, engine)
+
+
+def load_category_not_done(engine):
+    """Load total points per student / semester / category."""
+    query = text(
+        """
+        select category, student_id, total_points, min from (select
+            c.name as category,
+            sc.student_id,
+            sum(sc.points) as total_points,
+            c.min_points as min,
+            (sum(sc.points) >= c.min_points) as done
+        from students_classes as sc
+        join classes as cl on sc.class_id = cl.id
+        join categories as c on cl.category_id = c.id
+        group by c.id, sc.student_id
+        order by
+            c.id,
+            sc.student_id,
+            c.name)
+        where not done;
+        """
+    )
     return pd.read_sql(query, engine)
 
 
@@ -117,6 +180,21 @@ def plot_student_progress(df, student_id):
 
 
 if __name__ == "__main__":
+    df = load_category_overview(engine)
+    print("CATEGORY OVERVIEW:")
+    print(df.to_string(index=False))
+    print()
+
+    df = load_category_done(engine)
+    print("CATEGORY DONE:")
+    print(df.to_string(index=False))
+    print()
+
+    df = load_category_not_done(engine)
+    print("CATEGORY NOT DONE:")
+    print(df.to_string(index=False))
+    print()
+
     df = load_category_totals(engine)
     print("Loaded category totals:")
     print(df.to_string(index=False))
