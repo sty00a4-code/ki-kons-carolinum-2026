@@ -113,7 +113,7 @@ def render_heatmap(df: pd.DataFrame):
         .properties(width=700, height=300)
     )
 
-    st.altair_chart(chart, width="stretch")
+    st.altair_chart(chart, use_container_width=True)
 
 
 def filter_dataframe(
@@ -240,21 +240,21 @@ def main():
 
     with tab1:
         st.subheader("Kategorie-Übersicht")
-        st.dataframe(display_df, width="stretch", hide_index=True)
+        st.dataframe(display_df, hide_index=True, use_container_width=True)
 
     with tab2:
         st.subheader("Erfüllte Kategorien")
         if done.empty:
             st.info("Keine erfüllten Kategorien vorhanden.")
         else:
-            st.dataframe(done, width="stretch", hide_index=True)
+            st.dataframe(done, hide_index=True, use_container_width=True)
 
     with tab3:
         st.subheader("Nicht erfüllte Kategorien")
         if not_done.empty:
             st.info("Keine offenen Kategorien vorhanden.")
         else:
-            st.dataframe(not_done, width="stretch", hide_index=True)
+            st.dataframe(not_done, hide_index=True, use_container_width=True)
 
     with tab4:
         st.subheader("Punkte pro Student und Semester")
