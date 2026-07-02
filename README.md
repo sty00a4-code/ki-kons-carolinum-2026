@@ -41,3 +41,39 @@ To deactivate the environment:
 ```bash
 deactivate
 ```
+
+## Run the local website
+
+This project can be served locally as a small web dashboard for the performance data. The app is written in Python and can be run with Streamlit.
+
+1. Create and activate a virtual environment:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+2. Install the required Python packages:
+   ```bash
+   pip install -r requirements.txt
+   pip install streamlit
+   ```
+   For a reproducible setup, you can also add Streamlit to requirements.txt so future installations only need:
+
+3. Start the local server:
+   ```bash
+   streamlit run projekt2/app.py
+   ```
+   If your app script has a different name or location, replace the path accordingly.
+
+4. Open the dashboard:
+   ```
+   Local URL: http://localhost:8501
+   ```
+   Open this URL in your browser to view the dashboard.
+
+5. Stop the server: Press Ctrl+C in the terminal to stop the local web server.
+
+### Notes
+
+- The dashboard expects the SQLite database file to be available in the project folder.
+- If you rename the app entry script, update the command in step 3.
