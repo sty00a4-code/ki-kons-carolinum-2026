@@ -18,6 +18,7 @@ def load_category_overview():
         select
             c.name as category,
             sc.student_id,
+            sc.semester,
             sum(sc.points) as total_points,
             c.min_points as min,
             (sum(sc.points) >= c.min_points) as done,
@@ -115,6 +116,72 @@ def render_heatmap(df: pd.DataFrame):
     st.altair_chart(chart, width="stretch")
 
 
+def filter_dataframe(
+    df: pd.DataFrame,
+    selected_student: str = "Alle",
+    selected_category: str = "Alle",
+    selected_semester: str = "Alle",
+) -> pd.DataFrame:
+    filtered_df = df.copy()
+
+    if selected_student != "Alle":
+        filtered_df = filtered_df[filtered_df["student_id"] == selected_student]
+
+    if selected_category != "Alle":
+        filtered_df = filtered_df[filtered_df["category"] == selected_category]
+
+    if selected_semester != "Alle":
+        filtered_df = filtered_df[filtered_df["semester"] == selected_semester]
+
+    return filtered_df
+
+
+def prepare_display_dataframe(
+    df: pd.DataFrame,
+    selected_student: str = "Alle",
+    selected_category: str = "Alle",
+    selected_semester: str = "Alle",
+) -> pd.DataFrame:
+    display_df = df.copy()
+
+    for column_name, selected_value in {
+        "student_id": selected_student,
+        "category": selected_category,
+        "semester": selected_semester,
+    }.items():
+        if selected_value != "Alle" and column_name in display_df.columns:
+            display_df = display_df.drop(columns=[column_name])
+
+    rename_map = {
+        "total_points": "Punkte",
+        "min": "Mindestpunktzahl",
+        "done": "Erfüllt",
+        "progress_pct": "Fortschritt (%)",
+    }
+    column_labels = {
+        "student_id": "Student" if selected_student == "Alle" else None,
+        "category": "Kategorie" if selected_category == "Alle" else None,
+        "semester": "Semester" if selected_semester == "Alle" else None,
+    }
+    rename_map.update(
+        {
+            column: label
+            for column, label in column_labels.items()
+            if label is not None and column in display_df.columns
+        }
+    )
+
+    display_df = display_df.rename(columns=rename_map)
+    display_df["Fortschritt (%)"] = display_df["Fortschritt (%)"].round(1)
+    display_df["Erfüllt"] = (
+        display_df["Erfüllt"]
+        .fillna(False)
+        .astype(bool)
+        .map({True: "Ja", False: "Nein"})
+    )
+    return display_df
+
+
 def main():
     overview = load_category_overview()
     totals = load_category_totals()
@@ -128,66 +195,36 @@ def main():
 
     students = sorted(overview["student_id"].astype(int).unique())
     categories = sorted(overview["category"].unique())
+    semesters = sorted(overview["semester"].unique())
 
     with st.sidebar:
         st.header("Filter")
         selected_student = st.selectbox("Student", ["Alle", *students], index=0)
         selected_category = st.selectbox("Kategorie", ["Alle", *categories], index=0)
+        selected_semester = st.selectbox("Semester", ["Alle", *semesters], index=0)
 
-    filtered_overview = overview.copy()
-
-    if selected_student != "Alle":
-        filtered_overview = filtered_overview[
-            filtered_overview["student_id"] == selected_student
-        ]
-
-    if selected_category != "Alle":
-        filtered_overview = filtered_overview[
-            filtered_overview["category"] == selected_category
-        ]
-
-    filtered_totals = totals.copy()
-
-    if selected_student != "Alle":
-        filtered_totals = filtered_totals[
-            filtered_totals["student_id"] == selected_student
-        ]
-
-    if selected_category != "Alle":
-        filtered_totals = filtered_totals[
-            filtered_totals["category"] == selected_category
-        ]
+    filtered_overview = filter_dataframe(
+        overview,
+        selected_student=selected_student,
+        selected_category=selected_category,
+        selected_semester=selected_semester,
+    )
+    filtered_totals = filter_dataframe(
+        totals,
+        selected_student=selected_student,
+        selected_category=selected_category,
+        selected_semester=selected_semester,
+    )
 
     done_mask = filtered_overview["done"].fillna(False).astype(bool)
     done = filtered_overview.loc[done_mask].copy()
     not_done = filtered_overview.loc[~done_mask].copy()
 
-    display_df = filtered_overview.copy()
-
-    if selected_student != "Alle":
-        display_df = display_df.drop(columns=["student_id"])
-
-    if selected_category != "Alle":
-        display_df = display_df.drop(columns=["category"])
-
-    rename_map = {
-        "total_points": "Punkte",
-        "min": "Mindestpunktzahl",
-        "done": "Erfüllt",
-        "progress_pct": "Fortschritt (%)",
-    }
-    if selected_student == "Alle":
-        rename_map["student_id"] = "Student"
-    if selected_category == "Alle":
-        rename_map["category"] = "Kategorie"
-
-    display_df = display_df.rename(columns=rename_map)
-    display_df["Fortschritt (%)"] = display_df["Fortschritt (%)"].round(1)
-    display_df["Erfüllt"] = (
-        display_df["Erfüllt"]
-        .fillna(False)
-        .astype(bool)
-        .map({True: "Ja", False: "Nein"})
+    display_df = prepare_display_dataframe(
+        filtered_overview,
+        selected_student=selected_student,
+        selected_category=selected_category,
+        selected_semester=selected_semester,
     )
 
     done_count = int(filtered_overview["done"].fillna(False).astype(bool).sum())
@@ -235,8 +272,8 @@ def main():
             pivot_bar.index = [f"S{sid} · {sem}" for sid, sem in pivot_bar.index]
             st.bar_chart(pivot_bar)
 
-            st.subheader("Entwicklung über die Semester")
             if selected_student != "Alle":
+                st.subheader("Entwicklung über die Semester")
                 student_progress = chart_df.copy()
                 progress_pivot = student_progress.pivot_table(
                     index="semester",
