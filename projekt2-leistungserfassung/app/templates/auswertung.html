@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row-between">
+        <h1 style="margin:0">Auswertung – alle Studierenden im Vergleich</h1>
+        <a class="btn" href="{{ url_for('analysis.auswertung') }}">🔄 Aktualisieren</a>
+    </div>
+    <p class="muted">
+        Basierend auf <strong>genehmigten</strong> Leistungen (Ziel: {{ total_target }} Punkte).
+        Nur für Prüfende sichtbar (Klarnamen). <strong>Alle Grafiken werden bei jedem Seitenaufruf live aus der
+        Datenbank berechnet</strong> – niemand muss etwas generieren; nach einer Genehmigung genügt „Aktualisieren".
+    </p>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('analysis.cohort_comparison') }}"
+                 alt="Vergleich aller Studierenden: Gesamt-Fortschritt in Prozent">
+            <figcaption>Gesamt-Fortschritt: jede/r Studierende als Balken (grün ≥ 75 %, gelb 50–75 %, rot &lt; 50 %)</figcaption>
+        </figure>
+    </div>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('analysis.cohort_matrix') }}"
+                 alt="Kompetenzmatrix: Studierende × Kategorien">
+            <figcaption>Kompetenzmatrix: Wer ist wo stark, wo bestehen Lücken? (Zellwert = Ziel-Erreichung in %)</figcaption>
+        </figure>
+    </div>
+    <div class="card">
+        <h2 style="margin-top:0">Zahlen im Überblick</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Studierende/r</th>
+                    <th>Fortschritt</th>
+                    <th>Genehmigte Punkte</th>
+                    <th>Offene Einreichungen</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for x in stats %}
+                    <tr>
+                        <td>{{ x.name }}</td>
+                        <td style="min-width:170px">
+                            <div class="pbar sm">
+                                <div class="pfill app" style="width:{{ x.pct|round(1) }}%"></div>
+                            </div>
+                            <small class="muted">{{ x.pct|round(1) }} %</small>
+                        </td>
+                        <td>{{ '%g'|format(x.approved) }} / {{ total_target }}</td>
+                        <td>{% if x.pending %}<span class="badge submitted">{{ x.pending }}</span>{% else %}<span class="muted">0</span>{% endif %}</td>
+                        <td><a href="{{ url_for('doktorand.student', pseudonym=x.s.pseudonym) }}">Entwicklung ansehen →</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

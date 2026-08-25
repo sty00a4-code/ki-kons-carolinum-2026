@@ -1,0 +1,15 @@
+[tool.ruff.lint]
+# Bewusste Ausnahmen (Begruendung, nicht Bequemlichkeit):
+# BLE001: Die KI-Provider-Kette (SDK -> CLI -> Regelwerk) und Best-Effort-
+#         Empfehlungen fangen absichtlich breit – ein Provider-Fehler darf
+#         nie die Route crashen, der Fallback ist das Verhalten.
+# DTZ005: Die App laeuft in genau einer Zeitzone (Kurs in Frankfurt);
+#         lokale Zeitstempel sind hier gewollt.
+ignore = ["BLE001", "DTZ005"]
+
+[tool.djlint]
+profile = "jinja"
+# H021: Kleine Inline-Styles (Abstaende an Ueberschriften) sind in diesem
+#       Projekt bewusst erlaubt – eine eigene CSS-Klasse je Einzelabstand
+#       waere mehr Rauschen als Nutzen.
+ignore = "H021"

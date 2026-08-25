@@ -1,0 +1,137 @@
+{# Lehrenden-Bot (UNIFR-27): Kohorten-Übersicht + Zuteilungs-Empfehlungen.
+   Nutzt dieselben CSS-Klassen wie der Studenten-Bot (nie beide auf einer Seite). #}
+<script type="application/json" id="botl-data">{{ bot_data_lehrende|tojson }}</script>
+<style>
+  .botfab { position: fixed; right: 22px; bottom: 22px; z-index: 50; display: flex; align-items: center;
+    gap: 8px; background: var(--brand); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px;
+    font: inherit; font-weight: 500; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+  .botfab:hover { background: var(--brand-d); }
+  .botpanel { position: fixed; right: 22px; bottom: 80px; z-index: 50; width: 360px; max-width: calc(100vw - 44px);
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 34px rgba(0,0,0,.20);
+    display: none; overflow: hidden; }
+  .botpanel.open { display: block; }
+  .bothead { background: var(--brand); color: #fff; padding: 12px 14px; }
+  .bothead b { font-weight: 600; }
+  .bothead .tag { background: #ffffff33; border-radius: 6px; padding: 1px 7px; font-size: 11px; margin-left: 6px; }
+  .bothead .sub { font-size: 12px; opacity: .9; margin-top: 2px; }
+  .botmsgs { padding: 12px; max-height: 300px; overflow-y: auto; background: var(--bg); }
+  .botmsg { margin-bottom: 10px; display: flex; }
+  .botmsg .b { background: #fff; border: 1px solid var(--line); border-radius: 12px 12px 12px 4px;
+    padding: 8px 11px; font-size: 14px; max-width: 90%; white-space: pre-line; }
+  .botmsg.me { justify-content: flex-end; }
+  .botmsg.me .b { background: var(--brand); color: #fff; border-radius: 12px 12px 4px 12px; }
+  .botquick { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 10px; }
+  .botquick button { background: #eef1fb; color: var(--brand-d); border: 0; border-radius: 999px;
+    padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .botquick button:hover { background: #e0e5f7; }
+  .botinput { display: flex; gap: 6px; border-top: 1px solid var(--line); padding: 8px; }
+  .botinput input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 8px; font: inherit; }
+  .botinput button { background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+</style>
+<button class="botfab" id="botlfab" aria-label="Betreuer-Assistent öffnen">🤖 Betreuer-Assistent <span style="opacity:.85">(KI-Beta)</span></button>
+<div class="botpanel"
+     id="botlpanel"
+     role="dialog"
+     aria-label="Betreuer-Assistent">
+    <div class="bothead">
+        <b>Betreuer-Assistent</b><span class="tag">KI-BETA</span>
+        <div class="sub">Ganzer Jahrgang, einzelne Studierende, offene Fälle · Entscheidung bleibt bei dir</div>
+    </div>
+    <div class="botmsgs" id="botlmsgs"></div>
+    <div class="botquick" id="botlquick"></div>
+    <div class="botinput">
+        <input id="botlinput"
+               placeholder="z. B.: Wem sollte ich den nächsten Fall geben?"
+               autocomplete="off">
+        <button id="botlsend">Senden</button>
+    </div>
+</div>
+<script>
+(function () {
+  var D = {};
+  try { D = JSON.parse(document.getElementById('botl-data').textContent) || {}; } catch (e) {}
+  var CSRF = {{ csrf_token()|tojson }};
+  var fab = document.getElementById('botlfab'), panel = document.getElementById('botlpanel');
+  var msgs = document.getElementById('botlmsgs'), quick = document.getElementById('botlquick');
+  var input = document.getElementById('botlinput'), send = document.getElementById('botlsend');
+
+  function add(text, me) {
+    var row = document.createElement('div'); row.className = 'botmsg' + (me ? ' me' : '');
+    var b = document.createElement('div'); b.className = 'b'; b.textContent = text;
+    row.appendChild(b); msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  var A = {
+    kohorte: function () {
+      var list = (D.studierende || []).slice().sort(function (a, b) { return a.gesamt_pct - b.gesamt_pct; });
+      if (!list.length) return 'Noch keine Studierenden in der Datenbank.';
+      var t = 'Stand im Jahrgang (aufsteigend):\n';
+      list.forEach(function (s) {
+        t += '• ' + s.name + ': ' + s.gesamt_pct + ' % (' + s.punkte + ' P, ' +
+          s.erfuellte_kategorien + '/' + s.kategorien + ' Kategorien)\n';
+      });
+      return t.trim();
+    },
+    luecken: function () {
+      var list = (D.studierende || []).slice().sort(function (a, b) { return a.gesamt_pct - b.gesamt_pct; });
+      if (!list.length) return 'Keine Daten vorhanden.';
+      var s = list[0];
+      var t = 'Größter Förderbedarf: ' + s.name + ' (' + s.gesamt_pct + ' %).\n';
+      (s.groesste_luecken || []).forEach(function (l) {
+        t += '• ' + l.kategorie + ': ' + l.pct + ' % (fehlen ' + l.fehlend + ' P)\n';
+      });
+      return t.trim();
+    },
+    faelle: function () {
+      var list = (D.offene_faelle || []).filter(function (f) { return f.empfohlen; });
+      if (!list.length) return 'Keine offenen Fälle mit passender Empfehlung – lege unter „Fälle" neue an.';
+      var t = 'Offene Fälle mit Empfehlung:\n';
+      list.forEach(function (f) {
+        t += '• ' + f.fall + ' → ' + f.empfohlen.name + ' (' + f.empfohlen.match_pct + ' % Match)\n';
+      });
+      return t + 'Zuteilen: Menü „Fälle".';
+    }
+  };
+
+  var QUICK = [
+    ['Wie steht der Jahrgang?', 'kohorte'],
+    ['Wer braucht am meisten Förderung?', 'luecken'],
+    ['Welche Fälle sind offen?', 'faelle']
+  ];
+  QUICK.forEach(function (q) {
+    var btn = document.createElement('button'); btn.textContent = q[0];
+    btn.onclick = function () { add(q[0], true); setTimeout(function () { add(A[q[1]]()); }, 250); };
+    quick.appendChild(btn);
+  });
+
+  var pending = false;
+  function freeText() {
+    var v = input.value.trim(); if (!v || pending) return;
+    input.value = ''; add(v, true);
+    pending = true; send.disabled = true;
+    var row = document.createElement('div'); row.className = 'botmsg';
+    var bubble = document.createElement('div'); bubble.className = 'b';
+    bubble.textContent = '… ich denke nach (kann ein paar Sekunden dauern)';
+    row.appendChild(bubble); msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
+
+    fetch('/bot/betreuer-frage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ frage: v, _csrf_token: CSRF })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { bubble.textContent = data.antwort || 'Keine Antwort erhalten.'; })
+      .catch(function () { bubble.textContent = 'Verbindungsfehler – bitte versuche es gleich noch einmal.'; })
+      .finally(function () { pending = false; send.disabled = false; msgs.scrollTop = msgs.scrollHeight; });
+  }
+  send.onclick = freeText;
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') freeText(); });
+
+  fab.onclick = function () {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open') && !msgs.childElementCount) {
+      add('Hi! Ich bin dein Betreuer-Assistent. Ich kenne den ganzen Jahrgang, jede/n einzelne/n Studierende/n und die offenen Fälle – frag mich z. B. nach Stud. 1 oder wem du den nächsten Fall geben solltest.');
+    }
+  };
+})();
+</script>

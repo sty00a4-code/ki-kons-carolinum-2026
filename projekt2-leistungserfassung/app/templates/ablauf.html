@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>So funktioniert es – der Ablauf</h1>
+    <p class="muted">
+        Schematische Darstellung des gesamten Prozesses. Die Schaubilder werden aus Code erzeugt
+        (<code>python -m scripts.make_diagrams</code>) und liegen auch unter <code>docs/diagrams/</code>.
+    </p>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('static', filename='diagrams/ablauf_rollen.png') }}"
+                 alt="Schritte von Studierenden und Doktoranden">
+            <figcaption>Schritt für Schritt: Studierende erfassen und reichen ein (1–3), Doktorand prüft und genehmigt mit Signatur (4–5), Studierende sehen „geprüft von Dr. …“ (6)</figcaption>
+        </figure>
+    </div>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('static', filename='diagrams/workflow.png') }}"
+                 alt="Status-Workflow">
+            <figcaption>Status-Lebenszyklus: Entwurf → Eingereicht → Genehmigt (zählt zur Analyse) / Abgelehnt (mit Kommentar zurück zur Korrektur)</figcaption>
+        </figure>
+    </div>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('static', filename='diagrams/datenfluss.png') }}"
+                 alt="Datenfluss">
+            <figcaption>Datenfluss: Eingabe → Datenbank (sofort gespeichert) → Prüfung → Genehmigung → Auswertung</figcaption>
+        </figure>
+    </div>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('static', filename='diagrams/auswertung_vision.png') }}"
+                 alt="Auswertung">
+            <figcaption>Auswertung: genehmigte Leistungen speisen Vergleich, Matrix, Radar und Verlauf – Grundlage für gezielte Förderung</figcaption>
+        </figure>
+    </div>
+    <div class="card">
+        <figure class="wide">
+            <img src="{{ url_for('static', filename='diagrams/architektur.png') }}"
+                 alt="Architektur und Sicherheit">
+            <figcaption>Architektur &amp; Sicherheit: Browser → Flask (Login, Rollen, CSRF) → SQLite; Studierende sehen nur eigene Daten</figcaption>
+        </figure>
+    </div>
+{% endblock %}

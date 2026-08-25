@@ -1,0 +1,33 @@
+# NIEMALS echte/sensible Daten committen.
+# Wichtig: Kommentare stehen auf eigenen Zeilen (Inline-Kommentare gelten in
+# .gitignore NICHT als Kommentar und würden das Muster kaputt machen).
+
+# SQLite-Datenbank mit echten Leistungsdaten
+data/
+
+# Backups + CSV-Exporte
+backups/
+
+# Flask secret_key etc.
+instance/
+
+# Generierte Auswertungs-Reports pro Studierendem (enthalten in echt studierenden-
+# bezogene Daten) – jederzeit via 'python -m scripts.student_report' regenerierbar
+docs/reports/
+
+# Python / venv
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+.DS_Store
+
+# Python-Umgebungen (lokal, nicht ins Repo)
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# venv ist hier ein Symlink -> Muster ohne Slash noetig
+venv

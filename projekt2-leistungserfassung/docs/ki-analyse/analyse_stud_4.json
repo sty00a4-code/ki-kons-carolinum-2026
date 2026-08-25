@@ -1,0 +1,577 @@
+{
+ "proband": "Stud. 4",
+ "befunde": [
+  {
+   "aspekt": "luecke",
+   "befund": "Zwei Kategorien komplett ohne Leistungen über IK I–III: Chirurgie/Implantologie (0/16 P) und Kieferorthopädie (0/48 P).",
+   "begruendung": "In kategorien_summen und in allen Semester-Einzeleinträgen von Stud. 4 taucht kein einziger chir_*- oder kfo_*-Code auf. Zusammen fehlen 64 Punkte allein aus diesen beiden Kategorien – die KFO-Lücke (48 P) ist bei bisherigen Semesterlasten von 59–74 P in einem einzigen Semester strukturell nicht mehr vollständig schließbar.",
+   "schweregrad": "kritisch"
+  },
+  {
+   "aspekt": "mindestanforderung",
+   "befund": "Ampel Ende IK III: 4× gut/übererfüllt (Paro 133 %, Endo 125 %, KZH 213 %, jeweils auf 100 % gedeckelt; ZHS 85 %), Prothetik 53 % (mittel), Schnittmenge Restauration/Prothetik 9 % (gering), Chirurgie und KFO 0 % (gering). Gesamt 195/328 P = 59 %.",
+   "begruendung": "Exakt aus kategorien_summen ÷ Katalog-Mindestpunkte gerechnet: Paro 42,5/32; ZHS 46,5/55; Endo 25/20; KZH 17/8; Prothetik 61/116; Schnittmenge 3/33; Chir 0/16; KFO 0/48. Offene Restlücke zu allen Mindestpunkten: 157,5 P – bei einer bisherigen Maximallast von 74 P/Semester ist selbst ein ambitioniertes IK IV nur eine Teilschließung.",
+   "schweregrad": "kritisch"
+  },
+  {
+   "aspekt": "reihenfolge",
+   "befund": "Didaktische Reihenfolge zwischen den Semestern grob aufsteigend: punktegewichtete mittlere Demo-Schwierigkeit 1,69 (IK I) → 2,15 (IK II) → 2,07 (IK III). Abweichung: pa_ait (Schwierigkeit 3, 8 P) bereits im IK I.",
+   "begruendung": "IK I ist klar von leichten Leistungen dominiert (Befunde, Prophylaxe, UPT, Recall – Stufe 1–2), die schweren Endo- und Kronen-Leistungen kommen erst ab IK II – das entspricht dem Prinzip einfach → schwer. Die AIT im IK I ist der einzige frühe Stufe-3-Block. WICHTIG: Beruht vollständig auf den DEMO-Schwierigkeitsgraden (Platzhalter laut meta.bekannte_luecken, Lehrenden-Konsens ausstehend). Da Punkte je Semester aggregiert sind, ist keine Aussage zur Reihenfolge INNERHALB eines Semesters möglich – nur der Semestervergleich.",
+   "schweregrad": "hinweis"
+  },
+  {
+   "aspekt": "ausgewogenheit",
+   "befund": "Deutliche Schieflage: Übererfüllung in Paro (+10,5 P), Endo (+5 P) und KZH (+9 P über Minimum, 213 %), während zwei Kategorien leer bleiben und die Schnittmenge nur 3 P erhält.",
+   "begruendung": "Rund 24,5 P wurden über das Kategorienminimum hinaus in bereits erfüllte Kategorien investiert (z. B. dritte AIT im IK III, 9 P KZH im IK III obwohl das Minimum von 8 P schon Ende IK II erreicht war). Diese Punkte hätten die Chirurgie-Lücke (16 P) vollständig und einen KFO-Einstieg decken können.",
+   "schweregrad": "relevant"
+  },
+  {
+   "aspekt": "inhalt",
+   "befund": "Prothetik-Profil schmal und repetitiv: nur 2× Klammermodellguss (je 15 P, IK I und IK III), 1× Kronenblock (21 P, IK II) und Recalls – trotz drei Semestern nur 53 %. Große Werkstücke (Total-/Teilprothese, Brücke, Teleskop) fehlen komplett; die Schnittmenge (Inlay/Teilkrone, Stift-/Stumpfaufbau, Reparatur) ist mit einem einzigen Stumpfaufbau (3 P) fast unberührt.",
+   "begruendung": "Aus den Einzeleinträgen: proth_modellguss erscheint identisch in IK I und IK III statt einer Steigerung zu komplexeren prothetischen Arbeiten; schnitt_inlay, schnitt_reparatur und schnitt_stiftaufbau kommen nie vor. Die beiden größten Punktekategorien des Katalogs (Prothetik 116 P, Schnittmenge 33 P) sind damit die Hauptursache des Gesamtrückstands.",
+   "schweregrad": "relevant"
+  },
+  {
+   "aspekt": "inhalt",
+   "befund": "Datenqualität: Stud. 4 hat keine Einträge mit dem Feld 'hinweis' (nicht aufgeschlüsselte Blocksummen) – die Blocksummen-Limitation greift bei diesem Probanden nicht, alle Punkte sind einer Leistungsart zuordenbar.",
+   "begruendung": "Prüfung aller Semester-Einträge: 0 Einträge mit 'hinweis'-Feld (im Gegensatz zu Stud. 1 und Stud. 5). Verbleibende Limitationen: IK IV fehlt in der Quelle (laufendes Semester), Schwierigkeit/Zeit sind Demo-Platzhalter, Punkte nur je Semester aggregiert.",
+   "schweregrad": "hinweis"
+  }
+ ],
+ "optimierter_verlauf": [
+  {
+   "ik": "IK I",
+   "modus": "retrospektiv",
+   "fokus": "Leichter Einstieg beibehalten, aber Überhänge bei UPT/Befund/Recall (−6 P) in einen frühen Start der später leeren Kategorien Chirurgie und KFO umlenken. Semesterlast unverändert 59 P.",
+   "plan": [
+    {
+     "wochen": "1–4",
+     "code": "zhs_befund",
+     "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+     "punkte_ziel": 7,
+     "begruendung": "Leichter Einstieg (Demo-Stufe 1); 7 statt tatsächlich 9 P – Katalog-Soll (4 Befunde à 2–3 P) bleibt gedeckt, 2 P werden frei."
+    },
+    {
+     "wochen": "1–6",
+     "code": "zhs_prophylaxe",
+     "leistung": "Prophylaxesitzung MuHy + PZR",
+     "punkte_ziel": 6,
+     "begruendung": "Unverändert; leichte Leistung, gut für den Semesterstart."
+    },
+    {
+     "wochen": "1–6",
+     "code": "pa_upt",
+     "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+     "punkte_ziel": 4,
+     "begruendung": "4 statt 6 P – Paro wird ohnehin übererfüllt; 2 P werden für leere Kategorien frei."
+    },
+    {
+     "wochen": "3–8",
+     "code": "zhs_fuell_1_2",
+     "leistung": "Plastische Füllungen Klasse I und II",
+     "punkte_ziel": 8,
+     "begruendung": "Unverändert; mittlere Schwierigkeit (Demo-Stufe 2) ab Semestermitte."
+    },
+    {
+     "wochen": "3–8",
+     "code": "zhs_fuell_3_4",
+     "leistung": "Plastische definitive Füllungen Klasse III/IV",
+     "punkte_ziel": 2,
+     "begruendung": "Unverändert."
+    },
+    {
+     "wochen": "4–12",
+     "code": "chir_msh",
+     "leistung": "Systematische Untersuchung der Mundschleimhaut",
+     "punkte_ziel": 2,
+     "begruendung": "NEU: kleine 1-P-Befundleistungen früh streuen statt Kategorie leer zu lassen (Schwierigkeit im Datensatz unbekannt, da Demo-Werte nur für erbrachte Codes vorliegen)."
+    },
+    {
+     "wochen": "4–12",
+     "code": "chir_dvt",
+     "leistung": "Planung oralchir. Eingriffe / Indikationsstellung DVT",
+     "punkte_ziel": 1,
+     "begruendung": "NEU: Planungsleistung, gut parallel zu Befunden integrierbar."
+    },
+    {
+     "wochen": "4–12",
+     "code": "chir_impl_beratung",
+     "leistung": "Implantat-prothetische Beratung",
+     "punkte_ziel": 1,
+     "begruendung": "NEU: Beratungsleistung ohne großen Zeitblock."
+    },
+    {
+     "wochen": "5–10",
+     "code": "pa_ait",
+     "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+     "punkte_ziel": 8,
+     "begruendung": "Beibehalten, aber erst ab Semestermitte statt als früher Stufe-3-Block (didaktisch: schwer nach leicht; Demo-basiert)."
+    },
+    {
+     "wochen": "7–14",
+     "code": "proth_modellguss",
+     "leistung": "Klammermodellgussprothese (Ersatz ≥1 Stützzone)",
+     "punkte_ziel": 15,
+     "begruendung": "Unverändert; großes Werkstück (Demo-Stufe 2) in der zweiten Semesterhälfte."
+    },
+    {
+     "wochen": "9–14",
+     "code": "proth_recall",
+     "leistung": "Recall",
+     "punkte_ziel": 3,
+     "begruendung": "3 statt 5 P – Katalog-Soll (1 Sitzung, 2–3 P) bleibt erfüllt."
+    },
+    {
+     "wochen": "10–14",
+     "code": "kfo_erstgespraech",
+     "leistung": "Erstaufnahmegespräch / KIG-Klassifizierung",
+     "punkte_ziel": 1,
+     "begruendung": "NEU: KFO-Fallstart bereits im IK I, damit die 48-P-Kategorie nicht bis zuletzt leer bleibt."
+    },
+    {
+     "wochen": "10–14",
+     "code": "kfo_anamnese",
+     "leistung": "KFO-Anamnese, Aufklärung, Epikrise",
+     "punkte_ziel": 1,
+     "begruendung": "NEU: gehört zum selben KFO-Fall wie das Erstgespräch."
+    }
+   ]
+  },
+  {
+   "ik": "IK II",
+   "modus": "retrospektiv",
+   "fokus": "Kronenblock und Endo-Einstieg beibehalten; Überhänge bei UPT/KZH-Befund/Recall (−6 P) in den Einstieg der Schnittmenge (Stumpf- und Stiftaufbau) umlenken. Semesterlast unverändert 62 P.",
+   "plan": [
+    {
+     "wochen": "1–4",
+     "code": "zhs_befund",
+     "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+     "punkte_ziel": 3,
+     "begruendung": "Unverändert; leichter Einstieg."
+    },
+    {
+     "wochen": "1–5",
+     "code": "kzh_befund",
+     "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+     "punkte_ziel": 3.5,
+     "begruendung": "3,5 statt 4,5 P – KZH-Minimum (8 P) wird auch so bis Ende IK II fast erreicht; 1 P wird frei."
+    },
+    {
+     "wochen": "1–6",
+     "code": "kzh_prophylaxe",
+     "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+     "punkte_ziel": 3.5,
+     "begruendung": "Unverändert."
+    },
+    {
+     "wochen": "2–7",
+     "code": "pa_upt",
+     "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+     "punkte_ziel": 5,
+     "begruendung": "5 statt 7,5 P – Paro-Minimum ist mit AIT-Serie gesichert; 2,5 P werden frei."
+    },
+    {
+     "wochen": "3–8",
+     "code": "pa_ait",
+     "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+     "punkte_ziel": 8,
+     "begruendung": "Unverändert; zweite von drei Soll-AITs."
+    },
+    {
+     "wochen": "4–9",
+     "code": "zhs_fuell_3_4",
+     "leistung": "Plastische definitive Füllungen Klasse III/IV",
+     "punkte_ziel": 3,
+     "begruendung": "Unverändert."
+    },
+    {
+     "wochen": "5–10",
+     "code": "endo_aufbereitung",
+     "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+     "punkte_ziel": 3,
+     "begruendung": "Unverändert; erster Endo-Kanal (Demo-Stufe 3) ab Semestermitte."
+    },
+    {
+     "wochen": "6–11",
+     "code": "endo_fuellung",
+     "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+     "punkte_ziel": 2,
+     "begruendung": "Unverändert; folgt auf die Aufbereitung."
+    },
+    {
+     "wochen": "6–13",
+     "code": "proth_krone",
+     "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+     "punkte_ziel": 21,
+     "begruendung": "Unverändert; größter Block des Semesters (Demo-Stufe 3) in der zweiten Hälfte."
+    },
+    {
+     "wochen": "8–13",
+     "code": "schnitt_stumpfaufbau",
+     "leistung": "adhäsiver Stumpfaufbau",
+     "punkte_ziel": 3,
+     "begruendung": "NEU: passt fachlich direkt zur Kronenversorgung – die Schnittmenge wäre so nicht bis IK III leer geblieben."
+    },
+    {
+     "wochen": "8–13",
+     "code": "schnitt_stiftaufbau",
+     "leistung": "Stiftaufbau",
+     "punkte_ziel": 3,
+     "begruendung": "NEU: gleicher Patientenkontext wie Krone/Stumpfaufbau, mittlere Schwierigkeit."
+    },
+    {
+     "wochen": "10–14",
+     "code": "zhs_prophylaxe",
+     "leistung": "Prophylaxesitzung MuHy + PZR",
+     "punkte_ziel": 1.5,
+     "begruendung": "Unverändert."
+    },
+    {
+     "wochen": "12–14",
+     "code": "proth_recall",
+     "leistung": "Recall",
+     "punkte_ziel": 2.5,
+     "begruendung": "2,5 statt 5 P – Recall-Soll (1 Sitzung) bleibt erfüllt; 2,5 P werden frei."
+    }
+   ]
+  },
+  {
+   "ik": "IK III",
+   "modus": "retrospektiv",
+   "fokus": "Endo-Serie und Modellguss beibehalten; KZH-Übererfüllung (−7 P) sowie UPT-/Befund-Überhänge (−5 P) in die vollständige Schließung der Chirurgie-Kategorie umlenken. Semesterlast unverändert 74 P.",
+   "plan": [
+    {
+     "wochen": "1–3",
+     "code": "zhs_befund",
+     "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+     "punkte_ziel": 2.5,
+     "begruendung": "2,5 statt 5 P – Befund-Soll ist längst übererfüllt; 2,5 P werden frei."
+    },
+    {
+     "wochen": "1–4",
+     "code": "zhs_prophylaxe",
+     "leistung": "Prophylaxesitzung MuHy + PZR",
+     "punkte_ziel": 3,
+     "begruendung": "Unverändert; leichter Einstieg."
+    },
+    {
+     "wochen": "1–5",
+     "code": "pa_upt",
+     "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+     "punkte_ziel": 2.5,
+     "begruendung": "2,5 statt 5 P – UPT-Soll (4 Sitzungen) ist nach IK I+II erfüllt."
+    },
+    {
+     "wochen": "2–6",
+     "code": "kzh_behandlung",
+     "leistung": "non-invasive / invasive Behandlung",
+     "punkte_ziel": 1,
+     "begruendung": "Beibehalten (Soll 1 Behandlung); die übrigen 7 P KZH entfallen, da das Minimum (8 P) bereits Ende IK II praktisch erreicht war."
+    },
+    {
+     "wochen": "2–6",
+     "code": "kzh_prophylaxe",
+     "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+     "punkte_ziel": 1,
+     "begruendung": "Reduziert auf Restbedarf zum KZH-Minimum."
+    },
+    {
+     "wochen": "3–10",
+     "code": "endo_aufbereitung",
+     "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+     "punkte_ziel": 12,
+     "begruendung": "Unverändert; Endo-Hauptserie (Demo-Stufe 3) über die Semestermitte verteilt."
+    },
+    {
+     "wochen": "4–8",
+     "code": "pa_ait",
+     "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+     "punkte_ziel": 8,
+     "begruendung": "Unverändert; dritte AIT komplettiert das Katalog-Soll (3 Patienten)."
+    },
+    {
+     "wochen": "5–12",
+     "code": "endo_fuellung",
+     "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+     "punkte_ziel": 8,
+     "begruendung": "Unverändert; folgt den Aufbereitungen."
+    },
+    {
+     "wochen": "5–12",
+     "code": "chir_msh",
+     "leistung": "Systematische Untersuchung der Mundschleimhaut",
+     "punkte_ziel": 4,
+     "begruendung": "NEU: 4 Untersuchungen à 1 P – mit den frei gewordenen KZH-/UPT-Punkten wäre die Chirurgie (16 P) bis Ende IK III vollständig schließbar gewesen."
+    },
+    {
+     "wochen": "5–12",
+     "code": "chir_dvt",
+     "leistung": "Planung oralchir. Eingriffe / Indikationsstellung DVT",
+     "punkte_ziel": 4,
+     "begruendung": "NEU: komplettiert das DVT-Soll (4 Planungen; 1 bereits retrospektiv in IK I)... punkte_ziel hier als 4er-Block angesetzt."
+    },
+    {
+     "wochen": "6–13",
+     "code": "proth_modellguss",
+     "leistung": "Klammermodellgussprothese (Ersatz ≥1 Stützzone)",
+     "punkte_ziel": 15,
+     "begruendung": "Beibehalten als realistisch erreichbares großes Werkstück; idealerweise wäre hier ein anderes Prothetik-Werkstück (z. B. Interimsprothese + Unterfütterung) gewählt worden, um das Spektrum zu verbreitern."
+    },
+    {
+     "wochen": "7–12",
+     "code": "chir_impl_beratung",
+     "leistung": "Implantat-prothetische Beratung",
+     "punkte_ziel": 4,
+     "begruendung": "NEU: Beratungsserie parallel zur Prothetik-Behandlung."
+    },
+    {
+     "wochen": "8–13",
+     "code": "schnitt_stumpfaufbau",
+     "leistung": "adhäsiver Stumpfaufbau",
+     "punkte_ziel": 3,
+     "begruendung": "Unverändert (tatsächlich erbracht)."
+    },
+    {
+     "wochen": "9–13",
+     "code": "zhs_fuell_1_2",
+     "leistung": "Plastische Füllungen Klasse I und II",
+     "punkte_ziel": 1,
+     "begruendung": "Unverändert."
+    },
+    {
+     "wochen": "9–13",
+     "code": "zhs_fuell_3_4",
+     "leistung": "Plastische definitive Füllungen Klasse III/IV",
+     "punkte_ziel": 3,
+     "begruendung": "Unverändert."
+    },
+    {
+     "wochen": "10–14",
+     "code": "zhs_fuell_5",
+     "leistung": "Plastische definitive Füllungen Klasse V",
+     "punkte_ziel": 2,
+     "begruendung": "Unverändert."
+    }
+   ]
+  },
+  {
+   "ik": "IK IV",
+   "modus": "prospektiv",
+   "fokus": "14-Wochen-Plan mit 78,5 P (leicht über der bisherigen Höchstlast von 74 P, vertretbar durch viele kleine 1-P-Leistungen): Chirurgie vollständig schließen (+16), ZHS exakt schließen (+8,5), Schnittmenge (+21) und Prothetik (+24) maximal aufholen, KFO-Einstieg (+9). Priorisierung nach Lückengröße × Machbarkeit – die KFO-Restlücke (48 P) ist in einem Semester nicht vollständig schließbar und wird transparent nur angeteilt.",
+   "plan": [
+    {
+     "wochen": "1–2",
+     "code": "zhs_befund",
+     "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+     "punkte_ziel": 3,
+     "begruendung": "Leichter Einstieg (Demo-Stufe 1); Teil der ZHS-Restlücke von 8,5 P."
+    },
+    {
+     "wochen": "1–2",
+     "code": "zhs_prophylaxe",
+     "leistung": "Prophylaxesitzung MuHy + PZR",
+     "punkte_ziel": 1.5,
+     "begruendung": "Leichte Leistung zum Semesterstart; schließt zusammen mit Befund und Füllungen die ZHS exakt auf 55/55 P."
+    },
+    {
+     "wochen": "1–3",
+     "code": "chir_msh",
+     "leistung": "Systematische Untersuchung der Mundschleimhaut",
+     "punkte_ziel": 4,
+     "begruendung": "4 Untersuchungen à 1 P (Katalog-Soll); Befundleistung, gut in die Anfangswochen streubar. Schwierigkeit unbekannt – Code wurde nie erbracht, kein Demo-Wert vorhanden."
+    },
+    {
+     "wochen": "2–4",
+     "code": "kfo_erstgespraech",
+     "leistung": "Erstaufnahmegespräch / KIG-Klassifizierung",
+     "punkte_ziel": 1,
+     "begruendung": "Start des einen realistisch machbaren KFO-Diagnostikfalls (9 Einzelleistungen à 1 P)."
+    },
+    {
+     "wochen": "2–4",
+     "code": "kfo_anamnese",
+     "leistung": "KFO-Anamnese, Aufklärung, Epikrise",
+     "punkte_ziel": 1,
+     "begruendung": "Gleicher KFO-Fall, direkt nach dem Erstgespräch."
+    },
+    {
+     "wochen": "2–4",
+     "code": "kfo_abformung",
+     "leistung": "Abformung OK/UK, Scan, Registrat, Zielbiss",
+     "punkte_ziel": 1,
+     "begruendung": "Diagnostikunterlagen des KFO-Falls."
+    },
+    {
+     "wochen": "2–4",
+     "code": "kfo_modell",
+     "leistung": "Modellherstellung (analog und digital)",
+     "punkte_ziel": 1,
+     "begruendung": "Folgt unmittelbar auf die Abformung."
+    },
+    {
+     "wochen": "3–5",
+     "code": "chir_dvt",
+     "leistung": "Planung oralchir. Eingriffe / Indikationsstellung DVT",
+     "punkte_ziel": 4,
+     "begruendung": "4 Planungen à 1 P (Katalog-Soll); Planungsleistungen ohne große Behandlungsblöcke."
+    },
+    {
+     "wochen": "3–5",
+     "code": "chir_impl_beratung",
+     "leistung": "Implantat-prothetische Beratung",
+     "punkte_ziel": 4,
+     "begruendung": "4 Beratungen à 1 P (Katalog-Soll); parallel zur Prothetik-Planung sinnvoll."
+    },
+    {
+     "wochen": "3–6",
+     "code": "zhs_fuell_1_2",
+     "leistung": "Plastische Füllungen Klasse I und II",
+     "punkte_ziel": 4,
+     "begruendung": "Mittlere Schwierigkeit (Demo-Stufe 2); komplettiert die ZHS-Restlücke auf exakt 8,5 P."
+    },
+    {
+     "wochen": "4–7",
+     "code": "schnitt_stumpfaufbau",
+     "leistung": "adhäsiver Stumpfaufbau",
+     "punkte_ziel": 3,
+     "begruendung": "Schnittmengen-Aufbau (Demo-Stufe 2), fachlich Vorstufe zur Kronen-/Inlayversorgung ab Woche 6."
+    },
+    {
+     "wochen": "4–7",
+     "code": "schnitt_stiftaufbau",
+     "leistung": "Stiftaufbau",
+     "punkte_ziel": 3,
+     "begruendung": "Zweiter Aufbau (Demo-Stufe 2); nutzt denselben Patientenpool wie die prothetischen Arbeiten."
+    },
+    {
+     "wochen": "5–8",
+     "code": "kfo_3d",
+     "leistung": "3D-Modellanalyse",
+     "punkte_ziel": 1,
+     "begruendung": "Auswertungsteil des KFO-Falls."
+    },
+    {
+     "wochen": "5–8",
+     "code": "kfo_foto",
+     "leistung": "Foto/Gesichtsscan mit Auswertung",
+     "punkte_ziel": 1,
+     "begruendung": "Auswertungsteil des KFO-Falls."
+    },
+    {
+     "wochen": "5–8",
+     "code": "kfo_roentgen",
+     "leistung": "Rö, Befund OPG und FRS",
+     "punkte_ziel": 1,
+     "begruendung": "Röntgenbefundung des KFO-Falls."
+    },
+    {
+     "wochen": "5–8",
+     "code": "kfo_plan",
+     "leistung": "KFO-Behandlungsplan",
+     "punkte_ziel": 1,
+     "begruendung": "Behandlungsplan als Abschluss der KFO-Diagnostik."
+    },
+    {
+     "wochen": "5–8",
+     "code": "kfo_konstruktion",
+     "leistung": "Konstruktionszeichnung Gerät / ClinCheck",
+     "punkte_ziel": 1,
+     "begruendung": "Komplettiert den KFO-Diagnostikfall (9/48 P – Restlücke von 39 P bleibt und ist als strukturelles Defizit an die Lehre zu melden)."
+    },
+    {
+     "wochen": "6–10",
+     "code": "schnitt_inlay",
+     "leistung": "Inlay oder Teilkrone (inkl. Stumpfaufbau)",
+     "punkte_ziel": 12,
+     "begruendung": "Größte Einzelleistung der Schnittmenge (12–15 P, konservativ mit 12 angesetzt); als anspruchsvolles Werkstück bewusst in die Semestermitte gelegt, nicht in die ersten Wochen."
+    },
+    {
+     "wochen": "6–10",
+     "code": "schnitt_reparatur",
+     "leistung": "Kariesbedingte Reparatur Kronenrand",
+     "punkte_ziel": 3,
+     "begruendung": "Komplettiert die Schnittmengen-Zielsumme von 21 P in IK IV (24/33 = 73 %)."
+    },
+    {
+     "wochen": "7–12",
+     "code": "proth_krone",
+     "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+     "punkte_ziel": 12,
+     "begruendung": "Schweres Werkstück (Demo-Stufe 3) in der zweiten Semesterhälfte; Prothetik ist mit 55 P Rückstand die größte Lücke – Priorität nach Lückengröße."
+    },
+    {
+     "wochen": "9–13",
+     "code": "proth_interims",
+     "leistung": "Interimsprothese (Ersatz ≥1 Stützzone)",
+     "punkte_ziel": 10,
+     "begruendung": "Mittelschweres Werkstück (Demo-Stufe 2 bei anderen Probanden), verbreitert das bisher schmale Prothetik-Spektrum (bisher nur Modellguss/Krone/Recall)."
+    },
+    {
+     "wochen": "11–14",
+     "code": "chir_impl_nachsorge",
+     "leistung": "Implantatnachsorge",
+     "punkte_ziel": 4,
+     "begruendung": "4 Sitzungen à 1 P; schließt die Chirurgie exakt auf 16/16 P."
+    },
+    {
+     "wochen": "12–14",
+     "code": "proth_recall",
+     "leistung": "Recall",
+     "punkte_ziel": 2,
+     "begruendung": "Leichter Abschluss (Demo-Stufe 1); rundet die Prothetik-Zielsumme auf 24 P (85/116 = 73 %)."
+    }
+   ]
+  }
+ ],
+ "auswirkungen": [
+  {
+   "kategorie": "Parodontologie",
+   "original_ende_ik3_pct": 100,
+   "optimiert_ende_ik4_pct": 100,
+   "kommentar": "42,5/32 P = 133 %, auf 100 gedeckelt. Bereits übererfüllt – im IK-IV-Plan bewusst keine weiteren Punkte."
+  },
+  {
+   "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+   "original_ende_ik3_pct": 85,
+   "optimiert_ende_ik4_pct": 100,
+   "kommentar": "46,5/55 P = 85 %. Plan: +8,5 P (Befund 3, Prophylaxe 1,5, Füllungen Kl. I/II 4) → exakt 55/55 P = 100 %."
+  },
+  {
+   "kategorie": "Endodontologie",
+   "original_ende_ik3_pct": 100,
+   "optimiert_ende_ik4_pct": 100,
+   "kommentar": "25/20 P = 125 %, gedeckelt. Erfüllt – keine weiteren Punkte geplant."
+  },
+  {
+   "kategorie": "Kinderzahnheilkunde",
+   "original_ende_ik3_pct": 100,
+   "optimiert_ende_ik4_pct": 100,
+   "kommentar": "17/8 P = 213 %, gedeckelt – stärkste Übererfüllung. Keine weiteren Punkte geplant."
+  },
+  {
+   "kategorie": "Prothetik",
+   "original_ende_ik3_pct": 53,
+   "optimiert_ende_ik4_pct": 73,
+   "kommentar": "61/116 P = 53 %. Plan: +24 P (Krone 12, Interimsprothese 10, Recall 2) → 85/116 = 73 %. Größte absolute Lücke; volle Schließung (55 P) würde allein fast die gesamte realistische Semesterlast binden."
+  },
+  {
+   "kategorie": "Schnittmenge Restauration/Prothetik",
+   "original_ende_ik3_pct": 9,
+   "optimiert_ende_ik4_pct": 73,
+   "kommentar": "3/33 P = 9 %. Plan: +21 P (Inlay/Teilkrone 12, Stumpf- 3, Stiftaufbau 3, Reparatur 3) → 24/33 = 73 %. Stärkster relativer Zugewinn."
+  },
+  {
+   "kategorie": "Chirurgie/Implantologie",
+   "original_ende_ik3_pct": 0,
+   "optimiert_ende_ik4_pct": 100,
+   "kommentar": "0/16 P. Plan: +16 P (je 4× MSH, DVT-Planung, Implantatberatung, Implantatnachsorge à 1 P) → 16/16 = 100 %. Kleine Einheiten, hohe Machbarkeit – vollständig schließbar."
+  },
+  {
+   "kategorie": "Kieferorthopädie (KFO)",
+   "original_ende_ik3_pct": 0,
+   "optimiert_ende_ik4_pct": 19,
+   "kommentar": "0/48 P. Plan: +9 P (ein kompletter Diagnostikfall, 9 Einzelleistungen à 1 P) → 9/48 = 19 %. Bleibt auch optimiert die kritische Restlücke (39 P) – in einem Semester strukturell nicht schließbar, curricular zu adressieren."
+  }
+ ],
+ "fazit": "Stud. 4 zeigt einen didaktisch grundsätzlich plausiblen Verlauf (punktegewichtete Demo-Schwierigkeit 1,69 → 2,15 → 2,07, also einfach → schwer zwischen den Semestern; Aussage Demo-basiert und nur zwischen, nicht innerhalb der Semester möglich), aber eine deutliche inhaltliche Schieflage: Endo (125 %), KZH (213 %) und Paro (133 %) sind übererfüllt, während Chirurgie/Implantologie und KFO nach drei Semestern komplett leer sind und Prothetik (53 %) sowie die Schnittmenge (9 %) weit unter dem Minimum liegen. Gesamtstand Ende IK III: 195/328 P = 59 %, Restlücke 157,5 P bei bisherigen Semesterlasten von 59–74 P. Der vorgeschlagene IK-IV-Plan (78,5 P, 14 Wochen) schließt Chirurgie (100 %) und ZHS (100 %) vollständig, hebt Prothetik und Schnittmenge auf je 73 % und startet die KFO mit einem Diagnostikfall (19 %) – projizierter Gesamtstand Ende IK IV: 273,5/328 P = 83 %. Die verbleibende KFO-Lücke (39 P) ist individuell nicht mehr aufholbar und sollte als strukturelles Problem (fehlender KFO-Zugang in IK I–III) an die Kursleitung zurückgemeldet werden. Limitationen: Schwierigkeit/Zeit sind Demo-Platzhalter (für nie erbrachte Chirurgie-/KFO-Codes fehlen sie ganz), IK IV fehlt in der Quelle, Punkte sind je Semester aggregiert; Blocksummen-Einträge ('hinweis') existieren bei Stud. 4 nicht – diese Limitation entfällt hier."
+}

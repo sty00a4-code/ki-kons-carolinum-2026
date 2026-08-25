@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% macro badge(s) %}
+    {% set label = {"draft": "Entwurf", "submitted": "Eingereicht", "approved": "Erfasst", "rejected": "Abgelehnt"} %}
+    <span class="badge {{ s }}">{{ label[s] }}</span>
+{% endmacro %}
+{% block content %}
+    <p><a class="back" href="{{ url_for('doktorand.liste') }}">← zurück zur Liste</a></p>
+    <div class="card">
+        <h1 style="margin-top:0">{{ s.real_name or s.pseudonym }}</h1>
+        <p class="muted">{% if s.cohort %}{{ s.cohort }} · {% endif %}Kennung <code>{{ s.pseudonym }}</code></p>
+    </div>
+    <div class="card">
+        <h2 style="margin-top:0">Leistung eintragen</h2>
+        <p class="muted">Wird sofort gutgeschrieben und mit deinem Namen signiert.</p>
+        <form method="post"
+              action="{{ url_for('doktorand.add_entry', pseudonym=s.pseudonym) }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="grid2">
+                <label>
+                    Semester (IK)
+                    <select name="semester" required>
+                        <option value="">– wählen –</option>
+                        {% for sem in semesters %}<option value="{{ sem }}">{{ sem }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label>
+                    Datum
+                    <input type="date" name="performed_on">
+                </label>
+            </div>
+            <label>
+                Leistung (aus dem Katalog)
+                <select name="item_code" id="item_code" required>
+                    <option value="">– wählen –</option>
+                    {% for category, items in catalog %}
+                        <optgroup label="{{ category }}">
+                            {% for it in items %}
+                                <option value="{{ it.code }}"
+                                        data-min="{{ it.points_min }}"
+                                        data-max="{{ it.points_max }}"
+                                        data-soll="{{ it.soll_anzahl }}"
+                                        data-unit="{{ it.unit }}">{{ it.name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </label>
+            <p class="hint" id="hint">Punkte-Bereich erscheint nach Auswahl.</p>
+            <div class="grid2">
+                <label>
+                    Anzahl<input type="number" name="count" min="1" step="1" value="1" required>
+                </label>
+                <label>
+                    Punkte<input type="number" step="0.5" name="points" id="points" required>
+                </label>
+            </div>
+            <div class="grid2">
+                <label>
+                    Anonymer Fallbezug<input name="patient_ref" list="fall_refs" placeholder="z. B. Fall-042">
+                    <datalist id="fall_refs">
+                        {% for ref in open_fall_refs %}<option value="{{ ref }}"></option>{% endfor %}
+                    </datalist>
+                </label>
+                <label>
+                    Schwierigkeitsgrad
+                    <select name="difficulty">
+                        <option value="">– noch nicht kartiert –</option>
+                        <option value="1">1 – leicht</option>
+                        <option value="2">2 – mittel</option>
+                        <option value="3">3 – schwer</option>
+                    </select>
+                </label>
+                <label>
+                    Zeitbedarf (Min., optional)<input type="number" name="time_minutes" min="0">
+                </label>
+            </div>
+            <div class="row">
+                <button type="submit">Leistung eintragen</button>
+            </div>
+        </form>
+    </div>
+    {% include "_empfehlungen.html" %}
+    <div class="card">
+        <div class="row-between">
+            <h2 style="margin:0">Entwicklung über die Jahre</h2>
+            <a class="btn small"
+               href="{{ url_for('doktorand.student', pseudonym=s.pseudonym) }}">🔄 Aktualisieren</a>
+        </div>
+        <p class="muted" style="margin-top:8px">Live aus der Datenbank berechnet – aktualisiert sich mit jedem Eintrag.</p>
+        <figure class="wide">
+            <img src="{{ url_for('analysis.student_chart', pseudonym=s.pseudonym, kind='verlauf') }}"
+                 alt="Verlauf über die Semester">
+            <figcaption>Verlauf: kumulierte Ziel-Erreichung über IK I–IV</figcaption>
+        </figure>
+        <div class="charts">
+            <figure>
+                <img src="{{ url_for('analysis.student_chart', pseudonym=s.pseudonym, kind='radar') }}"
+                     alt="Kompetenzradar">
+                <figcaption>Kompetenzradar: Stärken und Lücken</figcaption>
+            </figure>
+            <figure>
+                <img src="{{ url_for('analysis.student_chart', pseudonym=s.pseudonym, kind='fortschritt') }}"
+                     alt="Fortschritt je Kategorie">
+                <figcaption>Fortschritt: genehmigt vs. Soll</figcaption>
+            </figure>
+        </div>
+    </div>
+    <div class="card">
+        <h2 style="margin-top:0">Alle Einträge ({{ rows|length }})</h2>
+        {% if rows %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Semester</th>
+                        <th>Kategorie</th>
+                        <th>Leistung</th>
+                        <th>Anzahl</th>
+                        <th>Punkte</th>
+                        <th>Schwierigkeit</th>
+                        <th>Zeit (min)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                        <tr>
+                            <td><small>{{ r.performed_on or '–' }}</small></td>
+                            <td>{{ r.semester }}</td>
+                            <td><small>{{ r.category }}</small></td>
+                            <td>{{ r.item_name }}</td>
+                            <td>{{ r.count }}</td>
+                            <td>{{ '%g'|format(r.points) }}</td>
+                            <td>{{ {1:'1 – leicht', 2:'2 – mittel', 3:'3 – schwer'}.get(r.difficulty, '–') }}</td>
+                            <td>{{ r.time_minutes or '–' }}</td>
+                            <td>
+                                <form method="post"
+                                      action="{{ url_for('doktorand.delete_entry', token=r.public_token) }}"
+                                      class="inline"
+                                      onsubmit="return confirm('Eintrag löschen?')">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="linkbtn danger">Löschen</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+{% else %}<p class="muted">Noch keine Einträge – trage oben die erste Leistung ein.</p>{% endif %}
+    </div>
+    <script>
+  var sel = document.getElementById('item_code'), hint = document.getElementById('hint'), points = document.getElementById('points');
+  function apply() {
+    var o = sel.options[sel.selectedIndex];
+    if (!o || !o.dataset.min) { hint.textContent = 'Bitte Leistung wählen.'; return; }
+    var mn = parseFloat(o.dataset.min), mx = parseFloat(o.dataset.max);
+    hint.textContent = 'Erlaubte Punkte: ' + (mn === mx ? 'genau ' + mn : mn + ' bis ' + mx) + ' · Soll ' + o.dataset.soll + ' ' + o.dataset.unit;
+    points.min = mn; points.max = mx; points.value = mn; points.readOnly = (mn === mx);
+  }
+  sel.addEventListener('change', apply);
+    </script>
+{% endblock %}

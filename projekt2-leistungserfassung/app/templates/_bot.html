@@ -1,0 +1,148 @@
+<script type="application/json" id="bot-data">{{ bot_data|tojson }}</script>
+<style>
+  .botfab { position: fixed; right: 22px; bottom: 22px; z-index: 50; display: flex; align-items: center;
+    gap: 8px; background: var(--brand); color: #fff; border: 0; border-radius: 999px; padding: 12px 18px;
+    font: inherit; font-weight: 500; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+  .botfab:hover { background: var(--brand-d); }
+  .botpanel { position: fixed; right: 22px; bottom: 80px; z-index: 50; width: 340px; max-width: calc(100vw - 44px);
+    background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 34px rgba(0,0,0,.20);
+    display: none; overflow: hidden; }
+  .botpanel.open { display: block; }
+  .bothead { background: var(--brand); color: #fff; padding: 12px 14px; }
+  .bothead b { font-weight: 600; }
+  .bothead .tag { background: #ffffff33; border-radius: 6px; padding: 1px 7px; font-size: 11px; margin-left: 6px; }
+  .bothead .sub { font-size: 12px; opacity: .9; margin-top: 2px; }
+  .botmsgs { padding: 12px; max-height: 300px; overflow-y: auto; background: var(--bg); }
+  .botmsg { margin-bottom: 10px; display: flex; }
+  .botmsg .b { background: #fff; border: 1px solid var(--line); border-radius: 12px 12px 12px 4px;
+    padding: 8px 11px; font-size: 14px; max-width: 90%; white-space: pre-line; }
+  .botmsg.me { justify-content: flex-end; }
+  .botmsg.me .b { background: var(--brand); color: #fff; border-radius: 12px 12px 4px 12px; }
+  .botquick { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 10px; }
+  .botquick button { background: #eef1fb; color: var(--brand-d); border: 0; border-radius: 999px;
+    padding: 6px 11px; font: inherit; font-size: 13px; cursor: pointer; }
+  .botquick button:hover { background: #e0e5f7; }
+  .botinput { display: flex; gap: 6px; border-top: 1px solid var(--line); padding: 8px; }
+  .botinput input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 8px; font: inherit; }
+  .botinput button { background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+</style>
+<button class="botfab" id="botfab" aria-label="Studien-Assistent öffnen">🤖 Studien-Assistent <span style="opacity:.85">(KI-Beta)</span></button>
+<div class="botpanel"
+     id="botpanel"
+     role="dialog"
+     aria-label="Studien-Assistent">
+    <div class="bothead">
+        <b>Studien-Assistent</b><span class="tag">KI-BETA</span>
+        <div class="sub">Sieht ausschließlich deine eigenen Daten · KI-Antworten können Fehler enthalten</div>
+    </div>
+    <div class="botmsgs" id="botmsgs"></div>
+    <div class="botquick" id="botquick"></div>
+    <div class="botinput">
+        <input id="botinput"
+               placeholder="Frag mich etwas zu deinem Stand …"
+               autocomplete="off">
+        <button id="botsend">Senden</button>
+    </div>
+</div>
+<script>
+(function () {
+  var D = {};
+  try { D = JSON.parse(document.getElementById('bot-data').textContent) || {}; } catch (e) {}
+  var CSRF = {{ csrf_token()|tojson }};
+  var fab = document.getElementById('botfab'), panel = document.getElementById('botpanel');
+  var msgs = document.getElementById('botmsgs'), quick = document.getElementById('botquick');
+  var input = document.getElementById('botinput'), send = document.getElementById('botsend');
+
+  function add(text, me) {
+    var row = document.createElement('div'); row.className = 'botmsg' + (me ? ' me' : '');
+    var b = document.createElement('div'); b.className = 'b'; b.textContent = text;
+    row.appendChild(b); msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  var A = {
+    stand: function () {
+      return 'Dein Gesamtstand: ' + (D.overall || 0) + ' % (' + (D.total || 0) + ' von ' +
+        (D.target || 0) + ' Punkten).\n' + (D.done_count || 0) + ' von ' + (D.cat_count || 0) +
+        ' Kategorien sind erfüllt.';
+    },
+    luecken: function () {
+      if (!D.weakest || !D.weakest.length) return 'Super – du hast in allen Kategorien schon das Ziel erreicht! 🎉';
+      var t = 'Hier ist noch am meisten Luft:\n';
+      D.weakest.forEach(function (c) { t += '• ' + c.name + ': ' + c.pct + ' % (es fehlen ' + c.missing + ' Punkte)\n'; });
+      return t.trim();
+    },
+    erfuellt: function () {
+      if (!D.done || !D.done.length) return 'Noch keine Kategorie ist vollständig erfüllt – dranbleiben!';
+      return 'Bereits erfüllt:\n• ' + D.done.join('\n• ');
+    },
+    tipp: function () {
+      if (!D.weakest || !D.weakest.length) return 'Alles im grünen Bereich – weiter so!';
+      var w = D.weakest[0];
+      return 'Tipp: Sprich deine/n Betreuer/in gezielt auf Fälle in „' + w.name + '“ an – dort fehlen dir noch ' +
+        w.missing + ' Punkte.';
+    },
+    faelle: function () {
+      if (!D.empfehlungen || !D.empfehlungen.length) {
+        return 'Aktuell gibt es keine offenen Fälle, die deine Lücken schließen würden – frag deine/n Betreuer/in nach neuen Fällen.';
+      }
+      var t = 'Diese offenen Fälle würden dir am meisten bringen:\n';
+      D.empfehlungen.forEach(function (f) {
+        t += '• ' + f.ref + ' – ' + f.match + ' % Match, Beitrag: ' + f.beitrag + '\n  (' + f.begruendung + ')\n';
+      });
+      return t + 'Zuteilen kann nur deine Betreuerin / dein Betreuer.';
+    },
+    entwicklung: function () {
+      if (!D.verlauf || !D.verlauf.length) return 'Noch keine Einträge – deine Lernkurve startet mit der ersten erfassten Leistung.';
+      var t = 'Deine Lernkurve über die Semester:\n';
+      D.verlauf.forEach(function (v) {
+        t += '• ' + v.semester + ': ' + v.punkte + ' Punkte (insgesamt ' + v.kumuliert_pct + ' % vom Ziel)\n';
+      });
+      return t.trim();
+    }
+  };
+
+  var QUICK = [
+    ['Wie ist mein Stand?', 'stand'],
+    ['Wie entwickle ich mich?', 'entwicklung'],
+    ['Wo habe ich Lücken?', 'luecken'],
+    ['Welche Fälle passen zu mir?', 'faelle'],
+    ['Was ist erfüllt?', 'erfuellt'],
+    ['Gib mir einen Tipp', 'tipp']
+  ];
+  QUICK.forEach(function (q) {
+    var btn = document.createElement('button'); btn.textContent = q[0];
+    btn.onclick = function () { add(q[0], true); setTimeout(function () { add(A[q[1]]()); }, 250); };
+    quick.appendChild(btn);
+  });
+
+  var pending = false;
+  function freeText() {
+    var v = input.value.trim(); if (!v || pending) return;
+    input.value = ''; add(v, true);
+    pending = true; send.disabled = true;
+    var thinkingRow = document.createElement('div'); thinkingRow.className = 'botmsg';
+    var thinkingBubble = document.createElement('div'); thinkingBubble.className = 'b';
+    thinkingBubble.textContent = '… ich denke nach (kann ein paar Sekunden dauern)';
+    thinkingRow.appendChild(thinkingBubble); msgs.appendChild(thinkingRow); msgs.scrollTop = msgs.scrollHeight;
+
+    fetch('/bot/frage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ frage: v, _csrf_token: CSRF })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { thinkingBubble.textContent = data.antwort || 'Keine Antwort erhalten.'; })
+      .catch(function () { thinkingBubble.textContent = 'Verbindungsfehler – bitte versuche es gleich noch einmal.'; })
+      .finally(function () { pending = false; send.disabled = false; msgs.scrollTop = msgs.scrollHeight; });
+  }
+  send.onclick = freeText;
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') freeText(); });
+
+  fab.onclick = function () {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open') && !msgs.childElementCount) {
+      add('Hi! Ich bin dein Studien-Assistent. Ich kenne ausschließlich deinen eigenen Fortschritt und beantworte Fragen dazu – tippe frei los oder nutze die Schnellfragen.');
+    }
+  };
+})();
+</script>
