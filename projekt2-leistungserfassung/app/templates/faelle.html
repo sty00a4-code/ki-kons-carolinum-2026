@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% macro diff_label(d) %}{{ {1:'leicht', 2:'mittel', 3:'schwer'}.get(d, '–') }}{% endmacro %}
+    {% block content %}
+        <div class="card">
+            <h1 style="margin-top:0">Patientenfälle</h1>
+            <p class="muted">
+                Fälle werden <strong>anonym</strong> erfasst (nur Fall-Nr. und Behandlungsbedarf).
+                Das Matching schlägt für jeden offenen Fall die/den Studierende/n vor, deren/dessen Lücken der Fall
+                am besten schließt – die Entscheidung bleibt bei dir.
+            </p>
+        </div>
+        <div class="card">
+            <h2 style="margin-top:0">Neuen Fall anlegen</h2>
+            <p class="muted" style="margin-top:4px">
+                ⚠ <strong>Keine Patientendaten eingeben</strong> –
+                keine Namen, Geburtsdaten oder Diagnosen mit Personenbezug. Nur anonyme Fall-Nr. (wie auf dem Laufzettel) und den Behandlungsbedarf.
+            </p>
+            <form method="post" action="{{ url_for('faelle.neu') }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="grid2">
+                    <label>
+                        Anonyme Fall-Nr.<input name="case_ref" placeholder="z. B. Fall-051" required>
+                    </label>
+                    <label>
+                        Setting / Kurzbeschreibung (ohne Klardaten)<input name="description" placeholder="z. B. Recall-Patient, OK-Sanierung">
+                    </label>
+                </div>
+                <div class="grid2">
+                    <label>
+                        Schwierigkeit
+                        <select name="difficulty">
+                            <option value="">– optional –</option>
+                            <option value="1">1 – leicht</option>
+                            <option value="2">2 – mittel</option>
+                            <option value="3">3 – schwer</option>
+                        </select>
+                    </label>
+                    <label>
+                        Geschätzte Dauer (Min., optional)<input type="number" name="est_minutes" min="0">
+                    </label>
+                </div>
+                <p class="hint">Welche Leistungen aus der Blauen Liste bietet der Fall? (mind. eine)</p>
+                {% for i in range(max_items) %}
+                    <div class="grid2">
+                        <label>
+                            Leistung {{ i + 1 }}
+                            <select name="item_code_{{ i }}">
+                                <option value="">–</option>
+                                {% for category, items in catalog %}
+                                    <optgroup label="{{ category }}">
+                                        {% for it in items %}<option value="{{ it.code }}">{{ it.name }}</option>{% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            Anzahl<input type="number" name="item_count_{{ i }}" min="1" step="1" value="1">
+                        </label>
+                    </div>
+                {% endfor %}
+                <div class="row">
+                    <button type="submit">Fall anlegen</button>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <h2 style="margin-top:0">Alle Fälle ({{ rows|length }})</h2>
+            {% if rows %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fall-Nr.</th>
+                            <th>Leistungen</th>
+                            <th>Schwierigkeit</th>
+                            <th>Dauer</th>
+                            <th>Status</th>
+                            <th>Empfohlen für</th>
+                            <th>Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in rows %}
+                            <tr>
+                                <td><strong>{{ r.case.case_ref }}</strong>{% if r.case.description %}<br><small class="muted">{{ r.case.description }}</small>{% endif %}</td>
+                                <td><small>{% for it in r.leistungen %}{{ it.item_name }} ({{ it.count }}× à {{ '%g'|format(it.points / it.count) }} P = {{ '%g'|format(it.points) }} P){% if not loop.last %}<br>{% endif %}{% endfor %}</small></td>
+                                <td>{{ diff_label(r.case.difficulty) }}</td>
+                                <td>{% if r.case.est_minutes %}~{{ r.case.est_minutes }} min{% else %}–{% endif %}</td>
+                                <td>
+                                    <span class="badge {{ 'approved' if r.case.status == 'abgeschlossen' else ('submitted' if r.case.status == 'zugewiesen' else 'draft') }}">{{ r.case.status }}</span>
+                                {% if r.case.assigned_name %}<br><small class="muted">→ {{ r.case.assigned_name }}</small>{% endif %}</td>
+                                <td>
+                                    {% if r.best and r.best.covered > 0 %}
+                                        <strong>{{ r.best.student.real_name or r.best.student.pseudonym }}</strong>
+                                        <span style="color:#2e7d32; font-weight:600">{{ r.best.match_pct }} %</span>
+                                        <br>
+                                        <small class="muted">{{ r.best.begruendung }}</small>
+                                    {% elif r.case.status == 'offen' %}<small class="muted">keine offene Lücke passt</small>
+                        {% else %}–{% endif %}
+                            </td>
+                            <td>
+                                <form method="post"
+                                      action="{{ url_for('faelle.set_status', token=r.case.public_token) }}"
+                                      class="inline">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <select name="status">
+                                        {% for st in ('offen', 'zugewiesen', 'abgeschlossen') %}
+                                            <option value="{{ st }}" {% if r.case.status == st %}selected{% endif %}>{{ st }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select name="assigned_pseudonym">
+                                        <option value="">– Studierende/r –</option>
+                                        {% for s in students %}
+                                            <option value="{{ s.pseudonym }}"
+                                                    {% if r.case.assigned_student_id == s.id %}selected{% endif %}>{{ s.real_name or s.pseudonym }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="linkbtn">Speichern</button>
+                                </form>
+                                <form method="post"
+                                      action="{{ url_for('faelle.loeschen', token=r.case.public_token) }}"
+                                      class="inline"
+                                      onsubmit="return confirm('Fall löschen?')">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                                    <button class="linkbtn danger">Löschen</button>
+                                </form>
+                            </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+    {% else %}<p class="muted">Noch keine Fälle – lege oben den ersten an.</p>{% endif %}
+        </div>
+    {% endblock %}

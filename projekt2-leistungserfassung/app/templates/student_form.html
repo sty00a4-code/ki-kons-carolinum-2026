@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+    {% set preselect = preselect|default('') %}
+    <div class="card">
+        <h1>{{ 'Leistung bearbeiten' if perf else 'Leistung erfassen' }}</h1>
+        <form method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label>
+                Semester (IK)
+                <select name="semester" required>
+                    <option value="">– bitte wählen –</option>
+                    {% for s in semesters %}
+                        <option value="{{ s }}" {{ 'selected' if perf and perf.semester == s }}>{{ s }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Leistung (aus dem Katalog)
+                <select name="item_code" id="item_code" required>
+                    <option value="">– bitte wählen –</option>
+                    {% for category, items in catalog %}
+                        <optgroup label="{{ category }}">
+                            {% for it in items %}
+                                <option value="{{ it.code }}"
+                                        data-min="{{ it.points_min }}"
+                                        data-max="{{ it.points_max }}"
+                                        data-soll="{{ it.soll_anzahl }}"
+                                        data-unit="{{ it.unit }}"
+                                        {{ 'selected' if (perf and perf.item_code == it.code) or (not perf and preselect == it.code) }}>{{ it.name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </label>
+            <p class="hint" id="hint">Punkte-Bereich und Soll-Anzahl erscheinen nach Auswahl der Leistung.</p>
+            <div class="grid2">
+                <label>
+                    Anzahl
+                    <input type="number"
+                           name="count"
+                           min="1"
+                           step="1"
+                           value="{{ perf.count if perf else 1 }}"
+                           required>
+                </label>
+                <label>
+                    Punkte (1 Punkt ≈ 45 min)
+                    <input type="number"
+                           step="0.5"
+                           name="points"
+                           id="points"
+                           value="{{ '%g'|format(perf.points) if perf else '' }}"
+                           required>
+                </label>
+            </div>
+            <div class="grid2">
+                <label>
+                    Anonymer Fallbezug (z. B. Fall-Nr.)
+                    <input name="patient_ref"
+                           value="{{ perf.patient_ref or '' if perf else '' }}"
+                           placeholder="keine Klardaten!">
+                </label>
+                <label>
+                    Datum der Leistung
+                    <input type="date"
+                           name="performed_on"
+                           value="{{ perf.performed_on or '' if perf else '' }}">
+                </label>
+            </div>
+            <details class="optional">
+                <summary>Optionale Felder (Projekt-2-Ziel: Schwierigkeit / Zeit)</summary>
+                <div class="grid2">
+                    <label>
+                        Schwierigkeitsgrad (1–3)
+                        <input type="number"
+                               name="difficulty"
+                               min="1"
+                               max="3"
+                               value="{{ perf.difficulty or '' if perf else '' }}">
+                    </label>
+                    <label>
+                        Zeitbedarf (Minuten)
+                        <input type="number"
+                               name="time_minutes"
+                               min="0"
+                               value="{{ perf.time_minutes or '' if perf else '' }}">
+                    </label>
+                </div>
+                <label>
+                    Anmerkung
+                    <textarea name="note" rows="2">{{ perf.note or '' if perf else '' }}</textarea>
+                </label>
+            </details>
+            <div class="row">
+                <button type="submit" name="action" value="draft" class="secondary">Als Entwurf speichern</button>
+                <button type="submit" name="action" value="submit">Speichern &amp; Einreichen</button>
+                <a class="cancel" href="{{ url_for('student.meine') }}">Abbrechen</a>
+            </div>
+        </form>
+    </div>
+    <script>
+  const sel = document.getElementById('item_code');
+  const hint = document.getElementById('hint');
+  const points = document.getElementById('points');
+  function applyItem(userChanged) {
+    const o = sel.options[sel.selectedIndex];
+    if (!o || !o.dataset.min) {
+      hint.textContent = 'Bitte Leistung wählen.';
+      points.removeAttribute('min'); points.removeAttribute('max'); points.readOnly = false;
+      return;
+    }
+    const mn = parseFloat(o.dataset.min), mx = parseFloat(o.dataset.max);
+    const range = (mn === mx) ? ('genau ' + mn) : (mn + ' bis ' + mx);
+    hint.textContent = 'Erlaubte Punkte: ' + range + ' · Soll-Anzahl ≈ ' + o.dataset.soll + ' ' + o.dataset.unit;
+    points.min = mn; points.max = mx;
+    // Feste Punktzahl -> vorgeben und sperren; Bereich -> nur setzen wenn leer/ungültig
+    const cur = parseFloat(points.value);
+    const invalid = points.value === '' || isNaN(cur) || cur < mn || cur > mx;
+    if (mn === mx) { points.value = mn; points.readOnly = true; }
+    else { points.readOnly = false; if (userChanged || invalid) points.value = mn; }
+  }
+  sel.addEventListener('change', function () { applyItem(true); });
+  applyItem(false);
+    </script>
+{% endblock %}

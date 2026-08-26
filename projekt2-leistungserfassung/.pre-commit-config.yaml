@@ -1,0 +1,56 @@
+# Automatische Code-Qualität vor jedem Commit.
+# Einrichten:  uvx pre-commit install        (einmalig, setzt den Git-Hook)
+# Alles prüfen: uvx pre-commit run --all-files
+repos:
+  # Allgemeine Hygiene (Whitespace, Zeilenenden, kaputte Merges)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+
+  # Python: ruff ersetzt flake8 + black + isort (Lint zuerst, dann Format)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Jinja2-/HTML-Templates
+  - repo: https://github.com/djlint/djLint
+    rev: v1.44.2
+    hooks:
+      - id: djlint-reformat
+        files: ^app/templates/
+        types_or: [html]
+        args: [--profile=jinja]
+      - id: djlint
+        files: ^app/templates/
+        types_or: [html]
+        args: [--profile=jinja]
+
+  # SQL-Schema
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 4.3.0
+    hooks:
+      - id: sqlfluff-fix
+        args: [--dialect, sqlite]
+        files: \.sql$
+      - id: sqlfluff-lint
+        args: [--dialect, sqlite]
+        files: \.sql$
+
+  # CSS
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v17.14.1
+    hooks:
+      - id: stylelint
+        args: [--fix]
+        additional_dependencies:
+          - stylelint@17.14.1
+          - stylelint-config-standard

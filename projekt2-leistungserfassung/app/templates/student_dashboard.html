@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% macro pbar(app_pct) %}
+    <div class="pbar">
+        <div class="pfill app" style="width:{{ app_pct }}%"></div>
+    </div>
+{% endmacro %}
+{% block content %}
+    <div class="card">
+        <h1 style="margin-top:0">Mein Stand</h1>
+        <p class="muted" style="margin:6px 0 0">
+            Diese Übersicht ist <strong>schreibgeschützt</strong>. Deine erbrachten
+            Leistungen werden von deiner Betreuerin / deinem Betreuer eingetragen – du siehst hier jederzeit deinen aktuellen Fortschritt.
+        </p>
+        <div class="metrics">
+            <div class="metric">
+                <div class="mv">{{ overall.app_pct|round(0) |int }} %</div>
+                <div class="ml">Gesamt-Fortschritt</div>
+            </div>
+            <div class="metric">
+                <div class="mv">{{ '%g'|format(overall.approved) }} / {{ overall.target }}</div>
+                <div class="ml">Punkte</div>
+            </div>
+            <div class="metric">
+                <div class="mv">{{ overall.done_count }} / {{ overall.cat_count }}</div>
+                <div class="ml">Kategorien erfüllt</div>
+            </div>
+        </div>
+        {{ pbar(overall.app_pct) }}
+    </div>
+    {% include "_empfehlungen.html" %}
+    {% for p in progress %}
+        <div class="card cat">
+            <div class="row-between">
+                <h2 style="margin:0">{{ p.category }} {% if p.target and p.approved >= p.target %}<span class="badge approved">erfüllt</span>{% endif %}</h2>
+                <span class="muted">{{ '%g'|format(p.approved) }} / {{ p.target }} P. · {{ p.app_pct|round(0) |int }} %</span>
+            </div>
+            {{ pbar(p.app_pct) }}
+            <table class="items">
+                <tbody>
+                    {% for r in p.leistungen %}
+                        <tr>
+                            <td>{{ r.item.name }}<br><small class="muted">Ziel {{ r.item.soll_anzahl }} {{ r.item.unit }} · {{ '%g'|format(r.item.points_min) }}{% if r.item.points_max != r.item.points_min %}–{{ '%g'|format(r.item.points_max) }}{% endif %} P.</small></td>
+                            <td class="num ta-right">{% if r.appcnt %}<span class="ok-txt">{{ r.appcnt }}× erbracht</span>{% else %}<span class="muted">noch keine</span>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
+    <div class="card">
+        <h2 style="margin-top:0">Meine erfassten Leistungen ({{ entries|length }})</h2>
+        {% if entries %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Semester</th>
+                        <th>Leistung</th>
+                        <th>Anzahl</th>
+                        <th>Punkte</th>
+                        <th>Eingetragen von</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in entries %}
+                        <tr>
+                            <td><small>{{ r.performed_on or '–' }}</small></td>
+                            <td>{{ r.semester }}</td>
+                            <td>
+                                {{ r.item_name }}
+                                <br>
+                                <small class="muted">{{ r.category }}</small>
+                            </td>
+                            <td>{{ r.count }}</td>
+                            <td>{{ '%g'|format(r.points) }}</td>
+                            <td><small>{{ r.reviewer_name or 'Prüfer' }}{% if r.reviewed_at %} · {{ r.reviewed_at[:10] }}{% endif %}</small></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+{% else %}<p class="muted">Für dich wurden noch keine Leistungen eingetragen.</p>{% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{# Empfohlene Patientenfälle (Kick-Off-Folie Dashboard D).
+   Erwartet: empfehlungen = Liste aus matching.recommend_cases_for_student #}
+{% macro diff_label(d) %}{{ {1:'leicht', 2:'mittel', 3:'schwer'}.get(d, '–') }}{% endmacro %}
+    {% if empfehlungen %}
+        <div class="card">
+            <h2 style="margin-top:0">🎯 Empfohlene Patientenfälle</h2>
+            <p class="muted" style="margin-top:4px">
+                Vorschläge, um die größten Lücken zu schließen –
+                berechnet aus offenen Fällen und den noch fehlenden Punkten je Kategorie.
+                Die Zuteilung entscheidet immer der/die Betreuer/in.
+            </p>
+            {% for r in empfehlungen %}
+                <div class="row-between"
+                     style="border:1px solid var(--line);
+                            border-radius:10px;
+                            padding:10px 14px;
+                            margin-top:10px;
+                            gap:12px;
+                            flex-wrap:wrap">
+                    <div>
+                        <strong>{{ r.case.case_ref }}</strong>
+                        {% if r.case.description %}<span class="muted"> – {{ r.case.description }}</span>{% endif %}<br>
+                        <small class="muted">
+                            Schwierigkeit: {{ diff_label(r.case.difficulty) }}
+                            {% if r.case.est_minutes %}· Dauer: ~{{ r.case.est_minutes }} Min.{% endif %}
+                            · Kompetenzbeitrag: <strong>{{ r.beitrag }}</strong>
+                        </small>
+                        <br>
+                        <small class="muted">Schließt Lücken → {{ r.begruendung }}</small>
+                    </div>
+                    <div style="text-align:center; min-width:64px">
+                        <div style="font-size:22px; font-weight:700; color:#2e7d32">{{ r.match_pct }} %</div>
+                        <small class="muted">Match</small>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}

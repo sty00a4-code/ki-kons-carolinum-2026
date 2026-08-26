@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="row-between">
+        <h1 style="margin:0">Studierende</h1>
+        <a class="btn" href="{{ url_for('analysis.auswertung') }}">Auswertung (Vergleich) →</a>
+    </div>
+    <p class="muted">
+        Wähle eine/n Studierende/n, um Leistungen einzutragen oder die Entwicklung zu sehen.
+        Nur du (als Prüfer) trägst Leistungen ein; Studierende können ihren Stand nur ansehen.
+    </p>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Studierende/r</th>
+                    <th>Fortschritt</th>
+                    <th>Punkte</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in overview %}
+                    <tr>
+                        <td>
+                            {{ o.s.real_name or o.s.pseudonym }}
+                            <br>
+                            <small class="muted">Kennung {{ o.s.pseudonym }}</small>
+                        </td>
+                        <td style="min-width:180px">
+                            <div class="pbar sm">
+                                <div class="pfill app" style="width:{{ o.pct }}%"></div>
+                            </div>
+                            <small class="muted">{{ o.pct }} %</small>
+                        </td>
+                        <td>{{ '%g'|format(o.approved) }} / {{ o.target }}</td>
+                        <td><a class="btn small"
+   href="{{ url_for('doktorand.student', pseudonym=o.s.pseudonym) }}">Öffnen / eintragen →</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

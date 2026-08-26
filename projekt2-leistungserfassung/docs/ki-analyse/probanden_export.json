@@ -1,0 +1,1895 @@
+{
+ "meta": {
+  "projekt": "Projekt 2 – KI-gestützte Analyse klinischer Lernverläufe (Zahnmedizin, IK I–IV)",
+  "stand": "2026-08-10",
+  "quelle": "AuswertungKursleistungenIKIV SoSe26_korrigiert.xlsx (beide Stände zellidentisch geprüft) via ki-kons-carolinum-2026/projekt2/leistungen.db",
+  "regeln": {
+   "punktregel": "1 Punkt ≈ 45 Minuten klinische Arbeitszeit",
+   "ampel": ">= 75 % gut, 50–75 % mittel, < 50 % gering (Ziel-Erreichung je Kategorie)",
+   "gesamtziel_punkte": 328,
+   "semester": [
+    "IK I",
+    "IK II",
+    "IK III",
+    "IK IV"
+   ],
+   "kursstruktur": "je IK 14 Kurswochen"
+  },
+  "bekannte_luecken": [
+   "IK IV (SoSe26) fehlt in der Quelle – laufendes/nicht erfasstes Semester",
+   "Schwierigkeit/Zeitbedarf sind DEMO-Platzhalter (heuristisch); Lehrenden-Konsens (3 Rater) steht aus",
+   "Punkte sind je Semester aggregiert – keine Einzeltermine/Reihenfolgen innerhalb des Semesters",
+   "Einträge mit 'hinweis' sind nicht aufgeschlüsselte Blocksummen (Leistungsart im Block unbekannt)"
+  ]
+ },
+ "katalog": [
+  {
+   "kategorie": "Parodontologie",
+   "mindestpunkte": 32,
+   "leistungen": [
+    {
+     "code": "pa_ait",
+     "name": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+     "punkte_min": 8,
+     "punkte_max": 8,
+     "soll_anzahl": 3,
+     "einheit": "Patient"
+    },
+    {
+     "code": "pa_upt",
+     "name": "Unterstützende Parodontitistherapie (UPT, Recall)",
+     "punkte_min": 2,
+     "punkte_max": 3,
+     "soll_anzahl": 4,
+     "einheit": "Sitzung"
+    }
+   ]
+  },
+  {
+   "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+   "mindestpunkte": 55,
+   "leistungen": [
+    {
+     "code": "zhs_fuell_1_2",
+     "name": "Plastische Füllungen Klasse I und II",
+     "punkte_min": 1,
+     "punkte_max": 4,
+     "soll_anzahl": 6,
+     "einheit": "Füllung"
+    },
+    {
+     "code": "zhs_fuell_3_4",
+     "name": "Plastische definitive Füllungen Klasse III/IV",
+     "punkte_min": 2,
+     "punkte_max": 4,
+     "soll_anzahl": 3,
+     "einheit": "Füllung"
+    },
+    {
+     "code": "zhs_fuell_5",
+     "name": "Plastische definitive Füllungen Klasse V",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 2,
+     "einheit": "Füllung"
+    },
+    {
+     "code": "zhs_befund",
+     "name": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+     "punkte_min": 2,
+     "punkte_max": 3,
+     "soll_anzahl": 4,
+     "einheit": "Befund"
+    },
+    {
+     "code": "zhs_prophylaxe",
+     "name": "Prophylaxesitzung MuHy + PZR",
+     "punkte_min": 1.5,
+     "punkte_max": 1.5,
+     "soll_anzahl": 4,
+     "einheit": "Sitzung"
+    }
+   ]
+  },
+  {
+   "kategorie": "Endodontologie",
+   "mindestpunkte": 20,
+   "leistungen": [
+    {
+     "code": "endo_aufbereitung",
+     "name": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+     "punkte_min": 3,
+     "punkte_max": 3,
+     "soll_anzahl": 3,
+     "einheit": "Kanal"
+    },
+    {
+     "code": "endo_fuellung",
+     "name": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+     "punkte_min": 2,
+     "punkte_max": 2,
+     "soll_anzahl": 3,
+     "einheit": "Kanal"
+    },
+    {
+     "code": "endo_revision",
+     "name": "Entfernung Wurzelkanalfüllmaterial (Revision)",
+     "punkte_min": 3,
+     "punkte_max": 3,
+     "soll_anzahl": 1,
+     "einheit": "Kanal"
+    }
+   ]
+  },
+  {
+   "kategorie": "Kinderzahnheilkunde",
+   "mindestpunkte": 8,
+   "leistungen": [
+    {
+     "code": "kzh_befund",
+     "name": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+     "punkte_min": 1,
+     "punkte_max": 3,
+     "soll_anzahl": 2,
+     "einheit": "Befund"
+    },
+    {
+     "code": "kzh_prophylaxe",
+     "name": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+     "punkte_min": 2,
+     "punkte_max": 2,
+     "soll_anzahl": 1,
+     "einheit": "Sitzung"
+    },
+    {
+     "code": "kzh_behandlung",
+     "name": "non-invasive / invasive Behandlung",
+     "punkte_min": 2,
+     "punkte_max": 2,
+     "soll_anzahl": 1,
+     "einheit": "Behandlung"
+    }
+   ]
+  },
+  {
+   "kategorie": "Prothetik",
+   "mindestpunkte": 116,
+   "leistungen": [
+    {
+     "code": "proth_krone",
+     "name": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+     "punkte_min": 12,
+     "punkte_max": 15,
+     "soll_anzahl": 1,
+     "einheit": "Krone"
+    },
+    {
+     "code": "proth_bruecke",
+     "name": "Brückenglied",
+     "punkte_min": 10,
+     "punkte_max": 10,
+     "soll_anzahl": 1,
+     "einheit": "Glied"
+    },
+    {
+     "code": "proth_totalprothese",
+     "name": "Totalprothese je Kiefer",
+     "punkte_min": 20,
+     "punkte_max": 20,
+     "soll_anzahl": 1,
+     "einheit": "Kiefer"
+    },
+    {
+     "code": "proth_teilprothese",
+     "name": "Teilprothese Doppelkrone",
+     "punkte_min": 20,
+     "punkte_max": 20,
+     "soll_anzahl": 1,
+     "einheit": "Prothese"
+    },
+    {
+     "code": "proth_teleskop",
+     "name": "pro Teleskop",
+     "punkte_min": 10,
+     "punkte_max": 10,
+     "soll_anzahl": 1,
+     "einheit": "Teleskop"
+    },
+    {
+     "code": "proth_modellguss",
+     "name": "Klammermodellgussprothese (Ersatz ≥1 Stützzone)",
+     "punkte_min": 15,
+     "punkte_max": 15,
+     "soll_anzahl": 1,
+     "einheit": "Prothese"
+    },
+    {
+     "code": "proth_interims",
+     "name": "Interimsprothese (Ersatz ≥1 Stützzone)",
+     "punkte_min": 10,
+     "punkte_max": 10,
+     "soll_anzahl": 1,
+     "einheit": "Prothese"
+    },
+    {
+     "code": "proth_unterfuett",
+     "name": "Unterfütterung",
+     "punkte_min": 5,
+     "punkte_max": 5,
+     "soll_anzahl": 1,
+     "einheit": "Vorgang"
+    },
+    {
+     "code": "proth_remontage",
+     "name": "Remontage",
+     "punkte_min": 5,
+     "punkte_max": 5,
+     "soll_anzahl": 1,
+     "einheit": "Vorgang"
+    },
+    {
+     "code": "proth_recall",
+     "name": "Recall",
+     "punkte_min": 2,
+     "punkte_max": 3,
+     "soll_anzahl": 1,
+     "einheit": "Sitzung"
+    },
+    {
+     "code": "proth_aufbiss",
+     "name": "Aufbissbehelf (inkl. FAL und Zentrikregistrat)",
+     "punkte_min": 7,
+     "punkte_max": 7,
+     "soll_anzahl": 1,
+     "einheit": "Behelf"
+    }
+   ]
+  },
+  {
+   "kategorie": "Schnittmenge Restauration/Prothetik",
+   "mindestpunkte": 33,
+   "leistungen": [
+    {
+     "code": "schnitt_inlay",
+     "name": "Inlay oder Teilkrone (inkl. Stumpfaufbau)",
+     "punkte_min": 12,
+     "punkte_max": 15,
+     "soll_anzahl": 1,
+     "einheit": "Stück"
+    },
+    {
+     "code": "schnitt_reparatur",
+     "name": "Kariesbedingte Reparatur Kronenrand",
+     "punkte_min": 3,
+     "punkte_max": 3,
+     "soll_anzahl": 1,
+     "einheit": "Reparatur"
+    },
+    {
+     "code": "schnitt_stumpfaufbau",
+     "name": "adhäsiver Stumpfaufbau",
+     "punkte_min": 3,
+     "punkte_max": 3,
+     "soll_anzahl": 1,
+     "einheit": "Aufbau"
+    },
+    {
+     "code": "schnitt_stiftaufbau",
+     "name": "Stiftaufbau",
+     "punkte_min": 3,
+     "punkte_max": 3,
+     "soll_anzahl": 1,
+     "einheit": "Aufbau"
+    }
+   ]
+  },
+  {
+   "kategorie": "Chirurgie/Implantologie",
+   "mindestpunkte": 16,
+   "leistungen": [
+    {
+     "code": "chir_msh",
+     "name": "Systematische Untersuchung der Mundschleimhaut (MSH)",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 4,
+     "einheit": "Untersuchung"
+    },
+    {
+     "code": "chir_dvt",
+     "name": "Planung oralchir. Eingriffe / Indikationsstellung DVT",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 4,
+     "einheit": "Planung"
+    },
+    {
+     "code": "chir_impl_beratung",
+     "name": "Implantat-prothetische Beratung",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 4,
+     "einheit": "Beratung"
+    },
+    {
+     "code": "chir_impl_nachsorge",
+     "name": "Implantatnachsorge",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 4,
+     "einheit": "Sitzung"
+    }
+   ]
+  },
+  {
+   "kategorie": "Kieferorthopädie (KFO)",
+   "mindestpunkte": 48,
+   "leistungen": [
+    {
+     "code": "kfo_erstgespraech",
+     "name": "Erstaufnahmegespräch / KIG-Klassifizierung",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Gespräch"
+    },
+    {
+     "code": "kfo_anamnese",
+     "name": "KFO-Anamnese, Aufklärung, Epikrise",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Vorgang"
+    },
+    {
+     "code": "kfo_abformung",
+     "name": "Abformung OK/UK, Scan, Registrat, Zielbiss",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Vorgang"
+    },
+    {
+     "code": "kfo_modell",
+     "name": "Modellherstellung (analog und digital)",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Modell"
+    },
+    {
+     "code": "kfo_3d",
+     "name": "3D-Modellanalyse",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Analyse"
+    },
+    {
+     "code": "kfo_foto",
+     "name": "Foto/Gesichtsscan mit Auswertung",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Auswertung"
+    },
+    {
+     "code": "kfo_roentgen",
+     "name": "Rö, Befund OPG und FRS",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Befund"
+    },
+    {
+     "code": "kfo_plan",
+     "name": "KFO-Behandlungsplan",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Plan"
+    },
+    {
+     "code": "kfo_konstruktion",
+     "name": "Konstruktionszeichnung Gerät / ClinCheck",
+     "punkte_min": 1,
+     "punkte_max": 1,
+     "soll_anzahl": 1,
+     "einheit": "Zeichnung"
+    },
+    {
+     "code": "kfo_kontrolle",
+     "name": "Kontrollsitzung",
+     "punkte_min": 0.5,
+     "punkte_max": 0.5,
+     "soll_anzahl": 6,
+     "einheit": "Sitzung"
+    }
+   ]
+  }
+ ],
+ "probanden": [
+  {
+   "pseudonym": "Stud. 1",
+   "semester": {
+    "IK I": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_totalprothese",
+      "leistung": "Totalprothese je Kiefer",
+      "kategorie": "Prothetik",
+      "punkte_summe": 20.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 900
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 11.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 495
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "zhs_fuell_5",
+      "leistung": "Plastische definitive Füllungen Klasse V",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 203
+     }
+    ],
+    "IK II": [
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 61.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 2745
+     },
+     {
+      "code": "proth_teilprothese",
+      "leistung": "Teilprothese Doppelkrone",
+      "kategorie": "Prothetik",
+      "punkte_summe": 20.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 900
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 18.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 810
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     }
+    ],
+    "IK III": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 15.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 675
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 10.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 450
+     },
+     {
+      "code": "endo_revision",
+      "leistung": "Entfernung Wurzelkanalfüllmaterial (Revision)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_behandlung",
+      "leistung": "non-invasive / invasive Behandlung",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_aufbiss",
+      "leistung": "Aufbissbehelf (inkl. FAL und Zentrikregistrat)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 7.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 315
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 15.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 675,
+      "hinweis": "Nicht aufgeschlüsselte Blocksumme aus dem Kursblatt – Leistungsart innerhalb des Blocks unbekannt"
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "schnitt_stiftaufbau",
+      "leistung": "Stiftaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 15.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 675
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_fuell_5",
+      "leistung": "Plastische definitive Füllungen Klasse V",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 68
+     }
+    ]
+   },
+   "kategorien_summen": {
+    "Endodontologie": {
+     "IK I": 10.0,
+     "IK III": 28.0
+    },
+    "Kinderzahnheilkunde": {
+     "IK II": 4.0,
+     "IK III": 8.0
+    },
+    "Parodontologie": {
+     "IK I": 10.0,
+     "IK II": 10.5,
+     "IK III": 5.0
+    },
+    "Prothetik": {
+     "IK I": 25.0,
+     "IK II": 81.0,
+     "IK III": 24.5
+    },
+    "Schnittmenge Restauration/Prothetik": {
+     "IK I": 6.0,
+     "IK II": 18.0,
+     "IK III": 6.0
+    },
+    "Zahnhartsubstanz/Prävention/Restauration": {
+     "IK I": 20.5,
+     "IK II": 4.0,
+     "IK III": 23.0
+    }
+   }
+  },
+  {
+   "pseudonym": "Stud. 2",
+   "semester": {
+    "IK I": [
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 30.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 1350
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 135
+     }
+    ],
+    "IK II": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 72.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 3240
+     },
+     {
+      "code": "schnitt_stiftaufbau",
+      "leistung": "Stiftaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 18.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 810
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     }
+    ],
+    "IK III": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 12.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 540
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_behandlung",
+      "leistung": "non-invasive / invasive Behandlung",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 16.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 720
+     },
+     {
+      "code": "proth_aufbiss",
+      "leistung": "Aufbissbehelf (inkl. FAL und Zentrikregistrat)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 7.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 315
+     },
+     {
+      "code": "proth_interims",
+      "leistung": "Interimsprothese (Ersatz ≥1 Stützzone)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 10.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 450
+     },
+     {
+      "code": "proth_totalprothese",
+      "leistung": "Totalprothese je Kiefer",
+      "kategorie": "Prothetik",
+      "punkte_summe": 20.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 900
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 7.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 315
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 225
+     }
+    ]
+   },
+   "kategorien_summen": {
+    "Endodontologie": {
+     "IK II": 5.0,
+     "IK III": 20.0
+    },
+    "Kinderzahnheilkunde": {
+     "IK II": 4.0,
+     "IK III": 8.0
+    },
+    "Parodontologie": {
+     "IK I": 10.0,
+     "IK II": 2.5,
+     "IK III": 16.0
+    },
+    "Prothetik": {
+     "IK I": 35.0,
+     "IK II": 72.0,
+     "IK III": 37.0
+    },
+    "Schnittmenge Restauration/Prothetik": {
+     "IK I": 6.0,
+     "IK II": 21.0,
+     "IK III": 7.0
+    },
+    "Zahnhartsubstanz/Prävention/Restauration": {
+     "IK I": 15.0,
+     "IK II": 4.0,
+     "IK III": 7.5
+    }
+   }
+  },
+  {
+   "pseudonym": "Stud. 3",
+   "semester": {
+    "IK I": [
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "proth_interims",
+      "leistung": "Interimsprothese (Ersatz ≥1 Stützzone)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 10.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 450
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 45.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 2025
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 10.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 450
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "zhs_fuell_5",
+      "leistung": "Plastische definitive Füllungen Klasse V",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 7.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 338
+     }
+    ],
+    "IK II": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 45.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 2025
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 9.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 405
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "zhs_fuell_5",
+      "leistung": "Plastische definitive Füllungen Klasse V",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 270
+     }
+    ],
+    "IK III": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 12.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 540
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "kzh_behandlung",
+      "leistung": "non-invasive / invasive Behandlung",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_totalprothese",
+      "leistung": "Totalprothese je Kiefer",
+      "kategorie": "Prothetik",
+      "punkte_summe": 40.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 1800
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 12.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 563
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "zhs_fuell_5",
+      "leistung": "Plastische definitive Füllungen Klasse V",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 7.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 338
+     }
+    ]
+   },
+   "kategorien_summen": {
+    "Endodontologie": {
+     "IK II": 5.0,
+     "IK III": 20.0
+    },
+    "Kinderzahnheilkunde": {
+     "IK II": 5.0,
+     "IK III": 11.0
+    },
+    "Parodontologie": {
+     "IK I": 6.0,
+     "IK II": 13.0,
+     "IK III": 10.5
+    },
+    "Prothetik": {
+     "IK I": 60.0,
+     "IK II": 47.5,
+     "IK III": 45.0
+    },
+    "Schnittmenge Restauration/Prothetik": {
+     "IK II": 3.0
+    },
+    "Zahnhartsubstanz/Prävention/Restauration": {
+     "IK I": 22.5,
+     "IK II": 22.0,
+     "IK III": 29.0
+    }
+   }
+  },
+  {
+   "pseudonym": "Stud. 4",
+   "semester": {
+    "IK I": [
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "proth_modellguss",
+      "leistung": "Klammermodellgussprothese (Ersatz ≥1 Stützzone)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 15.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 675
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 9.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 405
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 270
+     }
+    ],
+    "IK II": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 4.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 203
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 3.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 158
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 7.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 338
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 21.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 945
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 68
+     }
+    ],
+    "IK III": [
+     {
+      "code": "endo_aufbereitung",
+      "leistung": "Wurzelkanalaufbereitung inkl. Arbeitslänge + Masterpoint (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 12.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 540
+     },
+     {
+      "code": "endo_fuellung",
+      "leistung": "Wurzelkanalfüllung inkl. Röntgenkontrolle + adhäsive Deckfüllung (je Kanal)",
+      "kategorie": "Endodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "kzh_behandlung",
+      "leistung": "non-invasive / invasive Behandlung",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_modellguss",
+      "leistung": "Klammermodellgussprothese (Ersatz ≥1 Stützzone)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 15.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 675
+     },
+     {
+      "code": "schnitt_stumpfaufbau",
+      "leistung": "adhäsiver Stumpfaufbau",
+      "kategorie": "Schnittmenge Restauration/Prothetik",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 45
+     },
+     {
+      "code": "zhs_fuell_3_4",
+      "leistung": "Plastische definitive Füllungen Klasse III/IV",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "zhs_fuell_5",
+      "leistung": "Plastische definitive Füllungen Klasse V",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 135
+     }
+    ]
+   },
+   "kategorien_summen": {
+    "Endodontologie": {
+     "IK II": 5.0,
+     "IK III": 20.0
+    },
+    "Kinderzahnheilkunde": {
+     "IK II": 8.0,
+     "IK III": 9.0
+    },
+    "Parodontologie": {
+     "IK I": 14.0,
+     "IK II": 15.5,
+     "IK III": 13.0
+    },
+    "Prothetik": {
+     "IK I": 20.0,
+     "IK II": 26.0,
+     "IK III": 15.0
+    },
+    "Schnittmenge Restauration/Prothetik": {
+     "IK III": 3.0
+    },
+    "Zahnhartsubstanz/Prävention/Restauration": {
+     "IK I": 25.0,
+     "IK II": 7.5,
+     "IK III": 14.0
+    }
+   }
+  },
+  {
+   "pseudonym": "Stud. 5",
+   "semester": {
+    "IK I": [
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 4.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 180
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_totalprothese",
+      "leistung": "Totalprothese je Kiefer",
+      "kategorie": "Prothetik",
+      "punkte_summe": 20.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 900
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 13.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 585
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 270
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 6.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 270
+     }
+    ],
+    "IK II": [
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 135
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_totalprothese",
+      "leistung": "Totalprothese je Kiefer",
+      "kategorie": "Prothetik",
+      "punkte_summe": 40.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 1800
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 7.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 315
+     },
+     {
+      "code": "zhs_fuell_1_2",
+      "leistung": "Plastische Füllungen Klasse I und II",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 3.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 135
+     }
+    ],
+    "IK III": [
+     {
+      "code": "kzh_befund",
+      "leistung": "Befund inkl. Planung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_behandlung",
+      "leistung": "non-invasive / invasive Behandlung",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "kzh_prophylaxe",
+      "leistung": "Individuelle, ausführliche Prophylaxesitzung (Milch-/Wechselgebiss)",
+      "kategorie": "Kinderzahnheilkunde",
+      "punkte_summe": 2.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 90
+     },
+     {
+      "code": "pa_ait",
+      "leistung": "Antiinfektiöse Parodontitistherapie (MHT, FMS, Reevaluation)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 8.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 360
+     },
+     {
+      "code": "pa_upt",
+      "leistung": "Unterstützende Parodontitistherapie (UPT, Recall)",
+      "kategorie": "Parodontologie",
+      "punkte_summe": 5.0,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 225
+     },
+     {
+      "code": "proth_aufbiss",
+      "leistung": "Aufbissbehelf (inkl. FAL und Zentrikregistrat)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 7.0,
+      "schwierigkeit_demo": 2,
+      "zeit_min_demo": 315
+     },
+     {
+      "code": "proth_krone",
+      "leistung": "Krone auf Zahn/Implantat (inkl. Stumpfaufbau)",
+      "kategorie": "Prothetik",
+      "punkte_summe": 99.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 4455,
+      "hinweis": "Nicht aufgeschlüsselte Blocksumme aus dem Kursblatt – Leistungsart innerhalb des Blocks unbekannt"
+     },
+     {
+      "code": "proth_recall",
+      "leistung": "Recall",
+      "kategorie": "Prothetik",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "proth_teilprothese",
+      "leistung": "Teilprothese Doppelkrone",
+      "kategorie": "Prothetik",
+      "punkte_summe": 20.0,
+      "schwierigkeit_demo": 3,
+      "zeit_min_demo": 900
+     },
+     {
+      "code": "zhs_befund",
+      "leistung": "Kariologischer Befund, Kariesrisiko, Therapieplanung",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 2.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 113
+     },
+     {
+      "code": "zhs_prophylaxe",
+      "leistung": "Prophylaxesitzung MuHy + PZR",
+      "kategorie": "Zahnhartsubstanz/Prävention/Restauration",
+      "punkte_summe": 1.5,
+      "schwierigkeit_demo": 1,
+      "zeit_min_demo": 68
+     }
+    ]
+   },
+   "kategorien_summen": {
+    "Kinderzahnheilkunde": {
+     "IK II": 5.0,
+     "IK III": 6.0
+    },
+    "Parodontologie": {
+     "IK I": 12.0,
+     "IK II": 13.0,
+     "IK III": 13.0
+    },
+    "Prothetik": {
+     "IK I": 25.0,
+     "IK II": 40.0,
+     "IK III": 128.5
+    },
+    "Zahnhartsubstanz/Prävention/Restauration": {
+     "IK I": 25.0,
+     "IK II": 15.0,
+     "IK III": 4.0
+    }
+   }
+  }
+ ]
+}

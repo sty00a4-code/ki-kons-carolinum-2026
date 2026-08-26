@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description"
+              content="Digitale Leistungserfassung der integrierten Kurse IK I bis IK IV (Projekt 2, Zahnmedizin).">
+        <title>Leistungserfassung IK · Projekt 2</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <header>
+            <div class="brand">🦷 Leistungserfassung IK <small>Projekt 2</small></div>
+            <nav>
+                {% if session.get('user_id') %}
+                    {% if session.role == 'student' %}
+                        <a href="{{ url_for('student.meine') }}">Mein Stand</a>
+                    {% else %}
+                        <a href="{{ url_for('doktorand.liste') }}">Studierende</a>
+                        <a href="{{ url_for('faelle.liste') }}">Fälle</a>
+                        <a href="{{ url_for('analysis.auswertung') }}">Auswertung</a>
+                    {% endif %}
+                    <span class="who">{{ session.username }} · {{ session.role }}</span>
+                    <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button class="linkbtn">Logout</button>
+                    </form>
+                {% endif %}
+            </nav>
+        </header>
+        <main>
+            {% with msgs = get_flashed_messages() %}
+                {% if msgs %}<div class="flash">{% for m in msgs %}<div>{{ m }}</div>{% endfor %}</div>{% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+        {% if bot_data %}
+            {% include "_bot.html" %}
+        {% endif %}
+        {% if bot_data_lehrende %}
+            {% include "_bot_lehrende.html" %}
+        {% endif %}
+    </body>
+</html>
