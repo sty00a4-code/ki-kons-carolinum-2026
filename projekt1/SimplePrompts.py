@@ -20,7 +20,7 @@ client = OpenAI(
 """
 response = requests.get(
     "https://litellm.s.studiumdigitale.uni-frankfurt.de/v1/model/info",
-    headers={"x-litellm-api-key": "sk-hmb6GIEX2f_-TD6PVdiTPQ"}
+    headers={"x-litellm-api-key": " "}
 )
 
 
