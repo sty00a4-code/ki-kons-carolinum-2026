@@ -13,6 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..services import assignment_service
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -23,9 +24,10 @@ _JOBS: dict[str, dict] = {}
 
 def build_learning_trajectory(student_id: int, db: Session) -> dict:
     """Sammelt die Rohdaten, die die KI-Analyse als Kontext braucht."""
-    category_progress = db.execute(
-        text(
-            """
+    category_progress = (
+        db.execute(
+            text(
+                """
             select c.name as category, sc.semester, sum(sc.points) as points
             from students_classes as sc
             join classes as cl on sc.class_id = cl.id
@@ -34,9 +36,12 @@ def build_learning_trajectory(student_id: int, db: Session) -> dict:
             group by c.id, sc.semester
             order by sc.semester, c.id;
             """
-        ),
-        {"student_id": student_id},
-    ).mappings().all()
+            ),
+            {"student_id": student_id},
+        )
+        .mappings()
+        .all()
+    )
 
     return {
         "student_id": student_id,
@@ -70,3 +75,22 @@ def get_analysis_status(job_id: str):
     if job is None:
         raise HTTPException(status_code=404, detail="Job nicht gefunden")
     return job
+
+
+@router.get("/students/{student_id}/patient-recommendations")
+def get_patient_recommendations(
+    student_id: int, limit: int = 5, db: Session = Depends(get_db)
+):
+    """Für einen Studenten: Patienten geordnet danach, wie viel sie zu den
+    offenen Anforderungen (fehlende Punkte/Fallzahl je Klasse) beitragen
+    könnten. Nicht-exklusiv - mehrere Studenten können hier denselben
+    Patienten empfohlen bekommen."""
+    return assignment_service.rank_patients_for_student(student_id, db, limit=limit)
+
+
+@router.get("/patient-matching")
+def get_patient_matching(db: Session = Depends(get_db)):
+    """Zuordnung ALLER Patienten zu Studenten: jeder Patient wird höchstens
+    einem Studenten zugewiesen, gewählt danach, wo er den größten Beitrag zur
+    Deckung offener Anforderungen leistet (greedy, nicht global optimal)."""
+    return assignment_service.suggest_global_matching(db)
