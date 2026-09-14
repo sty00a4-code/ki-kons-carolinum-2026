@@ -1,0 +1,46 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "ARG",
+    "B",
+    "BLE",
+    "C4",
+    "DTZ",
+    "E",
+    "ERA",
+    "F",
+    "FBT",
+    "I",
+    "ISC",
+    "N",
+    "PERF",
+    "PIE",
+    "PL",
+    "RET",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "T20",
+    "TRY",
+    "UP",
+    "W",
+]
+ignore = [
+    "N818",    # Ausnahmeklassen enden auf "Fehler"
+    "PLR0913", # optionale Parameter sind keyword-only (PLR0917 bleibt aktiv)
+    "PLR2004", # Schwellenwerte stehen direkt im Vergleich
+    "TRY003",  # Fehlermeldungen werden in der Oberfläche angezeigt
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["T201"]
+"tests/*.py" = ["T201"]
+
+[tool.djlint]
+profile = "jinja"
+ignore = "H021" # Breite der Fortschrittsbalken als Inline-Style

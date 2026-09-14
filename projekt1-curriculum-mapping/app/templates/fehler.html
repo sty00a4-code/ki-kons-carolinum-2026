@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titel %}{{ titel }}{% endblock %}
+{% block content %}
+    <div class="card narrow">
+        <h1>{{ titel }}</h1>
+        <p>{{ meldung }}</p>
+        <div class="row">
+            {% if session.get('user_id') %}
+                <a class="btn small" href="{{ url_for('zuordnung.ergebnisse') }}">Zu den Ergebnissen</a>
+                <a class="btn small secondary" href="{{ url_for('zuordnung.neu') }}">Neue Zuordnung</a>
+            {% else %}
+                <a class="btn small" href="{{ url_for('auth.login') }}">Zur Anmeldung</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

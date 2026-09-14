@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_subnav.html" import kopfzeile %}
+{% block titel %}Prüfziele{% endblock %}
+{% block content %}
+    <h1>Prüfziel-Liste</h1>
+    <p class="muted">
+        {{ liste.titel }}. Quelle: {{ liste.quelle }}. Diese Liste bekommt das Modell als erstes
+        Dokument, und die App ordnet jede Zeile der Antwort einem Prüfziel daraus zu.
+    </p>
+    <div class="card">
+        <div class="metrics">
+            <div class="metric">
+                <div class="mv">{{ liste.zaehlend|length }}</div>
+                <div class="ml">Prüfziele, die in der Auswertung zählen</div>
+            </div>
+            <div class="metric">
+                <div class="mv">{{ liste.pruefziele|length - liste.zaehlend|length }}</div>
+                <div class="ml">Prüfziele mit Unterpunkten (zählen über die Unterpunkte)</div>
+            </div>
+            <div class="metric">
+                <div class="mv">{{ liste.bereiche|length }}</div>
+                <div class="ml">Bereiche in den Teilen VI und VIII</div>
+            </div>
+        </div>
+        <table class="pruefziele">
+            <thead>
+                <tr>
+                    <th>Nr.</th>
+                    <th>Prüfziel</th>
+                    <th>Hinweis</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in liste.eintraege %}
+                    {% if e.ebene != 'pruefziel' %}
+                        {{ kopfzeile(e.ebene, e, 3) }}
+                    {% else %}
+                        <tr>
+                            <td class="nr">{{ e.teil }} {{ e.nr }}</td>
+                            <td>{{ e.name }}</td>
+                            <td class="muted klein">
+                                {% if e.unterpunkte %}hat Unterpunkte, zählt nicht einzeln{% endif %}
+                                {% if e.nr_tabelle %}in der Prüfziel-Tabelle als {{ e.nr_tabelle }}{% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <details class="card optional">
+        <summary>So steht die Liste in der Anfrage an das Modell</summary>
+        <pre class="roh">{{ liste.text_fuer_modell() }}</pre>
+    </details>
+{% endblock %}

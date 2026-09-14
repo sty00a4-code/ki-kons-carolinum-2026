@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "_subnav.html" import subnav_neu %}
+{% block titel %}Aus Excel übernehmen{% endblock %}
+{% block content %}
+    {{ subnav_neu("Aus Excel übernehmen") }}
+    <h1>Ergebnis aus Excel übernehmen <span class="badge info">Kategorie 1</span></h1>
+    <p class="muted">
+        Für Durchläufe außerhalb der App, etwa <code>ModellAuswertung Mistral.xlsx</code>, und für
+        Excel-Dateien aus dem Export dieser App (auch von Hand korrigiert). Jedes Blatt wird ein
+        eigenes Ergebnis; die Temperatur liest die App aus dem Blattnamen (z. B. „mistral 0.5“).
+    </p>
+    <form method="post"
+          enctype="multipart/form-data"
+          class="card"
+          id="import-formular">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <p class="hint entwurf-hinweis" hidden></p>
+        <label class="upload">
+            Ergebnis-Excel
+            <input type="file" name="excel" accept=".xlsx" required>
+            <small class="muted">Zeilen mit Prüfziel, Abdeckung (X), Begründung und Lernziel-ID, wie vom Prompt verlangt</small>
+        </label>
+        <div class="grid2">
+            <label class="upload">
+                Lernziele <span class="muted">(optional)</span>
+                <input type="file" name="lernziele" accept=".pdf,.txt,.md">
+                <small class="muted">Damit zeigt die Tabelle den Wortlaut der Lernziele und prüft die IDs.</small>
+            </label>
+            <label class="upload">
+                Vorlesung <span class="muted">(optional)</span>
+                <input type="file" name="vorlesung" accept=".pdf,.txt,.md">
+                <small class="muted">Nur zur Dokumentation und für einen neuen Durchlauf mit denselben Dateien.</small>
+            </label>
+        </div>
+        <div class="grid2">
+            <label>
+                Modell, das die Excel-Datei erzeugt hat
+                <select name="modell">
+                    {% for mid, name in modelle %}
+                        <option value="{{ mid }}" {% if mid == werte.modell %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Prüfziel-Liste
+                <select name="liste">
+                    {% for schluessel, titel in listen %}
+                        <option value="{{ schluessel }}"
+                                {% if schluessel == werte.liste %}selected{% endif %}>{{ titel }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <label>
+            Titel <span class="muted">(optional, sonst der Dateiname; der Blattname kommt dazu)</span>
+            {# 40 Zeichen bleiben für den Blattnamen, der an den Titel angehängt wird. #}
+            <input name="titel"
+                   value="{{ werte.titel }}"
+                   maxlength="{{ max_titel - 40 }}">
+        </label>
+        <details class="optional">
+            <summary>Verwendeter Prompt</summary>
+            <textarea name="prompt" rows="7">{{ werte.prompt }}</textarea>
+        </details>
+        <div class="row">
+            <button type="submit">Übernehmen</button>
+            <button type="button"
+                    class="secondary entwurf-verwerfen"
+                    data-ziel="{{ url_for('zuordnung.excel_uebernehmen') }}">Verwerfen</button>
+        </div>
+    </form>
+    <script src="{{ url_for('static', filename='entwurf.js') }}"></script>
+    <script>
+        entwurfEinrichten(document.getElementById("import-formular"), "projekt1-import");
+        document.getElementById("import-formular").addEventListener("submit", function() {
+            const knopf = this.querySelector("button[type=submit]");
+            knopf.disabled = true;
+            knopf.textContent = "Wird übernommen";
+        });
+    </script>
+{% endblock %}

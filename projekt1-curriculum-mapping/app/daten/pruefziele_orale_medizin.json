@@ -1,0 +1,1397 @@
+{
+ "schluessel": "orale-medizin",
+ "titel": "Orale Medizin und systemische Aspekte (08 QB Z2)",
+ "quelle": "Prüfziel-Tabelle (Stand 15.06.2026), Schreibweise und Nummern nach IMPP-Gegenstandskatalog Zahnmedizin",
+ "eintraege": [
+  {
+   "ebene": "teil",
+   "teil": "VI",
+   "nr": "VI",
+   "name": "Erkrankungen"
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "1",
+   "name": "Orofaziales System"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.1",
+   "name": "Zahnhartsubstanzdefekte und -veränderungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.1.1",
+   "name": "Karies",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.1.2",
+   "name": "Erosion, Abrasion, Attrition",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.1.3",
+   "name": "Erworbene und genetisch bedingte Zahnhartsubstanzdefekte",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.1.5",
+   "name": "Pathologische Zahnresorptionen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.2",
+   "name": "Parodontale Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.2.3",
+   "name": "Gingivale Erkrankungen (Nicht-Biofilm-induziert)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.2.4",
+   "name": "Parodontitis",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.2.5",
+   "name": "Parodontitis als Manifestation einer systemischen Erkrankung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.2.6",
+   "name": "Nekrotisierende parodontale Erkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.2.8",
+   "name": "Gingivawucherung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.2.9",
+   "name": "Entwicklungsbedingte und erworbene Deformationen und Zustände des Parodonts",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.3",
+   "name": "Erkrankungen des Pulpa-Dentin-Komplexes und periradikuläre Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.3.1",
+   "name": "Pulpitiden und Pulpanekrosen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.3.3",
+   "name": "Pulpale und radikuläre Fehlbildungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.4",
+   "name": "Zahnverlust, Zahnentfernung und fehlender Zahn"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.4.1",
+   "name": "Intra- und postoperative Komplikationen bei Zahnentfernungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.4.3",
+   "name": "Zahnverlust und seine Folgen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.4.4",
+   "name": "Durchbruchsstörungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.4.5",
+   "name": "Kieferkammatrophie, Alveolarfortsatzatrophie und weitere ungünstige anatomische Situationen (für Prothetik)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.5",
+   "name": "Funktionsstörungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.5.1",
+   "name": "Orale Parafunktionen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.5.2",
+   "name": "Kraniomandibuläre Dysfunktionen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.6",
+   "name": "Entwicklungs- und altersabhängigen Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.6.2",
+   "name": "Entwicklungsstörungen der Zähne",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.6.3",
+   "name": "Entwicklungsstörungen und Fehlbildungen des Milchgebisses",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "1.7",
+   "name": "Erkrankungen der Speicheldrüsen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.7.1",
+   "name": "Xerostomie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.7.2",
+   "name": "Speichelretentionszyste (Ranula)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.7.3",
+   "name": "Sialadenose",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "1.7.8",
+   "name": "Syndrome mit Speicheldrüsenbeteiligung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "2",
+   "name": "Muskuloskelettales System und Weichgewebe"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "2.1",
+   "name": "Rheumatische muskuloskelettale Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.1.5",
+   "name": "Reaktive Arthritis",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.1.6",
+   "name": "Juvenile idiopathische Arthritiden",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.1.7",
+   "name": "Rheumatoide Arthritis",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.1.11",
+   "name": "Vaskulitiden der Haut und Mundschleimhaut (Kleingefäßvaskulitis / Vasculitis allergica)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "2.2",
+   "name": "Infektiologische und weitere muskuloskelettale Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.2.5",
+   "name": "Knochenentzündungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.2.6",
+   "name": "Infektionen des Weichgewebes im Kopf-Hals-Bereich",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "2.4",
+   "name": "Angeborene und erworbene muskuloskelettale Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.4.1",
+   "name": "Angeborene und erworbene Knochenerkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.4.2",
+   "name": "Ätiologisch unklare Knochenerkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.4.3",
+   "name": "Störungen des Wachstums",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.4.6",
+   "name": "Kindliche, frühkindliche, jugendliche obstruktive Schlafapnoe",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.4.7",
+   "name": "Obstruktive Schlafapnoe bei Erwachsenen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.4.11",
+   "name": "Entwicklungsstörungen und Fehlbildungen des Knochens",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "2.5",
+   "name": "Benigne und maligne muskuloskelettale Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.5.1",
+   "name": "Benigne odontogene Tumoren",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.5.2",
+   "name": "Benigne Knochen- und Knorpeltumoren",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.5.3",
+   "name": "Maligne odontogene Tumoren, Knochen- und Knorpeltumoren",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.5.4",
+   "name": "Ossäre Dysplasien",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.5.5",
+   "name": "Kiefergelenkstumor",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.5.6",
+   "name": "Benigne und maligne Weichgewebstumoren",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "2.6",
+   "name": "Stoffwechselbedingte muskuloskelettale Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.6.1",
+   "name": "Osteoporose und Osteopenie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.6.2",
+   "name": "Formenkreis Rachitis, Hyperparathyreoidismus und muskuloskelettale Vitaminmangelfolgen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "3",
+   "name": "Haut, Hautanhangsgebilde und Schleimhaut"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "3.1",
+   "name": "Veränderungen der Haut und Schleimhaut"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.1.1",
+   "name": "Effloreszenzen der Haut und der Schleimhaut",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.1.3",
+   "name": "Pigmentierungen der Mundschleimhaut",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.1.4",
+   "name": "Veränderungen der Zunge",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.1.6",
+   "name": "Zahnersatzassoziierte Veränderungen der Mundschleimhaut",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.1.7",
+   "name": "Sonstige Schleimhauterkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.1.8",
+   "name": "Aphthen / aphthöse Erkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "3.2",
+   "name": "Orale und periorale Manifestation systemischer Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.2.1",
+   "name": "Genetisch bedingte Erkrankungen mit Mundschleimhautbeteiligung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.2.2",
+   "name": "Erworbene Systemerkrankungen mit Mundschleimhautbeteiligung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "3.3",
+   "name": "Entzündliche und degenerative Hauterkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.3",
+   "name": "Medikamenteninduzierte Haut- und Schleimhautveränderungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.4",
+   "name": "Urtikaria und Angioödem",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.5",
+   "name": "Bullöse Intoleranzreaktionen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.7",
+   "name": "Krankheiten der Haut und der Unterhaut durch Strahleneinwirkung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.8",
+   "name": "Kollagenosen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.9",
+   "name": "Bullöse Autoimmundermatosen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.13",
+   "name": "Lichen planus",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.3.14",
+   "name": "Traumatisch bedingte Verletzungen und Veränderungen der Mundschleimhaut",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "3.4",
+   "name": "Infektionen der Haut, Hautanhangsgebilde und Schleimhaut"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.4.3",
+   "name": "Mykosen der Haut und Schleimhaut",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "3.5",
+   "name": "Hauttumoren"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "3.5.2",
+   "name": "Prämaligne Veränderungen von Kopfhaut, Gesichtshaut und Mundschleimhaut",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "4",
+   "name": "Nervensystem und Psyche"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.1",
+   "name": "Autoimmune Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.1.1",
+   "name": "Multiple Sklerose",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "2.1.10",
+   "name": "Polymyalgia rheumatica und Riesenzellarteriitis",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.2",
+   "name": "Epileptische Anfälle"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.2.1",
+   "name": "Epilepsie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.3",
+   "name": "Erkrankungen infolge neuraler Kompression"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.3.1",
+   "name": "Paresen und Plegien im Kopf-Halsbereich",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.3.2",
+   "name": "Horner-Syndrom",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.4",
+   "name": "Infektiöse Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.4.1",
+   "name": "Meningitis",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.4.2",
+   "name": "Neuroborreliose",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.4.3",
+   "name": "Lyme-Borreliose",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.4.4",
+   "name": "Zoster-Erkrankung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.5",
+   "name": "Neurodegenerative Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.5.1",
+   "name": "Demenz",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.5.2",
+   "name": "Delir",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.5.3",
+   "name": "M. Parkinson",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.6",
+   "name": "Nicht-kompressionsbedingte Erkrankung peripherer Nerven"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.6.1",
+   "name": "Polyneuropathie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.6.2",
+   "name": "Läsionen sensibler Hirnnerven",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.6.3",
+   "name": "Idiopathische Fazialisparese",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.6.4",
+   "name": "Melkersson-Rosenthal-Syndrom",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.7",
+   "name": "Schmerzsyndrome"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.7.2",
+   "name": "Trigemino-autonome Kopfschmerzen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.7.6",
+   "name": "Myofasziale Schmerzen der Kiefermuskulatur",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.7.7",
+   "name": "Kiefergelenkschmerzen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.9",
+   "name": "Abhängigkeit und Sucht, Suchterkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.9.1",
+   "name": "Suchtverhalten, Abhängigkeit, Gebrauch und Missbrauch von Genussmitteln, Drogen und Medikamenten",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.9.2",
+   "name": "Intoxikationen durch Alkohol, Drogen, Medikamente und andere Toxine",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.11",
+   "name": "Angst- und Belastungsstörungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.11.1",
+   "name": "Generalisierte Angsterkrankung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.11.2",
+   "name": "Panikstörung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.11.3",
+   "name": "Phobien",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.12",
+   "name": "Körperbezogene psychische Störungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.12.1",
+   "name": "Somatoforme Störungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.12.2",
+   "name": "Essstörungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "4.13",
+   "name": "Affektive Störungen und Persönlichkeitsstörungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.13.1",
+   "name": "Persönlichkeitsstörungen (dissoziale, histrionische, paranoide, schizoide, emotional instabile Persönlichkeitsstörung)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "4.13.2",
+   "name": "Depression",
+   "nr_tabelle": "4.12.2",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "5",
+   "name": "Sinnessysteme"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "5.1",
+   "name": "Erkrankungen des Auges und der Orbita"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "5.1.14",
+   "name": "Sehstörungen und Blindheit",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "6",
+   "name": "Respiratorisches System"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "6.1",
+   "name": "Atemwegserkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "6.1.2",
+   "name": "Asthma bronchiale",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "6.1.3",
+   "name": "Chronisch obstruktive Lungenerkrankung (COPD), chronische Bronchitis, Lungenemphysem",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "6.2",
+   "name": "Respiratorische Infektionen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "6.2.4",
+   "name": "Tuberkulose und Infektionen mit nicht-tuberkulösen Mykobakterien",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "7",
+   "name": "Verdauungssystem"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "7.1",
+   "name": "Erkrankungen des oberen Gastrointestinaltraktes"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "7.1.3",
+   "name": "Reflux, Refluxösophagitis, Barrett-Ösophagus",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "7.1.4",
+   "name": "Infektiöse Ösophagitiden und sonstige Ösophagitiden",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "7.3",
+   "name": "Dünn- und Dickdarmerkrankungen, Erkrankungen des Peritoneums"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "7.3.1",
+   "name": "Malassimilationssyndrom",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "7.3.2",
+   "name": "Zöliakie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "7.3.5",
+   "name": "Chronisch-entzündliche Darmerkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "7.4",
+   "name": "Lebererkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "7.4.1",
+   "name": "Erkrankungen der Leber",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "9",
+   "name": "Blut und Immunologie"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.1",
+   "name": "Maligne Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.1",
+   "name": "Tumoren und tumorähnliche Erkrankungen des Gefäßsystems",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.2",
+   "name": "AV Malformation",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.3",
+   "name": "Akute Leukämie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.4",
+   "name": "Chronische Leukämien",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.5",
+   "name": "Lymphome (Hodgkin, Non-Hodgkin-Lymphome)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.6",
+   "name": "Myeloproliferative Neoplasien",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.7",
+   "name": "Myelodysplastisches Syndrom",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.1.8",
+   "name": "Lymphknotenmetastasen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.2",
+   "name": "Erkrankungen der Erythrozyten"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.2.1",
+   "name": "Anämie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.3",
+   "name": "Erkrankungen der Leukozyten"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.3.1",
+   "name": "Leukopenien",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.3.2",
+   "name": "Leukozytosen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.4",
+   "name": "Erkrankungen der Thrombozyten"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.4.1",
+   "name": "Thrombozytopenie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.4.2",
+   "name": "Thrombozytopathie",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.4.3",
+   "name": "Idiopathische thrombozytopenische Purpura",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.4.4",
+   "name": "Thrombozytose",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.6",
+   "name": "Infektionen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.6.2",
+   "name": "Epstein-Barr-Virus (EBV)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.6.4",
+   "name": "Herpesinfektionen (Herpes simplex)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.6.5",
+   "name": "HIV-1 und HIV-2 (AIDS: Acquired Immune Deficiency Snydrome)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.6.6",
+   "name": "Sexuell übertragbare Infektionen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.6.9",
+   "name": "Kinderkrankheiten",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.7",
+   "name": "Immunmediierte Erkrankungen"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.7.3",
+   "name": "Autoimmunkrankheiten",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "9.8",
+   "name": "Lymphsystem"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.8.2",
+   "name": "Lymphangiom",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "9.8.3",
+   "name": "Lymphangitis, Lymphadenitis, Lymphknotenabszess",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VI",
+   "nr": "10",
+   "name": "Hormone und Stoffwechsel"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "10.1",
+   "name": "Erkrankungen des endokrinen Pankreas und Störungen der Glucose-Homöostase"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "10.1.1",
+   "name": "Diabetes mellitus",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "10.1.2",
+   "name": "Begleit- und Folgeerkrankungen des Diabetes mellitus",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "10.6",
+   "name": "Defekte des Stoffwechsels - Abbau und Energiegewinnung"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "10.6.2",
+   "name": "Störungen des Vitaminstoffwechsels",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "10.6.4",
+   "name": "Störungen des Spurenelementstoffwechsels",
+   "nr_tabelle": "10.6.2",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VI",
+   "nr": "10.8",
+   "name": "Störungen von Wachstum und Pubertät"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VI",
+   "nr": "10.8.1",
+   "name": "Störungen des Wachstums",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "teil",
+   "teil": "VIII",
+   "nr": "VIII",
+   "name": "Übergeordnete Kompetenzen"
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VIII",
+   "nr": "2",
+   "name": "Zahnärztliche Gesprächsführung"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VIII",
+   "nr": "2.5",
+   "name": "Soziodemografische und sozioökonomische Einflussfaktoren"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "2.5.4",
+   "name": "Umgang mit Wahrnehmungs- und Kommunikationsstörungen",
+   "unterpunkte": true
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "2.5.4.1",
+   "name": "Wahrnehmungs- und Kommunikationsstörung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VIII",
+   "nr": "3",
+   "name": "Interprofessionelle Kompetenzen"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VIII",
+   "nr": "3.2",
+   "name": "Zusammenarbeit unterschiedlicher Gesundheitsberufe"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.2",
+   "name": "Zusammenarbeit mit verschiedenen zahnärztlichen und ärztlichen Disziplinen",
+   "unterpunkte": true
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.2.2",
+   "name": "Bedeutung der Zusammenarbeit von Zahnarzt / -innen, Hausarzt / -innen und Facharzt / -innen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.2.3",
+   "name": "Aufgabenbereiche und Expertisen der für die Patientenversorgung in der Praxis relevanten zahnärztlichen und ärztlichen Fachdisziplinen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.2.4",
+   "name": "Notwendigkeit der Konsultation mit behandelnden Allgemein- oder Fachärzten und -innen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.2.5",
+   "name": "Aufklärung von Humanmedizinerinnen und Humanmedizinern über die spezifische Situation der Patientinnen und Patienten und die potentiellen Implikationen der geplanten zahnärztlichen Maßnahmen auf deren Allgemeingesundheit",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.3",
+   "name": "Zusammenarbeit mit anderen Gesundheitsberufen",
+   "unterpunkte": true
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.3.3",
+   "name": "Einholen behandlungsrelevanter Informationen zur individuellen, biopsychosozialen Situation der behandelten Person",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.3.5",
+   "name": "Teilhabeorientiertes Vorgehen unter Einschluss der multidisziplinären und interprofessionellen Problemerkennung und Arbeitsweise",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.3.6",
+   "name": "Ausarbeiten eines Plans zum Teilhabemanagement (interprofessionell und mit Betroffenen und ggf. Angehörigen und gesetzlichen Vertreterinnen und Vertreter)",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.3.8",
+   "name": "Anpassen der Zusammenstellung der an Gesundheitsförderung, Prävention, Kuration, Rehabilitation und Palliation beteiligten Gesundheitsberufe an entwicklungs-, alters- und geschlechtsspezifischen Unterschiede",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "3.2.3.9",
+   "name": "Aspekte der interprofessionellen Gesundheitsfürsorge und Versorgung bei Kindern und Erwachsenen mit geistiger oder mehrfacher Behinderung",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "bereich",
+   "teil": "VIII",
+   "nr": "4",
+   "name": "Gesundheitsberatung, -förderung und Prävention"
+  },
+  {
+   "ebene": "gruppe",
+   "teil": "VIII",
+   "nr": "4.5",
+   "name": "Gesundheitsförderung und Prävention"
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "4.5.2",
+   "name": "Erkennen und Erfassen des Gesundheitszustandes als Ganzes, des mundbezogenen Gesundheitszustandes und des Lebensstils",
+   "unterpunkte": true
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "4.5.2.4",
+   "name": "Einfluss von Mitarbeit, auch von Angehörigen / Pflegepersonal auf die Mundgesundheit",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "4.5.2.5",
+   "name": "Auswirkungen und Einfluss von Allgemeinerkrankungen oder allgemeine medizinische Veränderungen sowie Auswirkungen der Therapie von Allgemeinerkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "4.5.2.6",
+   "name": "Individuelles orales Erkrankungsrisiko, Risiko für das Fortschreiten oraler Erkrankungen",
+   "unterpunkte": false
+  },
+  {
+   "ebene": "pruefziel",
+   "teil": "VIII",
+   "nr": "4.5.7",
+   "name": "Behinderung und Gesundheit",
+   "unterpunkte": false
+  }
+ ]
+}

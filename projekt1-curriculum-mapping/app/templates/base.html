@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description"
+              content="Zuordnung von Prüfzielen und Lernzielen mit Begründung (Projekt 1, Zahnmedizin, Kategorie 1).">
+        <title>{% block titel %}Curriculum-Mapping{% endblock %} · Projekt 1</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <header>
+            <div class="brand">🦷 Curriculum-Mapping <small>Projekt 1</small></div>
+            <nav>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('zuordnung.neu') }}">Neue Zuordnung</a>
+                    <a href="{{ url_for('zuordnung.ergebnisse') }}">Ergebnisse</a>
+                    <a href="{{ url_for('zuordnung.vergleich') }}">Vergleich</a>
+                    <a href="{{ url_for('zuordnung.pruefziel_liste') }}">Prüfziele</a>
+                    <span class="who">{{ session.username }} · {{ session.role }}</span>
+                    <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button class="linkbtn">Logout</button>
+                    </form>
+                {% endif %}
+            </nav>
+        </header>
+        <main>
+            {% with msgs = get_flashed_messages() %}
+                {% if msgs %}<div class="flash">{% for m in msgs %}<div>{{ m }}</div>{% endfor %}</div>{% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    </body>
+</html>

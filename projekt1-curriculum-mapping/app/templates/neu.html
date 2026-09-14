@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "_subnav.html" import subnav_neu %}
+{% block titel %}Neue Zuordnung{% endblock %}
+{% block content %}
+    {{ subnav_neu("Mit KI zuordnen") }}
+    <h1>Neue Zuordnung <span class="badge info">Kategorie 1</span></h1>
+    <p class="muted">
+        Das Modell geht jedes Prüfziel der Liste durch, prüft, ob die Lernziele es abdecken,
+        begründet das und nennt die Lernziel-IDs. Das Ergebnis erscheint als Tabelle.
+    </p>
+    {% if not ki_bereit %}
+        <div class="hint row-between">
+            <span>
+                Für den KI-Dienst ist noch kein Schlüssel hinterlegt (Umgebungsvariable
+                <code>P1_LLM_API_KEY</code>). Bis dahin lassen sich fertige Ergebnisse aus einer Excel-Datei übernehmen.
+            </span>
+            <a class="btn small" href="{{ url_for('zuordnung.excel_uebernehmen') }}">Aus Excel übernehmen</a>
+        </div>
+    {% endif %}
+    <form method="post"
+          enctype="multipart/form-data"
+          class="card"
+          id="neu-formular">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <p class="hint entwurf-hinweis" hidden></p>
+        <h2 class="schritt"><span>1</span> Prompt</h2>
+        <textarea name="prompt" rows="8" required aria-label="Prompt">{{ werte.prompt }}</textarea>
+        <p class="muted klein">
+            Vorgabe ist der Standard-Prompt für Kategorie 1. Vor dem Prompt bekommt das Modell drei
+            Dokumente: 1. die Prüfziel-Liste, 2. die Lernziele, 3. die Vorlesung.
+        </p>
+        <h2 class="schritt"><span>2</span> Dateien</h2>
+        <div class="grid2">
+            <label class="upload">
+                Vorlesung
+                <input type="file" name="vorlesung" accept=".pdf,.txt,.md" required>
+                <small class="muted">Foliensatz als PDF, z. B. Vorlesung_1_OraleMedizinUndSystemischeAspekte.pdf</small>
+            </label>
+            <label class="upload">
+                Lernziele
+                <input type="file" name="lernziele" accept=".pdf,.txt,.md" required>
+                <small class="muted">Lernziel-Katalog als PDF, z. B. NKLZ Kapitel 25 (NKLZLernziele242248.pdf)</small>
+            </label>
+        </div>
+        <p class="muted klein">
+            Die App liest den Text aus den PDFs und speichert nur diesen. Eingescannte PDFs ohne Textebene lassen sich nicht auswerten.
+        </p>
+        <h2 class="schritt"><span>3</span> Einstellungen</h2>
+        <div class="grid3">
+            <label>
+                Prüfziel-Liste
+                <select name="liste">
+                    {% for schluessel, titel in listen %}
+                        <option value="{{ schluessel }}"
+                                {% if schluessel == werte.liste %}selected{% endif %}>{{ titel }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Modell
+                <select name="modell">
+                    {% for mid, name in modelle %}
+                        <option value="{{ mid }}" {% if mid == werte.modell %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Temperatur
+                <input name="temperatur"
+                       value="{{ werte.temperatur }}"
+                       inputmode="decimal"
+                       pattern="[01]([.,][0-9]+)?|2([.,]0+)?"
+                       title="Zahl von 0 bis 2">
+            </label>
+        </div>
+        <label>
+            Titel <span class="muted">(optional, sonst der Name der Vorlesung)</span>
+            <input name="titel" value="{{ werte.titel }}" maxlength="{{ max_titel }}">
+        </label>
+        <div class="row">
+            <button type="submit" {% if not ki_bereit %}disabled{% endif %}>Zuordnung starten</button>
+            <button type="button"
+                    class="secondary entwurf-verwerfen"
+                    data-ziel="{{ url_for('zuordnung.neu') }}">Verwerfen</button>
+            <a class="btn small secondary"
+               href="{{ url_for('zuordnung.pruefziel_liste') }}">Prüfziel-Liste ansehen ({{ liste.zaehlend|length }} Prüfziele)</a>
+            <span class="muted klein" id="neu-hinweis">Je nach Modell dauert ein Durchlauf einige Minuten.</span>
+        </div>
+    </form>
+    <script src="{{ url_for('static', filename='entwurf.js') }}"></script>
+    <script>
+        entwurfEinrichten(document.getElementById("neu-formular"), "projekt1-neu");
+        document.getElementById("neu-formular").addEventListener("submit", function() {
+            const knopf = this.querySelector("button[type=submit]");
+            knopf.disabled = true;
+            knopf.textContent = "Dateien werden gelesen";
+            document.getElementById("neu-hinweis").textContent = "Gleich geht es auf der Ergebnisseite weiter.";
+        });
+    </script>
+{% endblock %}

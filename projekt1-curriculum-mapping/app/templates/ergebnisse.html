@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "_subnav.html" import status, quelle, verteilung, legende %}
+{% block titel %}Ergebnisse{% endblock %}
+{% block content %}
+    <div class="row-between">
+        <h1>Ergebnisse</h1>
+        <div class="actions">
+            <a class="btn small" href="{{ url_for('zuordnung.neu') }}">Neue Zuordnung</a>
+            <a class="btn small secondary"
+               href="{{ url_for('zuordnung.excel_uebernehmen') }}">Aus Excel übernehmen</a>
+        </div>
+    </div>
+    <p class="muted">
+        Alle Zuordnungen der Kategorie 1, neueste zuerst. Zum Vergleichen 2 bis {{ max_vergleich }} fertige
+        Ergebnisse ankreuzen, etwa denselben Durchlauf mit verschiedenen Temperaturen.
+    </p>
+    {% if not eintraege %}
+        <div class="card">
+            <p>Noch keine Ergebnisse. Eine neue Zuordnung starten oder eine Excel-Datei übernehmen.</p>
+        </div>
+    {% else %}
+        <form method="get"
+              action="{{ url_for('zuordnung.vergleich') }}"
+              class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="auswahl"></th>
+                        <th>Ergebnis</th>
+                        <th>Status</th>
+                        <th class="spalte-verteilung">Abdeckung</th>
+                        <th>Erstellt</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eintrag in eintraege %}
+                        {% set a = eintrag.a %}
+                        {% set e = eintrag.e %}
+                        <tr>
+                            <td class="auswahl">
+                                {% if e and a.status == 'fertig' %}
+                                    <input type="checkbox"
+                                           name="t"
+                                           value="{{ a.token }}"
+                                           aria-label="{{ a.titel }} zum Vergleich auswählen">
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ a.titel }}</strong>
+                                <div class="meta klein">
+                                    {{ quelle(a) }}
+                                    <span class="muted">
+                                        {{ modell_name(a.modell) }}
+                                        {%- if a.temperatur is not none %}, Temperatur {{ a.temperatur|temperatur }}{% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>{{ status(a) }}</td>
+                            <td class="spalte-verteilung">
+                                {% if a.status == 'laeuft' %}
+                                    <small class="muted">{{ (e.zeilen|length if e else 0)|anzahl('Zeile', 'Zeilen') }} bisher</small>
+                                {% elif e and e.zeilen %}
+                                    {{ verteilung(e, klein=true) }}
+                                    <small class="num">
+                                        <strong class="ok-txt">{{ e.abgedeckt }} X</strong>
+                                        {% if e.teilweise %}· {{ e.teilweise }} teilweise{% endif %}
+                                        · {{ e.nicht }} nicht
+                                        {% if e.fehlend %}· <span class="bad-note">{{ e.fehlend|length }} {{ 'fehlt' if e.fehlend|length == 1 else 'fehlen' }}</span>{% endif %}
+                                    </small>
+                                {% else %}
+                                    <small class="muted">keine Zeilen</small>
+                                {% endif %}
+                            </td>
+                            <td class="num">
+                                {{ a.erstellt_am|datum }}
+                                {% if a.erstellt_von %}
+                                    <br>
+                                    <span class="muted">{{ a.erstellt_von }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn small"
+                                   href="{{ url_for('zuordnung.ergebnis', token=a.token) }}">Öffnen</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="row">
+                <button type="submit" class="secondary">Ausgewählte vergleichen</button>
+                <span class="legend">{{ legende() }}</span>
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

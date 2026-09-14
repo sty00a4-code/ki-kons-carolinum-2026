@@ -1,0 +1,55 @@
+# Prüft die Dateien dieses Ordners, Aufruf im Ordner:
+# uvx pre-commit run --all-files
+files: ^projekt1-curriculum-mapping/
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+
+  # Python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  # Jinja-Templates
+  - repo: https://github.com/djlint/djLint
+    rev: v1.44.2
+    hooks:
+      - id: djlint-reformat
+        files: ^projekt1-curriculum-mapping/app/templates/
+        types_or: [html]
+        args: [--profile=jinja]
+      - id: djlint
+        files: ^projekt1-curriculum-mapping/app/templates/
+        types_or: [html]
+        args: [--profile=jinja]
+
+  # SQL
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 4.3.0
+    hooks:
+      - id: sqlfluff-fix
+        args: [--dialect, sqlite]
+        files: \.sql$
+      - id: sqlfluff-lint
+        args: [--dialect, sqlite]
+        files: \.sql$
+
+  # CSS
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v17.14.1
+    hooks:
+      - id: stylelint
+        args: [--fix]
+        additional_dependencies:
+          - stylelint@17.14.1
+          - stylelint-config-standard

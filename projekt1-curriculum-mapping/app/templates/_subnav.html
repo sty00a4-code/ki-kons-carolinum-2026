@@ -1,0 +1,87 @@
+{# Bereichsleiste am Kopf einer Seite.
+   aktiv: Beschriftung des aktiven Eintrags, eintraege: Liste von (Beschriftung, URL) #}
+{% macro subnav(aktiv, eintraege) %}
+    <nav class="subnav">
+        {% for name, ziel in eintraege %}
+            <a class="btn small{% if name == aktiv %} aktiv{% endif %}"
+               href="{{ ziel }}">{{ name }}</a>
+        {% endfor %}
+    </nav>
+{% endmacro %}
+{% macro subnav_neu(aktiv) %}
+    {{ subnav(aktiv, [('Mit KI zuordnen', url_for('zuordnung.neu')), ('Aus Excel übernehmen', url_for('zuordnung.excel_uebernehmen'))]) }}
+{% endmacro %}
+{# Abdeckung als Badge: 2 abgedeckt, 1 teilweise, 0 nicht abgedeckt #}
+{% macro abdeckung(stufe) %}
+    {% if stufe == 2 %}
+        <span class="badge ok">X abgedeckt</span>
+    {% elif stufe == 1 %}
+        <span class="badge teil">teilweise</span>
+    {% else %}
+        <span class="badge nein">nicht abgedeckt</span>
+    {% endif %}
+{% endmacro %}
+{% macro status(a) %}
+    {% if a.status == 'laeuft' %}
+        <span class="badge laeuft">läuft</span>
+    {% elif a.status == 'fehler' %}
+        <span class="badge fehlt">Fehler</span>
+    {% else %}
+        <span class="badge ok">fertig</span>
+    {% endif %}
+{% endmacro %}
+{% macro quelle(a) %}
+    {% if a.quelle == 'import' %}
+        <span class="badge info">aus Excel</span>
+    {% else %}
+        <span class="badge info">KI-Durchlauf</span>
+    {% endif %}
+{% endmacro %}
+{# Lernziel-IDs mit dem Wortlaut als Tooltip. Ist mit_text gesetzt, steht der Wortlaut
+   zusätzlich unter der ID und wird in Tabellen mit der Klasse mit-wortlaut sichtbar. #}
+{% macro lernziel_ids(ids, e, mit_text=true) %}
+    {% for lid in ids %}
+        {% set text = e.lernziel_texte.get(lid, '') %}
+        {% set unbekannt = lid in e.unbekannte_ids %}
+        <span class="lz">
+            <span class="{{ 'chip unbekannt' if unbekannt else 'chip' }}"
+                  title="{{ 'Kommt im Lernziel-Dokument nicht vor' if unbekannt else text }}">{{ lid }}</span>
+            {% if text and mit_text %}<span class="lz-text">{{ text }}</span>{% endif %}
+        </span>
+    {% endfor %}
+{% endmacro %}
+{# Verteilung der Abdeckung als gestapelter Balken #}
+{% macro verteilung(e, klein=false) %}
+    {% set gesamt = e.zeilen|length + e.fehlend|length %}
+    {% if gesamt %}
+        <div class="pbar{% if klein %} sm{% endif %}"
+             title="{{ e.abgedeckt }} abgedeckt, {{ e.teilweise }} teilweise, {{ e.nicht }} nicht abgedeckt, {{ e.fehlend|length }} fehlen">
+            <div class="pfill app" style="width: {{ e.abgedeckt / gesamt * 100 }}%"></div>
+            <div class="pfill pen" style="width: {{ e.teilweise / gesamt * 100 }}%"></div>
+            <div class="pfill nein" style="width: {{ e.nicht / gesamt * 100 }}%"></div>
+            <div class="pfill fehlt"
+                 style="width: {{ e.fehlend|length / gesamt * 100 }}%"></div>
+        </div>
+    {% endif %}
+{% endmacro %}
+{# Einträge der Legende zu verteilung() #}
+{% macro legende() %}
+    <span><span class="sw app"></span>abgedeckt</span>
+    <span><span class="sw pen"></span>teilweise</span>
+    <span><span class="sw nein"></span>nicht abgedeckt</span>
+    <span><span class="sw fehlt"></span>fehlt in der Antwort</span>
+{% endmacro %}
+{# Kopfzeile für Teil, Bereich oder Gruppe in Tabellen nach der Prüfziel-Liste.
+   data-ebene gibt die Tiefe für kopfzeilenAnpassen() in tabelle.js an. #}
+{% macro kopfzeile(ebene, eintrag, spalten) %}
+    <tr class="kopf kopf-{{ ebene }}"
+        data-ebene="{{ {'teil': 0, 'bereich': 1, 'gruppe': 2}[ebene] }}">
+        <td colspan="{{ spalten }}">
+            {% if ebene == 'teil' %}
+                {{ eintrag.nr }} {{ eintrag.name }}
+            {% else %}
+                <span class="nr">{{ eintrag.nr }}</span> {{ eintrag.name }}
+            {% endif %}
+        </td>
+    </tr>
+{% endmacro %}
