@@ -1,0 +1,1054 @@
+{
+  "kapitel": "Z 25 Orale Medizin und systemische Aspekte",
+  "quelle": "NKLZ Kompetenzen und Lernziele Seite 242 [1]",
+  "präambel": "Orale und systemische Gesundheit sind eng miteinander verknüpft. Diese Beziehung besteht in zwei Richtungen und ihre Bedeutung im klinischen Alltag hat durch die Erkenntnisse der vergangenen zwei Jahrzehnte erheblich an Bedeutung gewonnen. In ihr ist die enge Verknüpfung medizinischer und zahnmedizinischer Ausbildungsinhalte begründet. Sie durchdringt nunmehr alle Bereiche der Zahnmedizin, auch wenn dies in einigen Disziplinen mehr und in anderen weniger offensichtlich ist. Die individuelle Reflektion der Verknüpfung von oraler und systemischer Gesundheit stellt einen zentralen ärztlichen Aspekt der Patientenversorgung in der zahnärztlichen Behandlungsroutine dar. Seine Bedeutung sollte den Studierenden im Lehralltag immer wieder bewusst gemacht werden, was sich auch im Kompetenzniveau der Lernziele widerspiegelt. Weite Bereiche dieses Kapitels sind für täglich in der Praxis anfallende, auf die individuelle Situation der Patientinnen/Patienten zugeschnittene Entscheidungsprozesse und Beratungsgespräche relevant. Konzipiert als Querschnittsbereich, wird die bidirektionale Verschränkung von oraler und systemischer Gesundheit abgebildet. Der hohen Dynamik der derzeitigen wissenschaftlichen Entwicklung trägt die Konkretisierung der Lernziele in den Beispielen Rechnung, wodurch aktuelle Anpassungen möglich sind, ohne dass dadurch eine Neuformulierung oder Ergänzung von Lernzielen erforderlich wird.",
+  "lernziele": [
+    {
+      "id": "25.1",
+      "beschreibung": "Die Absolventin/der Absolvent können Auswirkungen von Allgemeinerkrankungen oder allgemeinmedizinischen Veränderungen auf die Ätiologie, Pathogenese, Prävention und Therapie oraler Erkrankungen darstellen, bewerten und berücksichtigen. Sie können ...",
+      "unterzieht": [
+        {
+          "id": "25.1.1.1",
+          "beschreibung": "wichtige relevante Erkrankungen oder Zustände, die einen Einfluss auf die Ätiologie und Pathogenese sowie die Therapie oraler Erkrankungen haben, erkennen und in Diagnostik und Therapieplanung berücksichtigen.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "Autoimmunerkrankungen",
+            "immun-supprimierende Erkrankungen",
+            "Erkrankungen mit Einfluss auf die Speichelproduktion",
+            "Abhängigkeitssyndrome (Rauchen, Alkohol, N-Methylamphetamin)",
+            "Einfluss biopsychosoziale Faktoren (Stress)",
+            "psychogene Essstörungen",
+            "syndromale Erkrankungen",
+            "Glaukom"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.2",
+          "beschreibung": "psychische Auffälligkeiten erkennen und somatische Ursachen abklären, die das Inanspruchnahmeverhalten der Patientinnen/Patienten für zahnärztlich-therapeutische oder -präventive Maßnahmen beeinflussen. Sie können diese exemplarisch beschreiben und in Diagnostik und Therapieplanung berücksichtigen.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "affektive Störungen",
+            "Persönlichkeits-Störungen",
+            "Phobien",
+            "somatoforme Schmerzstörungen",
+            "Neuropathien",
+            "posttraumatische Belastungsstörungen"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.3",
+          "beschreibung": "das individuelle orale Erkrankungsrisiko und das Risiko für das Fortschreiten oraler Erkrankungen auf Grund bestehender Allgemeinerkrankungen einschätzen und bei der zahnärztlichen Behandlung berücksichtigen.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "Diabetes mellitus",
+            "Demenz",
+            "Schlaganfall (i.S. motorischer und kognitiver Defizite)"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.4",
+          "beschreibung": "Änderungen in den Ernährungsgewohnheiten älterer Menschen sowie auch Menschen mit Behinderungen beschreiben und deren Auswirkungen auf die Mundgesundheit einordnen.",
+          "kompetenzstufe": "GL: 2",
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.5",
+          "beschreibung": "alternative enterale und parenterale Ernährung definieren.",
+          "kompetenzstufe": "GL: 1",
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.6",
+          "beschreibung": "Defizite im Ernährungszustand von älteren autarken oder pflegebedürftigen Patientinnen/Patienten identifizieren und in die Behandlungsplanung einbeziehen.",
+          "kompetenzstufe": "GL: 3b",
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.7",
+          "beschreibung": "Befunde im Rahmen der allgemeinmedizinischen Routinediagnostik bewerten und ihren Einfluss auf orale Erkrankungen oder deren Therapie einschätzen.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "INR/Quick",
+            "Blutbild"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "14",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h"
+          ]
+        },
+        {
+          "id": "25.1.1.8",
+          "beschreibung": "Befunde im Rahmen der Routinediagnostik, die Verdachtsdiagnosen außerhalb der Zahnmedizin nach sich ziehen, erkennen, bewerten und die weiteren Schritte planen.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "Autoimmunerkrankungen",
+            "Essstörungen",
+            "Leukämie",
+            "Diabetes mellitus",
+            "Infektionskrankheiten",
+            "Atherosklerose der A. carotis (OPG)",
+            "Tumore im Mund-Kiefer-Gesichtsbereich und angrenzender Strukturen",
+            "Reflux",
+            "Schmerzstörung",
+            "affektive Störung"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.9",
+          "beschreibung": "wichtige relevante Allgemeinerkrankungen oder Zustände, die einen Einfluss auf die zahnärztliche Therapie haben, nennen und die deren Zusammenhänge erläutern.",
+          "kompetenzstufe": "GL: 2",
+          "beispiele": [
+            "Unverträglichkeiten und Allergien",
+            "Erkrankungen mit erhöhtem Bakteriämierisiko oder Blutungsneigung",
+            "Abhängigkeitssyndrome (Rauchen, Alkohol, N-Methylamphetamin)",
+            "somatoforme Störungen",
+            "posttraumatische Belastungsstörungen",
+            "Münchhausen-Syndrom",
+            "Zahnbehandlungs- und Blut-Spritzen-Verletzungsphobien",
+            "Panikstörungen"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "14",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.1.1.10",
+          "beschreibung": "Allgemeinerkrankungen oder Zustände, die einen Einfluss auf die zahnärztliche Therapie haben, bei der Planung therapeutischer Maßnahmen berücksichtigen und ihr Handeln situativ an diesen ausrichten.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "Lagerung bei Herzinsuffizienz",
+            "besondere Vorgaben/Kontraindikationen für Implantationen",
+            "Depressionen und Neuanfertigung von Zahnersatz",
+            "Schmerzstörung und irreversible endodontische oder chirurgische Eingriffe",
+            "somatoforme Störungen und Prothesenunverträglichkeit",
+            "körperdysmorphe Störungen und ästhetische Behandlungswünsche",
+            "Parkinson und Dysphagie/eingeschränkte Mundöffnung"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "14",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.2",
+          "beschreibung": "Die Absolventin/der Absolvent können Auswirkungen der Therapie von Allgemeinerkrankungen auf die Ätiologie, Pathogenese, Prävention und Therapie oraler Erkrankungen darstellen, bewerten und berücksichtigen.",
+          "unterzieht": [
+            {
+              "id": "25.2.1.1",
+              "beschreibung": "allgemeinmedizinische Therapieverfahren, die einen Einfluss auf die Ätiologie und Pathogenese oraler Erkrankungen haben, nennen und die Wechselwirkungen erläutern.",
+              "kompetenzstufe": "GL: 2",
+              "beispiele": [
+                "Radiatio im Kiefergesichtsbereich",
+                "diätetische Vorgaben",
+                "Gerinnungshemmung",
+                "Bisphosphonattherapie",
+                "Immunsuppression",
+                "zuckerhaltige Medikationen"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.2.1.2",
+              "beschreibung": "die Wirkungsweise von Medikamenten, die einen Einfluss auf die Ätiologie und Pathogenese oraler Erkrankungen haben, darstellen.",
+              "kompetenzstufe": "GL: 2",
+              "beispiele": [
+                "Medikationen mit Einfluss auf den Speichel (Antihypertensiva, Antidepressiva, Antikonvulsiva)",
+                "immunsuppressive Medikation",
+                "Neuroleptika (Frühdyskinesien)",
+                "Gingivawucherungen (Phenytoinpräparate, Ciclosporin A, Nifedipin)"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.2.1.3",
+              "beschreibung": "das individuelle orale Erkrankungs- und Komplikationsrisiko und das Risiko für das Fortschreiten oraler Erkrankungen in Bezug auf die aktuelle Therapie der Patientinnen und Patienten kritisch einschätzen und bei individuell erforderlichen Maßnahmen berücksichtigen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Einstellung des Blutzuckerspiegels",
+                "Hormontherapie",
+                "Bisphosphonat-Therapie"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.2.1.4",
+              "beschreibung": "das individuelle orale Erkrankungsrisiko und das Risiko für das Fortschreiten oraler Erkrankungen aufgrund laufender und/oder abgeschlossener anderer medizinischer Therapieverfahren kritisch einschätzen und bei individuell erforderlichen Maßnahmen berücksichtigen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Radiatio im Kiefer-Gesichtsbereich/Chemotherapie",
+                "Demenz",
+                "rheumatische Arthrosen",
+                "affektive Störungen",
+                "Schmerzstörungen in oro-fazialen Strukturen",
+                "Psychopharmaka"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.2.1.5",
+              "beschreibung": "die Folgen von Mundtrockenheit darlegen und Maßnahmen zur Prävention von Mundtrockenheit durchführen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "erhöhtes Kariesrisiko",
+                "intensivierte Kariesprophylaxe (einschließlich diätetischer und medikamentöser Herangehensweisen)",
+                "Speichelersatzmittel",
+                "alters-/medikamenteninduziert"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.2.1.6",
+              "beschreibung": "Patientinnen/Patienten bei der Erlernung effektiver häuslicher Mundhygienemaßnahmen einschließlich der optionalen Verwendung pharmakologischer Therapeutika praktisch anleiten.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Bisphosphonate",
+                "chirurgischer Klappenersatz",
+                "Immunsuppression"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.2.1.7",
+              "beschreibung": "therapiebedingte Einschränkungen oder besondere Anforderungen an zahnärztliche therapeutische Maßnahmen bewerten und bei der Beratung sowie der Behandlung berücksichtigen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "oralchirurgische Eingriffe bei Antikoagulantientherapie",
+                "Zahnersatz/Implantate bei bestrahlten Patientinnen/Patienten",
+                "Risiko-Nutzen-Abwägung von Zahnerhalt zu prognostischem Allgemeinzustand (z. B. bei Demenz oder Schlaganfall)"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "25.3",
+          "beschreibung": "Die Absolventin/der Absolvent können Auswirkungen oraler Erkrankungen und Zustände auf die Ätiologie, Pathogenese und Therapie systemischer Erkrankungen und unerwünschter Zustände darstellen, bewerten und berücksichtigen.",
+          "unterzieht": [
+            {
+              "id": "25.3.1.1",
+              "beschreibung": "wichtige relevante Erkrankungen oder unerwünschte Zustände, auf die orale Erkrankungen Einfluss haben können, in Bezug auf die vorliegende Evidenz bewerten.",
+              "kompetenzstufe": "GL: 2",
+              "beispiele": [
+                "Logenabszesse",
+                "Pneumonien",
+                "cardio- und cerebrovaskuläre Erkrankungen",
+                "Diabetes mellitus",
+                "Einfluss der Einschränkung der Kaufunktion auf den Ernährungszustand"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.3.1.2",
+              "beschreibung": "ätiopathologische Pathways erläutern, die eine periphere Auswirkung oraler Erkrankungen erklären.",
+              "kompetenzstufe": "GL: 2",
+              "beispiele": [
+                "Veränderungen im Fettstoffwechsel",
+                "bei Entzündungsmediatoren und Chemokinen",
+                "der Endothelfunktion",
+                "Aspiration und Verschlucken von Pathogenen",
+                "Eigenschaften des oralen Biofilms in Bezug auf antimikrobielle Therapie",
+                "Einschränkungen der Ernährung durch reduzierte Kaufunktion",
+                "Auswirkungen von ästhetischen und funktionellen Beeinträchtigungen im stomatognathen System auf die psychische, soziale und emotionale Verfassung",
+                "Schmerzexazerbation bei Patientinnen/Patienten mit Gesichtsschmerzen"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.3.1.3",
+              "beschreibung": "auf der Basis der jeweils aktuellen wissenschaftlichen Evidenz Konsequenzen für die individuelle Therapie von Patientinnen/Patienten ziehen und ihr Handeln danach ausrichten.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "engmaschigere und intensivere Betreuung im Sinne einer Tertiärprophylaxe",
+                "bei Patientinnen/Patienten mit Zahnbehandlungsangst"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.3.1.4",
+              "beschreibung": "wichtige relevante allgemeinmedizinische Therapieverfahren und Medikationen, die durch orale Erkrankungen beeinflusst werden, mit den Patientinnen/Patienten besprechen und die Wechselwirkungen darstellen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Organtransplantationen",
+                "größere chirurgische Eingriffe",
+                "Immunsuppression",
+                "Herzklappenersatz"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "25.3.1.5",
+          "beschreibung": "ätiopathologische Pathways, durch die orale Erkrankungen eine allgemeinmedizinische Therapie beeinflussen können, mit den Patientinnen/Patienten besprechen.",
+          "kompetenzstufe": "GL: 3b",
+          "beispiele": [
+            "Veränderungen im Fettstoffwechsel",
+            "bei Entzündungsmediatoren und Chemokinen",
+            "der Endothelfunktion",
+            "Aspiration und Verschlucken von Pathogenen",
+            "des oralen Biofilms in Bezug auf antimikrobielle Therapie"
+          ],
+          "querverweise": [
+            "5",
+            "6",
+            "7",
+            "9",
+            "11",
+            "14",
+            "19",
+            "20",
+            "22",
+            "23a",
+            "23b",
+            "23c",
+            "23d",
+            "23e",
+            "23f",
+            "23g",
+            "23h",
+            "26"
+          ]
+        },
+        {
+          "id": "25.4",
+          "beschreibung": "Auswirkungen der Therapie oraler Erkrankungen auf die Ätiologie, Pathogenese und Therapie systemischer Erkrankungen und unerwünschter Zustände darstellen, bewerten und berücksichtigen.",
+          "unterzieht": [
+            {
+              "id": "25.4.1.1",
+              "beschreibung": "die Konsequenzen von therapeutischen zahnärztlichen Maßnahmen für die Allgemeingesundheit erläutern und bei der Behandlung berücksichtigen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Bakteriämien",
+                "Blutungen",
+                "Allergien",
+                "Komplikationen nach chirurgischen Eingriffen"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.4.1.2",
+              "beschreibung": "die Planung und Durchführung einer zahnärztlichen Therapie den individuellen Anforderungen aufgrund des allgemeinen Erkrankungsrisikos der Patientinnen/Patienten anhand der jeweils aktuellen wissenschaftlichen Evidenz anpassen.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Endokarditisprophylaxe",
+                "Maßnahmen zur Vermeidung von Nachblutungen",
+                "Vermeidung von Vasokonstriktoren bei Glaukom"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.4.1.3",
+              "beschreibung": "die Effekte therapeutischer zahnärztlicher Maßnahmen auf allgemeinmedizinische Therapieverfahren und Medikationen einschätzen und bei der Behandlung berücksichtigen.",
+              "kompetenzstufe": "GL: 2",
+              "beispiele": [
+                "potentielle Therapieanpassungen bei Diabetes mellitus",
+                "Stellenwert der CMD-Funktionstherapie bei orofazialem/r (somatoformen) Schmerz(störung)"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "25.5",
+          "beschreibung": "Auswirkungen oraler Manipulationen auf allgemeinmedizinische Erkrankungen oder Zustände (ohne Vorliegen einer damit verbundenen oralen Erkrankung) darstellen, bewerten und berücksichtigen.",
+          "unterzieht": [
+            {
+              "id": "25.5.1.1",
+              "beschreibung": "die Allgemeinerkrankungen oder Zustände erkennen und bei der Beratung und Therapieplanung berücksichtigen, die durch Manipulation im Bereich des stomatognathen Systems therapiert oder beeinflusst werden können.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "schlafbezogene Atmungsstörungen",
+                "Reduktion der Bakteriämiehäufigkeit durch Erhalt entzündungsfreier Verhältnisse",
+                "Schmerzexazerbation bei Patientinnen/Patienten mit Gesichtsschmerzen"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.5.1.2",
+              "beschreibung": "Patientinnen/Patienten über diese Zusammenhänge adäquat aufklären und bezüglich der individuell erforderlichen Maßnahmen beraten.",
+              "kompetenzstufe": "GL: 3b",
+              "beispiele": [
+                "Schienentherapie",
+                "professionelle Zahnreinigung",
+                "okklusale Korrekturen"
+              ],
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "25.6",
+          "beschreibung": "Auswirkungen oraler Manipulationen auf allgemeinmedizinische Erkrankungen oder Zustände (ohne Vorliegen einer damit verbundenen oralen Erkrankung) darstellen, bewerten und berücksichtigen.",
+          "unterzieht": [
+            {
+              "id": "25.6.1.1",
+              "beschreibung": "Faktoren erläutern, die sowohl auf orale als auch auf allgemeine Erkrankungen einwirken.",
+              "beispiele": [
+                "gemeinsame Risikogene",
+                "gemeinsame ungünstige Verhaltensmuster (z. B. physischer/psychischer/sozialer Stress)"
+              ],
+              "kompetenzstufe": "GL: 2",
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.6.1.2",
+              "beschreibung": "Interaktionen zwischen oralen Erkrankungen und Allgemeinerkrankungen/-zuständen adäquat bewerten und mit Patient:innen im individuellen Kontext besprechen.",
+              "beispiele": [
+                "Diabetes mellitus",
+                "Schwangerschaft"
+              ],
+              "kompetenzstufe": "GL: 3b",
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "14",
+                "19",
+                "20",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "25.7",
+          "beschreibung": "Die Absolventin/der Absolvent können Zusammenhänge zwischen oraler und allgemeiner Medizin im Gespräch mit Patient:innen erläutern und zielgerichtet mit Allgemeinmediziner:innen kommunizieren.",
+          "unterziele": [
+            {
+              "id": "25.7.1.1",
+              "beschreibung": "Patient:innen situationsbezogen in verständlicher Sprache aufklären (Vermeidung angstauslösender Aspekte).",
+              "beispiele": [
+                "Parodontitistherapie in der Schwangerschaft"
+              ],
+              "kompetenzstufe": "GL: 3b",
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "21",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.7.1.2",
+              "beschreibung": "Erkennen, wann eine Konsultation mit behandelnden Allgemein- oder Fachärzt:innen erforderlich ist, und erforderliche Informationen erfragen.",
+              "beispiele": [
+                "nicht eindeutige Situationen bei der Endokarditisprophylaxe",
+                "psychosoziale Konflikte/Einschränkungen",
+                "Befunde der Blickdiagnostik (z. B. Veränderungen des Ganges, der Körperhaltung oder Haut im Gesichts-/Handbereich)"
+              ],
+              "kompetenzstufe": "GL: 3b",
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "21",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "25.7.1.3",
+              "beschreibung": "Allgemeinmediziner:innen über die spezifische Situation der Patient:innen und potenzielle Implikationen der geplanten zahnärztlichen Maßnahmen auf deren Allgemeingesundheit aufklären.",
+              "beispiele": [
+                "Bakteriämie",
+                "Kontrolle des Blutzuckerspiegels",
+                "Kontrolle des CRP-Wertes",
+                "Prognose von Funktionstherapie bei Schmerzstörungen",
+                "prothetische Neuversorgung bei psychischen (v. a. affektiven) Störungen"
+              ],
+              "kompetenzstufe": "GL: 3b",
+              "querverweise": [
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "19",
+                "20",
+                "21",
+                "22",
+                "23a",
+                "23b",
+                "23c",
+                "23d",
+                "23e",
+                "23f",
+                "23g",
+                "23h",
+                "26"
+              ]
+            },
+            {
+              "id": "5.3.1.2",
+              "beschreibung": "eine gezielte Anamnese erheben und dokumentieren sowie daraus präventive, gesundheitsfördernde, diagnostische, therapeutische und/oder rehabilitative Maßnahmen ableiten"
+            },
+            {
+              "id": "5.3.1.3",
+              "beschreibung": "eine gezielte klinische und psychosoziale Untersuchung\ndurchführen und dokumentieren sowie daraus präventive,\ngesundheitsfördernde, diagnostische, therapeutische und/oder\nrehabilitative Maßnahmen ableiten."
+            },
+            {
+              "id": "9.1",
+              "beschreibung": "Die Absolventin/der Absolvent erfassen und fördern den Mundgesundheitszustand individueller Patientinnen/Patienten und integrieren Gesundheitsförderung in die individuelle Betreuung."
+            },
+            {
+              "id": "9.1.1",
+              "beschreibung": "Sie erkennen den speziellen mundbezogenen und orientierend den allgemeinen Gesundheitszustand von individuellen Personen als Ganzes, Ungleichgewichte sowie Missverhältnisse im Gesundheitszustand, deren Ursachen und Folgen. Sie können ..."
+            },
+            {
+              "id": "9.1.1.1",
+              "beschreibung": "Mundgesundheitsförderung und Prävention als wesentlichen Bestandteil in die individuelle Betreuung integrieren."
+            },
+            {
+              "id": "9.1.1.5",
+              "beschreibung": "die Einflussfaktoren und Parameter mundbezogener Krankheiten, welche die gesundheitliche Gesamtsituation von Personen bestimmen, hinsichtlich ihrer individuellen Bedeutung für die jeweilige Person einschätzen und Auswirkungen der gesundheitlichen Gesamtsituation auf die Mundgesundheit identifizieren."
+            },
+            {
+              "id": "9.1.2",
+              "beschreibung": "Sie wirken auf eine Verbesserung des Mundgesundheitszustandes und der allgemeinen Gesundheit von individuellen Personen hin. Sie können ..."
+            },
+            {
+              "id": "9.1.2.1",
+              "beschreibung": "medizinische, edukative, normativ-regulatorische, sozioökonomische und gesundheitspolitische Einflussmöglichkeiten zur Förderung von Mundgesundheit und gesundem Lebenswandel von Individuen erläutern."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
