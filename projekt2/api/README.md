@@ -18,7 +18,10 @@ UI  <- HTTP/JSON ->  API  <- SQLAlchemy ->  DB
 - [Architektur-Entscheidungen](#architektur-entscheidungen)
 - [Endpunkte](#endpunkte)
   - [/students](#students)
+  - [/classes](#classes)
+  - [/semesters](#semesters)
   - [/patients](#patients)
+  - [/assignments](#assignments)
   - [/treatment-cases](#treatment-cases)
   - [/osce](#osce)
   - [/analysis](#analysis)
@@ -59,12 +62,17 @@ api/
 ├── requirements.txt
 ├── leistungen.db                  (Symlink auf ../leistungen.db)
 └── app/
-    ├── main.py                    FastAPI-Einstiegspunkt: App-Objekt, CORS, bindet alle Router ein
+    ├── main.py                    FastAPI-Einstiegspunkt: App-Objekt, CORS, bindet alle Router ein, ruft ensure_schema() beim Start
     ├── database.py                SQLAlchemy-Engine + get_db()-Dependency (eine Session pro Request)
+    ├── schema_updates.py          ensure_schema(): ergänzt fehlende Spalten und Tabellen in einer bestehenden DB
     ├── schemas.py                 Pydantic-Modelle für Requests/Responses
+    ├── security.py                require_write_key(): X-API-Key-Prüfung für Schreib-Endpunkte
     ├── routers/
     │   ├── students.py            /students — Studentenliste, Fortschritt pro Kategorie/Klasse
+    │   ├── classes.py             /classes, Klassenkatalog lesen und Planungswerte ändern
+    │   ├── semesters.py           /semesters, alle Semester mit Daten
     │   ├── patients.py            /patients — Patientenfälle
+    │   ├── assignments.py         /assignments, Zuordnung Patient zu Studierendem
     │   ├── treatment_cases.py     /treatment-cases — lesen + anlegen
     │   ├── osce.py                /osce — OSCE-Ergebnisse
     │   └── analysis.py            /analysis — KI-Trigger/Job-Status, Patienten-Matching
@@ -93,6 +101,16 @@ testbar bleibt.
 - **Response-Modelle mit `from_attributes=True`**: erlaubt `model_validate()`
   direkt auf SQLAlchemy-`RowMapping`-Objekten (die sich wie ein Mapping/Objekt
   mit Attributen verhalten), ohne die Zeilen erst manuell in Dicts umzubauen.
+- **Schema-Ergänzung beim Start**: `main.py` ruft in der Lifespan-Funktion
+  `ensure_schema(engine)` aus `schema_updates.py` auf. Die Funktion liest
+  `pragma table_info` und legt nur an, was fehlt: die Spalten
+  `classes.stretchable`, `classes.max_semesters`, `patients.pseudonym`,
+  `patients.age`, `patients.category`, `patient_cases.difficulty`,
+  `patient_cases.expected_dur_min`, die Tabelle `patient_assignments` und
+  den eindeutigen Index auf `patients.pseudonym`. Vorhandene Daten bleiben
+  unverändert, ein zweiter Start ändert nichts mehr. Frische Datenbanken
+  bekommen dieselben Definitionen über `leistungen.sql` (`build-db.py`);
+  beide Stellen müssen zusammenpassen.
 - **CORS offen (`allow_origins=["*"]`)**: für lokale Entwicklung, damit z.B.
   eine separate UI auf einem anderen Port ohne CORS-Fehler zugreifen kann.
   **Vor Produktivbetrieb auf die tatsächliche UI-Domain einschränken.**
@@ -104,6 +122,11 @@ testbar bleibt.
 
 Alle Beispiele gehen von `http://localhost:8000` aus. Vollständige,
 interaktive Dokumentation immer unter `/docs`.
+
+Alle schreibenden Endpunkte (`POST`, `PATCH`, `PUT`, `DELETE`) verlangen den
+Header `X-API-Key`, sobald die Umgebungsvariable `PROJEKT2_API_KEY` gesetzt
+ist (`security.py`); ohne die Variable bleibt alles offen. Fehlt der
+Schlüssel oder stimmt er nicht, antwortet die API mit 401.
 
 ### `/students`
 
@@ -133,17 +156,99 @@ Beispiel:
 curl "http://localhost:8000/students/0/class-progress?semester=2025SoSe"
 ```
 
+### `/classes`
+
+| Methode | Pfad | Beschreibung |
+|---|---|---|
+| GET | `/classes` | Katalog aller Behandlungsklassen mit Kategoriename und Planungswerten |
+| PATCH | `/classes/{class_id}` | Planungswerte einer Klasse ändern (`ClassUpdate`), 404 falls unbekannt |
+
+`ClassOut` enthält neben den Katalogfeldern die Planungswerte `difficulty`
+(1 leicht, 2 mittel, 3 schwer), `expected_dur_min` (Minuten; die Oberfläche
+rechnet in Blöcken zu 90 Minuten), `stretchable` (`true`: die Leistung darf
+sich über mehrere Semester ziehen) und `max_semesters` (1 bis 4, `null` =
+keine Vorgabe).
+
+`PATCH`-Body (`ClassUpdate`), alle Felder optional. Nur gesendete Felder
+werden geschrieben, ein gesendetes `null` löscht den Wert:
+```json
+{"difficulty": 2, "expected_dur_min": 90, "stretchable": false, "max_semesters": 1}
+```
+
+### `/semesters`
+
+| Methode | Pfad | Beschreibung |
+|---|---|---|
+| GET | `/semesters` | Alle Semester, in denen Daten existieren, chronologisch sortiert |
+
 ### `/patients`
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
+| GET | `/patients` | Alle Patienten, auch ohne Fälle, mit `case_count` |
+| GET | `/patients/{patient_id}` | Ein Patient mit seinen geplanten Fällen (`PatientDetail`), 404 falls unbekannt |
 | GET | `/patients/{patient_id}/cases` | Alle geplanten Leistungen (`patient_cases`) für einen Patienten |
+| POST | `/patients` | Patient anlegen (`PatientIn`), Antwort 201 mit `PatientDetail` |
+| PATCH | `/patients/{patient_id}` | Patient ändern (`PatientUpdate`), nur gesendete Felder |
+| DELETE | `/patients/{patient_id}` | Patient samt Zuordnung und geplanten Fällen löschen, 204; 409 wenn Behandlungsfälle auf ihn verweisen |
+| POST | `/patients/{patient_id}/cases` | Geplanten Fall anlegen (`PatientCaseIn`), Antwort 201 mit `PatientCaseOut` |
+| PATCH | `/patients/{patient_id}/cases/{case_id}` | Fall ändern (`PatientCaseUpdate`), 404 wenn der Fall nicht zum Patienten gehört |
+| DELETE | `/patients/{patient_id}/cases/{case_id}` | Fall löschen, 204 |
+
+Felder am Patienten: `pseudonym` (Kennung statt Klarname, 1 bis 50
+Zeichen, eindeutig; eine doppelte Kennung ergibt 409), `age` (0 bis 120) und
+`category` (Patientenkategorie 1 bis 4: über wie viele Semester sich die
+Behandlung erstreckt). `name` bleibt für Bestandsdaten erhalten. Beim Anlegen
+muss mindestens `pseudonym` oder `name` gesetzt sein, sonst 422; ein `PATCH`
+darf nicht beide auf `null` setzen.
+
+Felder am geplanten Fall: `difficulty` (1 bis 3) und `expected_dur_min`
+(Minuten), beide optional; `null` heißt, der Wert der Klasse gilt. Eine
+unbekannte `class_id` ergibt 422 mit dem Feldnamen im Detail.
+`GET /patients/{patient_id}/cases` liefert zusätzlich `id` (Fall-id),
+`class_id`, `difficulty` und `expected_dur_min`; die bisherigen Felder
+bleiben. Die feste Zuordnung eines Patienten zu einem Studierenden steht
+unter [/assignments](#assignments).
+
+`POST`-Body (`PatientIn`):
+```json
+{"pseudonym": "P-0417", "name": null, "age": 54, "category": 2}
+```
+
+`POST`-Body für einen Fall (`PatientCaseIn`):
+```json
+{"class_id": 5, "region": "36", "min_points": 2, "max_points": 4, "difficulty": 2, "expected_dur_min": 90}
+```
 
 Liefert Region/Zahn, Kategorie, Klasse und die im Schema hinterlegte
 Punkte-Spanne (`min_points`/`max_points`) je Fall. **Patienten haben im
 Schema keinen direkten `student_id`-Bezug** — ein Patient ist nicht fest
 einem Studenten zugeordnet; welcher Student welchen Patienten behandelt,
 steht (sobald vorhanden) in `treatment_cases`, nicht in `patient_cases`.
+Eine geplante Zuordnung für die Kursplanung (noch vor der Behandlung) steht
+in `patient_assignments`, siehe [/assignments](#assignments).
+
+### `/assignments`
+
+Zuordnung Patient zu Studierendem (Tabelle `patient_assignments`). Ein Patient
+ist höchstens einem Studierenden zugeordnet, deshalb ist die `patient_id` der
+Schlüssel in der Adresse.
+
+| Methode | Pfad | Beschreibung |
+|---|---|---|
+| GET | `/assignments` | Alle Zuordnungen (`AssignmentOut`) |
+| PUT | `/assignments/{patient_id}` | Zuordnung anlegen oder ersetzen (`AssignmentIn`), 422 bei unbekannter `patient_id` oder `student_id` |
+| DELETE | `/assignments/{patient_id}` | Zuordnung aufheben, 204; 404 wenn keine besteht |
+
+`PUT`-Body (`AssignmentIn`):
+```json
+{"student_id": 3, "semester": "2026WiSe", "note": "Recall im Januar"}
+```
+
+`semester` ist optional und folgt dem Muster `JJJJSoSe`/`JJJJWiSe`.
+`AssignmentOut` enthält `patient_id`, `patient` (Pseudonym, sonst Name),
+`student_id`, `semester`, `note` und `created_at`. Ein `PUT` auf eine
+bestehende Zuordnung ersetzt sie vollständig, `created_at` wird neu gesetzt.
 
 ### `/treatment-cases`
 

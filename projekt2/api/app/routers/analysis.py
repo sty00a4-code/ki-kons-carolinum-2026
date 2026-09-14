@@ -1,11 +1,15 @@
-"""Gerüst für den KI-Analyseteil des Projekts.
+"""KI-Analyseteil des Projekts.
 
-Aktuell ein synchroner Platzhalter (kein echter LLM-Call), aber mit der
-Struktur, die für den echten Aufruf gebraucht wird: Trajektorie aus der DB
-bauen -> an ein LLM schicken -> Ergebnis persistieren -> abrufbar machen.
-Sobald ihr die LLM-API angebunden habt, nur `call_llm_for_insights` ersetzen.
+Struktur: Trajektorie aus der DB bauen -> an ein LLM schicken -> Ergebnis
+persistieren -> abrufbar machen. Den LLM-Client gibt die Umgebungsvariable
+LLM_CLI vor (Pfad oder Name eines Kommandos im PATH), LLM_MODEL optional das
+Modell. Ist LLM_CLI nicht gesetzt, liefert die Analyse den Platzhalter. Der
+Trigger ist synchron und dauert mit LLM-Client 10 bis 30 Sekunden.
 """
 
+import json
+import os
+import subprocess
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -28,7 +32,8 @@ def build_learning_trajectory(student_id: int, db: Session) -> dict:
         db.execute(
             text(
                 """
-            select c.name as category, sc.semester, sum(sc.points) as points
+            select c.name as category, sc.semester, sum(sc.points) as points,
+                c.min_points as min_points
             from students_classes as sc
             join classes as cl on sc.class_id = cl.id
             join categories as c on cl.category_id = c.id
@@ -50,12 +55,46 @@ def build_learning_trajectory(student_id: int, db: Session) -> dict:
 
 
 def call_llm_for_insights(trajectory: dict) -> dict:
-    """TODO: hier den echten LLM-API-Call einbauen (siehe outline: 'Nutzung
-    von zentral angebotenen LLMs per API'). Platzhalter gibt Rohdaten zurück."""
-    return {
+    """Ruft das Sprachmodell-Kommando aus LLM_CLI auf. Ohne die Variable oder
+    bei einem Fehler kommt der Platzhalter zurück, das Feld source sagt, was
+    es war."""
+    fallback = {
         "student_id": trajectory["student_id"],
         "summary": "Platzhalter: LLM-Anbindung noch nicht implementiert.",
         "raw_context_size": len(trajectory["category_progress"]),
+        "source": "placeholder",
+    }
+    command = os.environ.get("LLM_CLI")
+    if not command:
+        return fallback
+
+    prompt = (
+        "Du bist Betreuer im zahnmedizinischen Behandlungskurs. Die folgenden "
+        "Daten sind die Punktestände eines Studierenden je Kategorie und "
+        "Semester samt Mindestpunkten (min_points, Gesamtziel über alle "
+        "Semester):\n"
+        + json.dumps(trajectory, ensure_ascii=False)
+        + "\nNenne in höchstens 120 Wörtern auf Deutsch: (1) Stärken, "
+        "(2) Lücken mit Blick auf die Mindestpunkte, (3) eine konkrete "
+        "Empfehlung für das kommende Semester. Keine Anrede, keine "
+        "Einleitung, keine Aufzählungszeichen."
+    )
+    args = [command, "-p", prompt]
+    model = os.environ.get("LLM_MODEL")
+    if model:
+        args += ["--model", model]
+    try:
+        result = subprocess.run(args, capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired):
+        return fallback
+    if result.returncode != 0 or not result.stdout.strip():
+        return fallback
+
+    return {
+        "student_id": trajectory["student_id"],
+        "summary": result.stdout.strip(),
+        "raw_context_size": len(trajectory["category_progress"]),
+        "source": "llm",
     }
 
 

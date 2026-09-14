@@ -21,12 +21,15 @@ def get_category_progress(
     db: Session = Depends(get_db),
 ):
     """Fortschritt pro Kategorie für einen Studenten (identisch zur Streamlit-Query)."""
+    # Ohne Semester-Filter summiert die Query über alle Semester. Das Feld
+    # semester liefert deshalb den Filterwert oder null und nicht einen
+    # beliebigen Wert aus der Gruppe.
     query = text(
         """
         select
             c.name as category,
             sc.student_id,
-            sc.semester,
+            :semester as semester,
             sum(sc.points) as total_points,
             c.min_points as min,
             (sum(sc.points) >= c.min_points) as done,
@@ -55,13 +58,14 @@ def get_class_progress(
     db: Session = Depends(get_db),
 ):
     """Feingranulare Sicht: Fortschritt pro einzelner Klasse."""
+    # Semester als Bind-Wert, gleicher Grund wie beim Kategorie-Fortschritt.
     query = text(
         """
         select
             c.name as category,
             cl.name as class_name,
             sc.student_id,
-            sc.semester,
+            :semester as semester,
             sum(sc.points) as total_points,
             sum(sc.count) as total_count,
             cl.min_points as min_points_required,

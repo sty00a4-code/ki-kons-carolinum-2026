@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,6 +17,13 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+# sqlite wertet references-Klauseln nur aus, wenn pro Verbindung
+# pragma foreign_keys=on gesetzt ist.
+@event.listens_for(engine, "connect")
+def _enable_foreign_keys(connection, _):
+    connection.execute("pragma foreign_keys=on")
 
 
 def get_db():

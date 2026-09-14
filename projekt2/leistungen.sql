@@ -24,6 +24,8 @@ create table if not exists classes (
     min_points decimal,
     difficulty int check (difficulty in (1, 2, 3)), -- 1=leicht, 2=mittel, 3=schwer
     expected_dur_min int,
+    stretchable integer default 1, -- 1=streckbar über mehrere Semester, 0=muss im Semester fertig werden
+    max_semesters integer, -- über wie viele Semester streckbar (1 bis 4), null=keine Vorgabe
     setting varchar(50),
     category_id int references categories (id)
 );
@@ -47,8 +49,13 @@ create table if not exists assessment_criteria (
 -- Anonymisierte Patienten
 create table if not exists patients (
     id integer primary key autoincrement,
-    name varchar(100)
+    name varchar(100),
+    pseudonym varchar(50), -- Kennung statt Klarname, eindeutig wenn gesetzt (Index unten)
+    age integer,
+    category integer -- Patientenkategorie 1 bis 4: über wie viele Semester sich die Behandlung erstreckt
 );
+
+create unique index if not exists idx_patients_pseudonym on patients (pseudonym);
 
 -- Patienten Fälle
 create table if not exists patient_cases (
@@ -57,7 +64,9 @@ create table if not exists patient_cases (
     class_id int references classes (id),
     region text,
     min_points decimal,
-    max_points decimal
+    max_points decimal,
+    difficulty integer, -- 1 bis 3, null = Wert der Klasse gilt
+    expected_dur_min integer -- Minuten, null = Wert der Klasse gilt
 );
 
 -- Klinische Fallkategorien (Fallkomplexität / Falltyp)
@@ -72,6 +81,18 @@ create table if not exists students (
     id integer primary key autoincrement,
     anon_code varchar(50) unique,
     enrollment_semester varchar(8)
+);
+
+-- Zuordnung Patient zu Studierendem, ein Patient höchstens einmal (unique).
+-- Steht hinter students, da dort referenziert. Gleiche Definition in
+-- api/app/schema_updates.py für bestehende Datenbanken.
+create table if not exists patient_assignments (
+    id integer primary key autoincrement,
+    patient_id int references patients (id) unique,
+    student_id int references students (id),
+    semester varchar(8), -- YYYYSoSe / YYYYWiSe
+    note text,
+    created_at text default current_timestamp
 );
 
 -- Einzelne Behandlungsfälle (Patient + Behandlung + Termin)

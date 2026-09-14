@@ -104,7 +104,7 @@ def get_patient_contributions(db: Session) -> list[PatientContribution]:
                 """
             select
                 p.id as patient_id,
-                p.name as patient_name,
+                coalesce(p.pseudonym, p.name) as patient_name,
                 pc.class_id,
                 avg((pc.min_points + pc.max_points) / 2.0) as avg_points,
                 count(*) as case_count

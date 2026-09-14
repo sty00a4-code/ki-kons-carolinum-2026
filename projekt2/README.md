@@ -46,6 +46,14 @@ Danach im Browser öffnen:
 - **`ModuleNotFoundError`** → venv nicht aktiviert oder `pip install -r requirements.txt` nicht ausgeführt.
 - **Port 8000 schon belegt** → anderen Port nehmen: `uvicorn app.main:app --reload --port 8010`.
 
+## Konfiguration (Umgebungsvariablen)
+
+- `PROJEKT2_API_KEY`: wenn gesetzt, verlangen Schreib-Endpunkte den Header `X-API-Key` mit genau diesem Wert. Ohne die Variable bleibt alles offen.
+- `LLM_CLI`: Kommando des LLM-Clients für die KI-Analyse, als Pfad oder als Name im PATH. Ohne die Variable liefert die Analyse einen Platzhalter.
+- `LLM_MODEL`: Modell, das dem LLM-Client mitgegeben wird. Optional.
+
+Der Analyse-Trigger ist synchron und dauert mit LLM-Client 10 bis 30 Sekunden.
+
 # Projektstruktur
 
 ```
@@ -56,9 +64,12 @@ api/
     ├── main.py             FastAPI-Einstiegspunkt, bindet alle Router ein
     ├── database.py         SQLAlchemy-Engine + Session-Dependency
     ├── schemas.py           Pydantic-Modelle (Request/Response)
+    ├── security.py          X-API-Key-Prüfung für Schreib-Endpunkte
     └── routers/
         ├── students.py      /students, Fortschritt pro Kategorie/Klasse
-        ├── patients.py      /patients, Patientenfälle
+        ├── classes.py       GET /classes, Klassenkatalog mit Kategorienamen
+        ├── semesters.py     GET /semesters, alle Semester mit Daten
+        ├── patients.py      GET /patients (Liste mit Fallzahl), Patientenfälle
         ├── treatment_cases.py  /treatment-cases (lesen + anlegen)
         ├── osce.py          /osce/results
         └── analysis.py      /analysis, KI-Kernstück (Trigger/Job-Status)
@@ -67,6 +78,7 @@ api/
 ## Datenfluss
 Lesen: UI → `GET /students/{id}/overview` → Service-Funktion → ORM-Query → JSON
 Schreiben: UI → `POST /treatment-cases` → Validierung (Pydantic) → Service schreibt via ORM → DB
+Beim Schreiben prüft die API alle referenzierten IDs vorab und antwortet mit 422 statt eines Datenbankfehlers; zusätzlich schaltet die Engine für jede SQLite-Verbindung `pragma foreign_keys=on`.
 KI-Analyse: Trigger → Service liest Rohdaten → ruft LLM-API auf → schreibt Ergebnis in eigene Tabelle (learning_insights) → UI holt Insights über separaten Endpoint ab → Job-Status-Pattern
 
 ## Technologievorschlag
