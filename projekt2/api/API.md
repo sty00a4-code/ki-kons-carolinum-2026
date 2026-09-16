@@ -3,8 +3,7 @@
 FastAPI-Backend für die klinische Kompetenz- und Lernverlaufsanalyse. Liest/schreibt auf `leistungen.db` was aus dem Schema in
 `leistungen.sql` über SQLAlchemy Core (rohes SQL via `text()`) erstellt wird.
 
-Diese API ist die einzige Komponente, die direkt mit der DB spricht. Die
-Streamlit-UI (`app.py`) und jede zukünftige UI sprechen nur über HTTP/JSON mit
+Diese API ist die einzige Komponente, die direkt mit der DB spricht. Jede zukünftige UI sprechen nur über HTTP/JSON mit
 dieser API.
 
 ```
@@ -68,34 +67,32 @@ api/
     ├── schemas.py                 Pydantic-Modelle für Requests/Responses
     ├── security.py                require_write_key(): X-API-Key-Prüfung für Schreib-Endpunkte
     ├── routers/
-    │   ├── students.py            /students — Studentenliste, Fortschritt pro Kategorie/Klasse
+    │   ├── students.py            /students - Studentenliste, Fortschritt pro Kategorie/Klasse
     │   ├── classes.py             /classes, Klassenkatalog lesen und Planungswerte ändern
     │   ├── semesters.py           /semesters, alle Semester mit Daten
-    │   ├── patients.py            /patients — Patientenfälle
+    │   ├── patients.py            /patients - Patientenfälle
     │   ├── assignments.py         /assignments, Zuordnung Patient zu Studierendem
-    │   ├── treatment_cases.py     /treatment-cases — lesen + anlegen
-    │   ├── osce.py                /osce — OSCE-Ergebnisse
-    │   └── analysis.py            /analysis — KI-Trigger/Job-Status, Patienten-Matching
+    │   ├── treatment_cases.py     /treatment-cases - lesen + anlegen
+    │   ├── osce.py                /osce - OSCE-Ergebnisse
+    │   └── analysis.py            /analysis - KI-Trigger/Job-Status, Patienten-Matching
     └── services/
         └── assignment_service.py  Matching-Logik (Studenten-Defizite ↔ Patienten-Beiträge), von analysis.py aufgerufen
 ```
 
 Router enthalten nur HTTP-Handling (Pfad, Query-Parameter, Response-Model).
-Alles, was mehr als eine einzelne SQL-Abfrage braucht — insbesondere die
-Matching-Logik — steht in `services/`, damit es unabhängig von FastAPI
+Alles, was mehr als eine einzelne SQL-Abfrage braucht, insbesondere die
+Matching-Logik. Steht in `services/`, damit es unabhängig von FastAPI
 testbar bleibt.
 
 ## Architektur-Entscheidungen
 
-- **SQLAlchemy Core**: Es gibt keine `declarative_base()`-Klassen für
-  die Tabellen. Jede Query ist rohes SQL in `text(...)`, Ergebnisse werden per
+- **SQLAlchemy Core**: Jede Query ist rohes SQL in `text(...)`, Ergebnisse werden per
   `.mappings()` in Dicts umgewandelt und dann mit `SchemaKlasse.model_validate(row)`
   in ein Pydantic-Modell gegossen.
 - **SQLite mit `check_same_thread=False`**: uvicorn bedient Requests aus
   mehreren Threads, SQLite-Connections sind standardmäßig an einen Thread
   gebunden. Für den Pilotbetrieb mit wenigen gleichzeitigen Nutzern reicht das.
-  Sobald mehrere Personen gleichzeitig **schreiben** (z.B. mehrere Lehrende
-  legen parallel Behandlungsfälle an), sollte auf PostgreSQL migriert werden —
+  Sobald mehrere Personen gleichzeitig **schreiben**, sollte auf PostgreSQL migriert werden.
   SQLite serialisiert Schreibzugriffe und kann bei echter Nebenläufigkeit zu
   `database is locked`-Fehlern führen.
 - **Response-Modelle mit `from_attributes=True`**: erlaubt `model_validate()`
@@ -116,7 +113,7 @@ testbar bleibt.
   **Vor Produktivbetrieb auf die tatsächliche UI-Domain einschränken.**
 - **Keine Auth bisher**: `POST /treatment-cases` ist aktuell ungeschützt.
   Die im Haupt-README skizzierten Rollen (Studierende/Lehrende/Admin) sind
-  noch nicht implementiert — siehe [Bekannte Lücken](#bekannte-lücken--offene-punkte).
+  noch nicht implementiert (siehe [Bekannte Lücken](#bekannte-lücken--offene-punkte)).
 
 ## Endpunkte
 
@@ -147,7 +144,7 @@ das Minimum erreicht; `progress_pct` ist der Prozentsatz davon (kann über
 
 `class-progress` macht dasselbe eine Ebene tiefer, pro `classes`-Zeile, und
 berücksichtigt zusätzlich `min_count` (Mindestanzahl an Fällen, nicht nur
-Punkte) — `done` ist nur `true`, wenn **beide** Bedingungen erfüllt sind
+Punkte). `done` ist nur `true`, wenn **beide** Bedingungen erfüllt sind
 (falls für die Klasse definiert; `null` bedeutet "keine Vorgabe", zählt
 also nicht negativ).
 
@@ -222,7 +219,7 @@ unter [/assignments](#assignments).
 
 Liefert Region/Zahn, Kategorie, Klasse und die im Schema hinterlegte
 Punkte-Spanne (`min_points`/`max_points`) je Fall. **Patienten haben im
-Schema keinen direkten `student_id`-Bezug** — ein Patient ist nicht fest
+Schema keinen direkten `student_id`-Bezug**; ein Patient ist nicht fest
 einem Studenten zugeordnet; welcher Student welchen Patienten behandelt,
 steht (sobald vorhanden) in `treatment_cases`, nicht in `patient_cases`.
 Eine geplante Zuordnung für die Kursplanung (noch vor der Behandlung) steht
@@ -278,12 +275,12 @@ Nur `student_id`, `class_id` und `semester` sind Pflichtfelder, alles
 andere optional. Antwort ist `201 Created` mit dem vollständigen,
 angereicherten Datensatz (inkl. aufgelöster Kategorie-/Klassen-/Patientennamen).
 
-**Wichtig:** Dieser Endpunkt ist aktuell **ungeschützt** — jeder, der die API
+**Wichtig:** Dieser Endpunkt ist aktuell **ungeschützt**. Jeder, der die API
 erreicht, kann Behandlungsfälle anlegen. Das ist als Platzhalter gedacht
 (siehe Haupt-README: "Lehrende: ... Behandlungsfälle anlegen/bewerten") und
 muss vor echtem Einsatz mit Auth abgesichert werden.
 
-Die Tabelle `treatment_cases` ist in der aktuellen Testdatenbank leer — die
+Die Tabelle `treatment_cases` ist in der aktuellen Testdatenbank leer. Die
 Query funktioniert, liefert aber `[]`, bis Daten reinkommen.
 
 ### `/osce`
@@ -308,7 +305,7 @@ Patienten-Zuweisung.
 | GET | `/analysis/students/{student_id}/patient-recommendations` | Patienten-Rangliste für einen Studenten |
 | GET | `/analysis/patient-matching` | Gesamtzuordnung aller Patienten zu Studenten |
 
-#### Trigger/Job-Status (LLM-Analyse — aktuell Platzhalter)
+#### Trigger/Job-Status (LLM-Analyse)
 
 ```bash
 curl -X POST http://localhost:8000/analysis/students/0/trigger
@@ -320,12 +317,10 @@ curl http://localhost:8000/analysis/jobs/<job_id>
 
 `build_learning_trajectory()` sammelt die Rohdaten (Kategorie-Fortschritt
 über alle Semester) als Kontext. `call_llm_for_insights()` ist **noch kein
-echter LLM-Call** — sie gibt aktuell nur einen Platzhalter-Text zurück. Das
-ist die Stelle, an der laut Projektbeschreibung der Aufruf einer zentral
-angebotenen LLM-API (OpenAI/Llama/DeepSeek) eingebaut werden soll.
+echter LLM-Call**, sie gibt aktuell nur einen Platzhalter-Text zurück.
 
-Der Job-Status wird aktuell **in einem einfachen In-Memory-Dict** (`_JOBS`)
-gehalten — geht beim Neustart des Servers verloren und funktioniert nicht,
+Der Job-Status wird aktuell in einem einfachen **In-Memory-Dict** (`_JOBS`)
+gehalten. geht beim Neustart des Servers verloren und funktioniert nicht,
 wenn die API später mit mehreren Worker-Prozessen läuft (jeder Worker hätte
 sein eigenes `_JOBS`-Dict). Für den Uni-Server durch eine echte Tabelle
 (`analysis_jobs`) oder eine Task-Queue (Celery/RQ mit Redis) ersetzen, sobald
@@ -334,7 +329,7 @@ ersetzt wird und der synchrone Ablauf nicht mehr reicht.
 
 #### Patienten-Matching
 
-Siehe eigener Abschnitt unten — hier nur die Endpunkte:
+Siehe eigener Abschnitt unten, hier nur die Endpunkte:
 
 ```bash
 # Rangliste für Student 0, Top 5 (Standard), optional ?limit=10
@@ -346,9 +341,8 @@ curl "http://localhost:8000/analysis/patient-matching"
 
 ## Der Matching-Algorithmus (`assignment_service.py`)
 
-Ziel: **welche Patienten würden welchem Studenten am meisten helfen, ihre
-offenen Anforderungen aus dem Leistungskatalog zu erfüllen** — die
-KI-gestützte Patientenfallzuweisung aus der Projektbeschreibung.
+Ziel: **Welche Patienten würden welchem Studenten am meisten helfen, ihre
+offenen Anforderungen aus dem Leistungskatalog zu erfüllen**.
 
 ### 1. Defizite pro Student ermitteln (`find_missing_classes`)
 
@@ -361,8 +355,8 @@ deficit_points = max(0, min_points - erreichte_punkte)
 deficit_count  = max(0, min_count  - erreichte_anzahl)
 ```
 
-Klassen ganz ohne Vorgabe (`min_points` **und** `min_count` beide `null`)
-zählen nie als Defizit — dafür gibt es schlicht keine Anforderung.
+Klassen ganz ohne Vorgabe (`min_points` und `min_count` beide `null`)
+zählen nie als Defizit, denn dafür gibt es schlicht keine Anforderung.
 
 > **Hinweis zur Kompetenz- vs. Klassen-Ebene:** Im ursprünglichen
 > API-Outline (Haupt-README) war `find_missing_competencies` vorgesehen,
@@ -371,7 +365,7 @@ zählen nie als Defizit — dafür gibt es schlicht keine Anforderung.
 > **Klassen-Ebene**. Sobald Kompetenzdaten gepflegt werden, kann
 > `find_missing_classes` durch eine kompetenzbasierte Variante ersetzt
 > werden, ohne dass `rank_patients_for_student` oder `suggest_global_matching`
-> sich ändern müssen — die Funktionssignatur (Liste von "Dingen, die fehlen")
+> sich ändern müssen. Die Funktionssignatur (Liste von "Dingen, die fehlen")
 > bleibt gleich.
 
 ### 2. Beitrag jedes Patienten ermitteln (`get_patient_contributions`)
@@ -379,7 +373,7 @@ zählen nie als Defizit — dafür gibt es schlicht keine Anforderung.
 Für jeden Patienten wird über `patient_cases` gruppiert nach Klasse
 berechnet, was er an Punkten beisteuern könnte:
 `avg_points = AVG((min_points + max_points) / 2)` je Klasse, plus die
-Anzahl der Fälle (`case_count`) — ein Patient kann mehrere Fälle derselben
+Anzahl der Fälle (`case_count`). Ein Patient kann mehrere Fälle derselben
 Klasse haben (z.B. mehrere Füllungen).
 
 ### 3. Score berechnen (`score_patient_for_deficits`)
@@ -403,7 +397,7 @@ die **mehrere offene Klassen gleichzeitig abdecken**, werden bevorzugt.
 
 Nicht-exklusiv: berechnet den Score jedes Patienten gegen die Defizite
 **eines** Studenten, sortiert absteigend, gibt die Top-`limit` zurück.
-Mehrere Studenten können hier denselben Patienten empfohlen bekommen — das
+Mehrere Studenten können hier denselben Patienten empfohlen bekomme. Das
 ist beabsichtigt, es ist eine reine Empfehlung, keine Zuteilung.
 
 ### 4b. Gesamtzuordnung (`suggest_global_matching`)
@@ -411,7 +405,7 @@ ist beabsichtigt, es ist eine reine Empfehlung, keine Zuteilung.
 Das ist die "matcht Studenten und Patienten so gut wie möglich
 zusammen"-Funktion: ein **greedy Algorithmus**, kein global optimaler
 (das wäre der Hungarian-Algorithmus / `scipy.optimize.linear_sum_assignment`,
-bewusst nicht verwendet, um keine zusätzliche Abhängigkeit einzuführen — bei
+bewusst nicht verwendet, um keine zusätzliche Abhängigkeit einzuführen. Bei
 ~5 Studenten/~10 Patienten ist der Unterschied praktisch vernachlässigbar).
 
 Ablauf:
@@ -455,15 +449,15 @@ Antwortformat:
   skizzierten Rollen (Studierende/Lehrende/Admin) sowie `routers/auth.py`
   (`login`, `get_current_user`) sind noch nicht implementiert.
 - **`call_llm_for_insights` ist ein Platzhalter.** Kein echter LLM-API-Call.
-- **Job-Status nur in-memory.** Siehe oben — für Mehrprozess-/Neustart-feste
+- **Job-Status nur in-memory.** Siehe oben. Für Mehrprozess-/Neustart-feste
   Jobs auf eine DB-Tabelle oder Task-Queue umstellen.
 - **Matching ist klassen- statt kompetenzbasiert**, weil `competencies` /
   `class_competencies` leer sind (siehe oben).
 - **Matching ist greedy, nicht global optimal.** Für die aktuelle
   Kohortengröße unkritisch, bei deutlich mehr Studierenden/Patienten ggf.
   auf `scipy.optimize.linear_sum_assignment` umstellen.
-- **`update_treatment_case`** (aus dem ursprünglichen Outline) fehlt noch —
-  bisher nur Anlegen (`POST`), kein Bearbeiten (`PUT`/`PATCH`) oder Löschen.
+- **`update_treatment_case`** (aus dem ursprünglichen Outline) fehlt noch.
+  Bisher nur Anlegen (`POST`), kein Bearbeiten (`PUT`/`PATCH`) oder Löschen.
 - **`treatment_cases` und `student_osce_results` sind in der Testdatenbank
   leer.** Die zugehörigen Endpunkte sind fertig und funktionieren, liefern
   aber `[]`, bis über die DB oder `POST /treatment-cases` Daten angelegt werden.
