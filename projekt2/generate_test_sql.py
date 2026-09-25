@@ -6,6 +6,11 @@ oder nur "Punkte" (eine Spalte); Hospitationen haben nur eine Anzahl. Der Name s
 der Leistung. Gesamt-Spalten werden nicht übernommen, sie dienen nur zur
 Kontrolle: Am Ende wird jede Semestersumme gegen die Excel geprüft.
 
+Stehen Punkte nur in der Blocksumme "Festsitzend" oder "Herausnehmbar" (ohne
+Einzelleistung darunter), landen sie in der Klasse "Festsitzend gesamt" bzw.
+"Herausnehmbar gesamt". Für das Bestehen zählen laut Kursleitung nur die
+Gesamtpunkte dieser Oberkategorien, nicht die Anzahl je Einzelleistung.
+
 Der Abschnitt mit Patienten und Fällen am Ende der vorhandenen test.sql wird
 unverändert übernommen.
 
@@ -72,11 +77,19 @@ CLASS_ROWS = [
     (26, "Hosp. in Kindersprechstunde", None, None, 3),
     (27, "WF-Revision", None, None, 2),
     (28, "Aufbissbehelf", None, None, 4),
+    (29, "Festsitzend gesamt", None, None, 4),
+    (30, "Herausnehmbar gesamt", None, None, 4),
 ]
 CLASS_ID = {name: cid for cid, name, _, _, _ in CLASS_ROWS}
 
 # Die Excel führt die Spalte im Schnittmenge-Block, zählt sie dort aber nicht mit.
 OUTSIDE_BLOCKS = {"Aufbissbehelf"}
+
+# Blocksummen ohne Einzelleistung werden auf diese Klassen gebucht.
+BLOCK_CLASS = {
+    "Festsitzend": "Festsitzend gesamt",
+    "Herausnehmbar": "Herausnehmbar gesamt",
+}
 
 SHEET_SEMESTER = {
     "IK I": "2024WiSe",
@@ -206,13 +219,23 @@ def parse_sheet(name, cells):
         for block, total_col_b, points_cols in blocks:
             excel = number(cells.get((r, total_col_b))) or 0
             parsed = sum(number(cells.get((r, c))) or 0 for c in points_cols)
-            if excel != parsed:
-                unassigned += excel - parsed
-                warnings.append(
-                    f"{name} {label}: Block '{block}' hat {excel} P in "
-                    f"{col_letter(total_col_b)}{r}, die Einzelspalten ergeben {parsed} P. "
-                    f"Differenz {excel - parsed} P ohne Leistung, nicht übernommen."
+            if excel == parsed:
+                continue
+            rest = excel - parsed
+            if block in BLOCK_CLASS and rest > 0:
+                rows.append((sid, CLASS_ID[BLOCK_CLASS[block]], semester, 1, rest))
+                total += rest
+                print(
+                    f"{name} {label}: {rest} P aus {col_letter(total_col_b)}{r} "
+                    f"ohne Einzelleistung als '{BLOCK_CLASS[block]}' übernommen"
                 )
+                continue
+            unassigned += rest
+            warnings.append(
+                f"{name} {label}: Block '{block}' hat {excel} P in "
+                f"{col_letter(total_col_b)}{r}, die Einzelspalten ergeben {parsed} P. "
+                f"Differenz {rest} P ohne Leistung, nicht übernommen."
+            )
         expected = number(cells.get((r, total_col))) or 0
         if round(total + unassigned - expected, 2) != 0:
             warnings.append(

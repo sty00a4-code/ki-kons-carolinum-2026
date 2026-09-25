@@ -41,7 +41,9 @@ values
     (25, 'Stiftaufbau', null, null, 5),
     (26, 'Hosp. in Kindersprechstunde', null, null, 3),
     (27, 'WF-Revision', null, null, 2),
-    (28, 'Aufbissbehelf', null, null, 4);
+    (28, 'Aufbissbehelf', null, null, 4),
+    (29, 'Festsitzend gesamt', null, null, 4),
+    (30, 'Herausnehmbar gesamt', null, null, 4);
 
 insert into
     students (id)
@@ -175,6 +177,7 @@ values
     (0, 24, '2025WiSe', 1, 3),
     (0, 25, '2025WiSe', 1, 3),
     (0, 26, '2025WiSe', 2, 0),
+    (0, 29, '2025WiSe', 1, 15),
     (1, 0, '2025WiSe', 2, 16),
     (1, 2, '2025WiSe', 2, 5),
     (1, 5, '2025WiSe', 1, 2.5),
@@ -229,6 +232,7 @@ values
     (4, 21, '2025WiSe', 1, 2.5),
     (4, 28, '2025WiSe', 1, 7),
     (4, 26, '2025WiSe', 2, 0),
+    (4, 29, '2025WiSe', 1, 99),
     (0, 1, '2026SoSe', 3, 7.5),
     (0, 2, '2026SoSe', 3, 8),
     (0, 3, '2026SoSe', 3, 7),
