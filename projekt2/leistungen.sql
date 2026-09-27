@@ -96,12 +96,17 @@ create table if not exists patient_assignments (
 );
 
 -- Einzelne Behandlungsfälle (Patient + Behandlung + Termin)
+-- Trackt, welche geplante Leistung (patient_case) tatsächlich behandelt wurde:
+-- patient_case_id ist optional (eine Behandlung kann auch ohne vorab geplanten
+-- Fall erfasst werden), verweist sie aber auf einen, lässt sich pro Patient
+-- nachvollziehen, was schon behandelt ist, von wem und wann.
 create table if not exists treatment_cases (
     id integer primary key autoincrement,
     student_id int references students (id),
     class_id int references classes (id),
     case_category_id int references case_categories (id),
     patient_id int references patients (id),
+    patient_case_id int references patient_cases (id),
     semester varchar(8) not null, -- YYYYSoSe / YYYYWiSe
     difficulty decimal(1, 2) check (
         difficulty >= 1
@@ -135,6 +140,24 @@ create table if not exists students_classes (
     primary key (
         student_id,
         class_id,
+        semester
+    )
+);
+
+-- Direkt einer Oberkategorie gutgeschriebene Punkte, unabhängig von den
+-- Klassen (Unterkategorien) darunter. Damit lässt sich eine Kategorie auch
+-- pauschal bepunkten, ohne eine einzelne students_classes-Zeile anzufassen.
+-- Die Kategorie-Gesamtpunktzahl (siehe /students/{id}/category-progress in
+-- der API) ist die Summe aus students_classes (über die Klassen) UND dieser
+-- Tabelle.
+create table if not exists students_categories (
+    student_id int references students (id),
+    category_id int references categories (id),
+    semester varchar(8), -- YYYYSoSe / YYYYWiSe
+    points decimal default 0,
+    primary key (
+        student_id,
+        category_id,
         semester
     )
 );

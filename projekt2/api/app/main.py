@@ -7,6 +7,7 @@ from .database import engine
 from .routers import (
     analysis,
     assignments,
+    categories,
     classes,
     osce,
     patients,
@@ -42,6 +43,7 @@ app.add_middleware(
 )
 
 app.include_router(students.router)
+app.include_router(categories.router)
 app.include_router(classes.router)
 app.include_router(semesters.router)
 app.include_router(patients.router)

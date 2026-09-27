@@ -20,6 +20,7 @@ _COLUMNS = [
     ("patients", "category", "integer"),
     ("patient_cases", "difficulty", "integer"),
     ("patient_cases", "expected_dur_min", "integer"),
+    ("treatment_cases", "patient_case_id", "int references patient_cases (id)"),
 ]
 
 _STATEMENTS = [
@@ -34,6 +35,15 @@ _STATEMENTS = [
     )
     """,
     "create unique index if not exists idx_patients_pseudonym on patients (pseudonym)",
+    """
+    create table if not exists students_categories (
+        student_id int references students (id),
+        category_id int references categories (id),
+        semester varchar(8),
+        points decimal default 0,
+        primary key (student_id, category_id, semester)
+    )
+    """,
 ]
 
 

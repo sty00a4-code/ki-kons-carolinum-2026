@@ -13,10 +13,37 @@ class CategoryProgress(BaseModel):
     student_id: int
     # Filterwert oder null, kein Wert aus der Gruppe (siehe routers/students.py).
     semester: str | None
+    # Summe aus students_classes (über die Klassen) PLUS students_categories
+    # (direkt an der Kategorie gutgeschriebene Punkte).
     total_points: float
     min: float | None
     done: bool
     progress_pct: float | None
+
+
+class CategoryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    descr: str | None
+    min_points: float | None
+
+
+class CategoryPointsIn(BaseModel):
+    student_id: int
+    semester: str = Field(pattern=r"^[0-9]{4}(SoSe|WiSe)$")
+    points: float
+
+
+class CategoryPointsOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    student_id: int
+    category_id: int
+    category: str
+    semester: str
+    points: float
 
 
 class ClassProgress(BaseModel):
@@ -90,6 +117,13 @@ class PatientCase(BaseModel):
     # null = Wert der Klasse gilt.
     difficulty: int | None
     expected_dur_min: int | None
+    # Behandlungsstatus: treated ist true, sobald ein treatment_cases-Eintrag
+    # auf diesen Fall verweist (patient_case_id). Bei mehreren Behandlungen
+    # desselben Falls wird die zeitlich letzte gezeigt.
+    treated: bool
+    treatment_case_id: int | None
+    treated_by_student_id: int | None
+    treatment_date: date | None
 
 
 class PatientCaseOut(BaseModel):
@@ -105,6 +139,10 @@ class PatientCaseOut(BaseModel):
     max_points: float | None
     difficulty: int | None
     expected_dur_min: int | None
+    treated: bool
+    treatment_case_id: int | None
+    treated_by_student_id: int | None
+    treatment_date: date | None
 
 
 class PatientDetail(BaseModel):
@@ -190,7 +228,11 @@ class TreatmentCaseOut(BaseModel):
     category: str | None
     class_name: str | None
     case_category: str | None
+    patient_id: int | None
     patient: str | None
+    # Welcher geplante Fall (patient_cases) hiermit als behandelt markiert
+    # wurde. null, wenn die Behandlung ohne vorab geplanten Fall erfasst wurde.
+    patient_case_id: int | None
     semester: str
     difficulty: float | None
     expected_duration_min: int | None
@@ -206,6 +248,11 @@ class TreatmentCaseIn(BaseModel):
     student_id: int
     class_id: int
     patient_id: int | None = None
+    # Optional: verweist auf einen geplanten Fall (patient_cases.id), um ihn
+    # als behandelt zu tracken. Wird patient_id weggelassen, aber
+    # patient_case_id gesetzt, übernimmt die API den Patienten vom Fall.
+    # Sind beide gesetzt, müssen sie zusammenpassen (422 sonst).
+    patient_case_id: int | None = None
     case_category_id: int | None = None
     semester: str = Field(pattern=r"^[0-9]{4}(SoSe|WiSe)$")
     difficulty: float | None = Field(default=None, ge=1, le=3)

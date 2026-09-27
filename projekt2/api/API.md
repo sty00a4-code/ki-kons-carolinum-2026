@@ -17,6 +17,7 @@ UI  <- HTTP/JSON ->  API  <- SQLAlchemy ->  DB
 - [Architektur-Entscheidungen](#architektur-entscheidungen)
 - [Endpunkte](#endpunkte)
   - [/students](#students)
+  - [/categories](#categories)
   - [/classes](#classes)
   - [/semesters](#semesters)
   - [/patients](#patients)
@@ -132,13 +133,18 @@ Schlüssel oder stimmt er nicht, antwortet die API mit 401.
 | GET | `/students` | Alle Studierenden (id, anon_code, enrollment_semester) |
 | GET | `/students/{student_id}/category-progress` | Fortschritt pro **Kategorie** für einen Studenten |
 | GET | `/students/{student_id}/class-progress` | Fortschritt pro einzelner **Klasse** (feingranularer) |
+| GET | `/students/{student_id}/category-points` | Nur die direkt an Kategorien vergebenen Punkte (`students_categories`), ohne die über Klassen erreichten |
 
 Beide Progress-Endpunkte akzeptieren optional `?semester=2025SoSe`, um auf
 ein einzelnes Semester einzuschränken (Format `YYYYSoSe`/`YYYYWiSe`, wie in
 der DB). Ohne den Parameter wird über alle Semester aggregiert.
 
-`category-progress` summiert `students_classes.points` pro Kategorie und
-vergleicht mit `categories.min_points`. `done` ist `true`, sobald die Summe
+`category-progress` summiert **zwei unabhängige Quellen**: `students_classes.points`
+(über die Klassen/Unterkategorien) UND `students_categories.points` (direkt an
+der Kategorie vergeben, siehe [/categories](#categories)) und vergleicht die
+Summe mit `categories.min_points`. Eine Kategorie mit ausschließlich direkt
+vergebenen Punkten - ganz ohne Klassen-Einträge - taucht hier genauso auf wie
+eine, die nur über Klassen befüllt ist. `done` ist `true`, sobald die Summe
 das Minimum erreicht; `progress_pct` ist der Prozentsatz davon (kann über
 100 gehen).
 
@@ -152,6 +158,32 @@ Beispiel:
 ```bash
 curl "http://localhost:8000/students/0/class-progress?semester=2025SoSe"
 ```
+
+### `/categories`
+
+| Methode | Pfad | Beschreibung |
+|---|---|---|
+| GET | `/categories` | Katalog aller Oberkategorien (`id`, `name`, `descr`, `min_points`) |
+| GET | `/categories/{category_id}/points` | Alle direkt an dieser Kategorie vergebenen Punkte, über alle Studierenden |
+| PUT | `/categories/{category_id}/points` | Direkte Punkte für einen Studenten/ein Semester setzen (`CategoryPointsIn`) |
+
+Damit lässt sich eine Oberkategorie **pauschal bepunkten, ohne eine einzelne
+Klasse (Unterkategorie) darunter anzufassen** - z.B. für Bonuspunkte oder eine
+Gesamtbeurteilung, die sich nicht sauber einer einzelnen Klasse zuordnen lässt.
+Diese Punkte landen in einer eigenen Tabelle (`students_categories`) und
+werden von `/students/{id}/category-progress` **zusätzlich** zu den über
+Klassen erreichten Punkten gezählt (siehe [/students](#students)). Die
+Matching-Logik unter [/analysis](#analysis) bleibt davon unberührt, da sie
+ausschließlich auf `classes.min_points`/`min_count` arbeitet.
+
+`PUT`-Body (`CategoryPointsIn`):
+```json
+{"student_id": 0, "semester": "2026SoSe", "points": 5}
+```
+
+Ein zweiter `PUT` für denselben Studenten und dasselbe Semester **ersetzt**
+den Wert (Upsert), addiert ihn also nicht. `student_id` unbekannt ergibt 422,
+`category_id` unbekannt 404.
 
 ### `/classes`
 
@@ -184,7 +216,8 @@ werden geschrieben, ein gesendetes `null` löscht den Wert:
 |---|---|---|
 | GET | `/patients` | Alle Patienten, auch ohne Fälle, mit `case_count` |
 | GET | `/patients/{patient_id}` | Ein Patient mit seinen geplanten Fällen (`PatientDetail`), 404 falls unbekannt |
-| GET | `/patients/{patient_id}/cases` | Alle geplanten Leistungen (`patient_cases`) für einen Patienten |
+| GET | `/patients/{patient_id}/cases` | Alle geplanten Leistungen (`patient_cases`) für einen Patienten, inkl. Behandlungsstatus |
+| GET | `/patients/{patient_id}/treatments` | Komplette Behandlungshistorie dieses Patienten, chronologisch |
 | POST | `/patients` | Patient anlegen (`PatientIn`), Antwort 201 mit `PatientDetail` |
 | PATCH | `/patients/{patient_id}` | Patient ändern (`PatientUpdate`), nur gesendete Felder |
 | DELETE | `/patients/{patient_id}` | Patient samt Zuordnung und geplanten Fällen löschen, 204; 409 wenn Behandlungsfälle auf ihn verweisen |
@@ -225,6 +258,15 @@ steht (sobald vorhanden) in `treatment_cases`, nicht in `patient_cases`.
 Eine geplante Zuordnung für die Kursplanung (noch vor der Behandlung) steht
 in `patient_assignments`, siehe [/assignments](#assignments).
 
+**Behandlungen tracken:** `GET /patients/{patient_id}/cases` liefert zu jedem
+geplanten Fall zusätzlich `treated` (`true`, sobald ein `treatment_cases`-
+Eintrag über `patient_case_id` darauf verweist), `treatment_case_id`,
+`treated_by_student_id` und `treatment_date`. Gibt es mehrere Behandlungen
+zum selben geplanten Fall, zeigt das Feld die zeitlich letzte. Für die volle
+Historie eines Patienten (alle Behandlungen, nicht nur die zu geplanten
+Fällen) `GET /patients/{patient_id}/treatments` verwenden - kurz für
+`GET /treatment-cases?patient_id=...` (siehe [/treatment-cases](#treatment-cases)).
+
 ### `/assignments`
 
 Zuordnung Patient zu Studierendem (Tabelle `patient_assignments`). Ein Patient
@@ -251,9 +293,18 @@ bestehende Zuordnung ersetzt sie vollständig, `created_at` wird neu gesetzt.
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| GET | `/treatment-cases` | Liste, optional gefiltert nach `?student_id=` und/oder `?semester=` |
+| GET | `/treatment-cases` | Liste, optional gefiltert nach `?student_id=`, `?patient_id=` und/oder `?semester=` |
 | GET | `/treatment-cases/{case_id}` | Einzelner Behandlungsfall, 404 falls nicht gefunden |
 | POST | `/treatment-cases` | Neuen Behandlungsfall anlegen |
+
+**Geplanten Fall als behandelt tracken:** `TreatmentCaseIn` akzeptiert optional
+`patient_case_id` (verweist auf `patient_cases.id`). Wird es gesetzt, gilt der
+referenzierte geplante Fall ab sofort als behandelt (`treated: true` unter
+[/patients](#patients)). Fehlt `patient_id` im Request, aber `patient_case_id`
+ist gesetzt, übernimmt die API die `patient_id` automatisch vom geplanten Fall.
+Sind beide gesetzt und passen nicht zusammen (`patient_id` gehört nicht zu
+diesem `patient_case_id`), antwortet die API mit 422; eine unbekannte
+`patient_case_id` ebenso.
 
 `POST`-Body (`TreatmentCaseIn`):
 ```json
@@ -261,6 +312,7 @@ bestehende Zuordnung ersetzt sie vollständig, `created_at` wird neu gesetzt.
   "student_id": 0,
   "class_id": 5,
   "patient_id": 2,
+  "patient_case_id": null,
   "case_category_id": null,
   "semester": "2025SoSe",
   "difficulty": 2,
