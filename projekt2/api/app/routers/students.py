@@ -1,9 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..schemas import CategoryPointsOut, CategoryProgress, ClassProgress, StudentOut
+from ..schemas import (
+    CategoryPointsOut,
+    CategoryProgress,
+    ClassProgress,
+    StudentOut,
+    StudentOverview,
+)
 
 router = APIRouter(prefix="/students", tags=["students"])
 
@@ -148,3 +154,59 @@ def get_class_progress(
         query, {"student_id": student_id, "semester": semester}
     ).mappings()
     return [ClassProgress.model_validate(r) for r in rows]
+
+
+@router.get("/{student_id}/overview", response_model=StudentOverview)
+def get_student_overview(student_id: int, db: Session = Depends(get_db)):
+    """Alles Wesentliche zu einem Studenten in einem Aufruf: Kategorie-
+    Fortschritt (inkl. direkt vergebener Punkte), wie viele Kategorien/Klassen
+    erfüllt oder offen sind, Zahl der Behandlungen und zugeordnete Patienten.
+    404 bei unbekannter student_id."""
+    student = (
+        db.execute(
+            text(
+                "select id, anon_code, enrollment_semester from students where id = :id"
+            ),
+            {"id": student_id},
+        )
+        .mappings()
+        .first()
+    )
+    if student is None:
+        raise HTTPException(status_code=404, detail="Student nicht gefunden")
+
+    categories = get_category_progress(student_id, None, db)
+    classes = get_class_progress(student_id, None, db)
+    treatment_count = db.execute(
+        text("select count(*) from treatment_cases where student_id = :id"),
+        {"id": student_id},
+    ).scalar()
+    assigned = (
+        db.execute(
+            text(
+                """
+            select coalesce(p.pseudonym, p.name) as patient
+            from patient_assignments as pa
+            join patients as p on pa.patient_id = p.id
+            where pa.student_id = :id
+            order by p.id
+            """
+            ),
+            {"id": student_id},
+        )
+        .scalars()
+        .all()
+    )
+
+    categories_done = sum(1 for c in categories if c.done)
+    classes_done = sum(1 for c in classes if c.done)
+    return StudentOverview(
+        student=StudentOut.model_validate(student),
+        category_progress=categories,
+        categories_done=categories_done,
+        categories_open=len(categories) - categories_done,
+        classes_done=classes_done,
+        classes_open=len(classes) - classes_done,
+        treatment_count=treatment_count,
+        assigned_patients=list(assigned),
+    )

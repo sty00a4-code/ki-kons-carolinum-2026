@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -101,3 +101,37 @@ def set_category_points(
             "points": payload.points,
         }
     )
+
+
+@router.delete(
+    "/{category_id}/points",
+    status_code=204,
+    dependencies=[Depends(require_write_key)],
+)
+def delete_category_points(
+    category_id: int,
+    student_id: int,
+    semester: str,
+    db: Session = Depends(get_db),
+):
+    """Nimmt die direkt vergebenen Punkte eines Studenten für ein Semester
+    zurück (Fehleingabe). Die über Klassen erreichten Punkte bleiben
+    unberührt. 404, wenn es dafür keinen Eintrag gibt."""
+    _require_category(category_id, db)
+    result = db.execute(
+        text(
+            """
+            delete from students_categories
+            where category_id = :category_id
+              and student_id = :student_id
+              and semester = :semester
+            """
+        ),
+        {"category_id": category_id, "student_id": student_id, "semester": semester},
+    )
+    db.commit()
+    if result.rowcount == 0:
+        raise HTTPException(
+            status_code=404, detail="Kein direkter Kategorie-Punkteeintrag gefunden"
+        )
+    return Response(status_code=204)

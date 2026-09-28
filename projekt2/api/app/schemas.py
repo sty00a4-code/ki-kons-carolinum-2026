@@ -263,6 +263,42 @@ class TreatmentCaseIn(BaseModel):
     notes: str | None = None
 
 
+class TreatmentCaseUpdate(BaseModel):
+    """PATCH: nur gesendete Felder ändern sich. student_id, class_id und
+    semester dürfen nicht auf null gesetzt werden; die übrigen (auch
+    patient_case_id, um die Verknüpfung zu lösen) schon."""
+
+    student_id: int | None = None
+    class_id: int | None = None
+    patient_id: int | None = None
+    patient_case_id: int | None = None
+    case_category_id: int | None = None
+    semester: str | None = Field(default=None, pattern=r"^[0-9]{4}(SoSe|WiSe)$")
+    difficulty: float | None = Field(default=None, ge=1, le=3)
+    expected_duration_min: int | None = Field(default=None, ge=1)
+    actual_duration_min: int | None = Field(default=None, ge=1)
+    setting: str | None = None
+    treatment_date: date | None = None
+    notes: str | None = None
+
+
+class TreatmentProgress(BaseModel):
+    """Behandlungsstand eines Patienten: wie viele der geplanten Fälle sind
+    schon behandelt (Verweis über treatment_cases.patient_case_id)."""
+
+    patient_id: int
+    patient: str | None
+    planned_cases: int
+    treated_cases: int
+    open_cases: int
+    progress_pct: float | None
+    planned_points_min: float
+    planned_points_max: float
+    treated_points_min: float
+    treated_points_max: float
+    last_treatment_date: date | None
+
+
 class OsceResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -283,3 +319,14 @@ class StudentOut(BaseModel):
     id: int
     anon_code: str | None
     enrollment_semester: str | None
+
+
+class StudentOverview(BaseModel):
+    student: StudentOut
+    category_progress: list[CategoryProgress]
+    categories_done: int
+    categories_open: int
+    classes_done: int
+    classes_open: int
+    treatment_count: int
+    assigned_patients: list[str]

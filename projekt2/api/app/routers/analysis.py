@@ -34,10 +34,18 @@ def build_learning_trajectory(student_id: int, db: Session) -> dict:
                 """
             select c.name as category, sc.semester, sum(sc.points) as points,
                 c.min_points as min_points
-            from students_classes as sc
-            join classes as cl on sc.class_id = cl.id
-            join categories as c on cl.category_id = c.id
-            where sc.student_id = :student_id
+            from (
+                select cl.category_id as category_id, s.semester, s.points
+                from students_classes as s
+                join classes as cl on s.class_id = cl.id
+                where s.student_id = :student_id
+                union all
+                -- direkt an der Kategorie vergebene Punkte zählen mit
+                select category_id, semester, points
+                from students_categories
+                where student_id = :student_id
+            ) as sc
+            join categories as c on sc.category_id = c.id
             group by c.id, sc.semester
             order by sc.semester, c.id;
             """

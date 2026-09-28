@@ -12,11 +12,19 @@ from ..schemas import (
     PatientIn,
     PatientOut,
     PatientUpdate,
+    TreatmentCaseOut,
+    TreatmentProgress,
 )
 from ..security import require_write_key
+from .treatment_cases import _SELECT as _SELECT_TREATMENT_CASES
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
+# Der Scalar-Subquery holt je patient_case die zeitlich letzte Behandlung
+# (nach treatment_date, dann id), falls es mehrere gibt. treated ist einfach
+# "gibt es überhaupt eine" - so lässt sich der Bearbeitungsstand jedes
+# geplanten Falls direkt mit ausliefern, ohne einen separaten Aufruf gegen
+# /treatment-cases nötig zu machen.
 _SELECT_CASES = """
     select
         pc.id,
@@ -28,10 +36,20 @@ _SELECT_CASES = """
         pc.min_points,
         pc.max_points,
         pc.difficulty,
-        pc.expected_dur_min
+        pc.expected_dur_min,
+        (t.id is not null) as treated,
+        t.id as treatment_case_id,
+        t.student_id as treated_by_student_id,
+        t.treatment_date as treatment_date
     from patient_cases as pc
     join classes as cl on pc.class_id = cl.id
     join categories as c on cl.category_id = c.id
+    left join treatment_cases as t on t.id = (
+        select tc2.id from treatment_cases as tc2
+        where tc2.patient_case_id = pc.id
+        order by tc2.treatment_date desc, tc2.id desc
+        limit 1
+    )
 """
 
 
@@ -57,6 +75,51 @@ def list_patients(db: Session = Depends(get_db)):
     return [PatientOut.model_validate(r) for r in rows]
 
 
+@router.get("/open-cases", response_model=list[PatientCase])
+def list_open_cases(
+    class_id: int | None = None,
+    category_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    """Alle noch nicht behandelten geplanten Fälle über alle Patienten -
+    die Arbeitsliste, was im Kurs noch an Behandlungen offen ist. Filterbar
+    nach Klasse und/oder Kategorie."""
+    query = text(
+        """
+        select
+            pc.id,
+            p.id as patient_id,
+            coalesce(p.pseudonym, p.name) as patient,
+            c.name as category,
+            pc.class_id,
+            cl.name as class_name,
+            pc.region,
+            pc.min_points,
+            pc.max_points,
+            pc.difficulty,
+            pc.expected_dur_min,
+            0 as treated,
+            null as treatment_case_id,
+            null as treated_by_student_id,
+            null as treatment_date
+        from patient_cases as pc
+        join patients as p on pc.patient_id = p.id
+        join classes as cl on pc.class_id = cl.id
+        join categories as c on cl.category_id = c.id
+        where not exists (
+                select 1 from treatment_cases as tc where tc.patient_case_id = pc.id
+            )
+          and (:class_id is null or pc.class_id = :class_id)
+          and (:category_id is null or c.id = :category_id)
+        order by p.id, c.id, cl.id, pc.id;
+        """
+    )
+    rows = db.execute(
+        query, {"class_id": class_id, "category_id": category_id}
+    ).mappings()
+    return [PatientCase.model_validate(r) for r in rows]
+
+
 @router.get("/{patient_id}", response_model=PatientDetail)
 def get_patient(patient_id: int, db: Session = Depends(get_db)):
     query = text(
@@ -75,7 +138,15 @@ def get_patient(patient_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/{patient_id}/cases", response_model=list[PatientCase])
-def get_patient_cases(patient_id: int, db: Session = Depends(get_db)):
+def get_patient_cases(
+    patient_id: int,
+    treated: bool | None = None,
+    db: Session = Depends(get_db),
+):
+    """Geplante Fälle inkl. Behandlungsstatus (treated/treatment_case_id/
+    treated_by_student_id/treatment_date) - damit lässt sich pro Patient auf
+    einen Blick sehen, was schon behandelt wurde und was noch offen ist.
+    ?treated=false liefert nur die offenen, ?treated=true nur die behandelten."""
     query = text(
         """
         select
@@ -89,17 +160,92 @@ def get_patient_cases(patient_id: int, db: Session = Depends(get_db)):
             pc.min_points,
             pc.max_points,
             pc.difficulty,
-            pc.expected_dur_min
+            pc.expected_dur_min,
+            (t.id is not null) as treated,
+            t.id as treatment_case_id,
+            t.student_id as treated_by_student_id,
+            t.treatment_date as treatment_date
         from patient_cases as pc
         join patients as p on pc.patient_id = p.id
         join classes as cl on pc.class_id = cl.id
         join categories as c on cl.category_id = c.id
+        left join treatment_cases as t on t.id = (
+            select tc2.id from treatment_cases as tc2
+            where tc2.patient_case_id = pc.id
+            order by tc2.treatment_date desc, tc2.id desc
+            limit 1
+        )
         where p.id = :patient_id
+          and (:treated is null or (t.id is not null) = :treated)
         order by c.id, cl.id;
         """
     )
-    rows = db.execute(query, {"patient_id": patient_id}).mappings()
+    rows = db.execute(
+        query,
+        {
+            "patient_id": patient_id,
+            "treated": None if treated is None else int(treated),
+        },
+    ).mappings()
     return [PatientCase.model_validate(r) for r in rows]
+
+
+@router.get("/{patient_id}/treatment-progress", response_model=TreatmentProgress)
+def get_treatment_progress(patient_id: int, db: Session = Depends(get_db)):
+    """Behandlungsstand auf einen Blick: geplante vs. behandelte vs. offene
+    Fälle samt Punkte-Spannen. 404 bei unbekanntem Patienten."""
+    _require_patient(patient_id, db)
+    row = (
+        db.execute(
+            text(
+                """
+            select
+                p.id as patient_id,
+                coalesce(p.pseudonym, p.name) as patient,
+                count(pc.id) as planned_cases,
+                coalesce(sum(t.id is not null), 0) as treated_cases,
+                coalesce(sum(pc.min_points), 0) as planned_points_min,
+                coalesce(sum(pc.max_points), 0) as planned_points_max,
+                coalesce(sum(case when t.id is not null then pc.min_points end), 0)
+                    as treated_points_min,
+                coalesce(sum(case when t.id is not null then pc.max_points end), 0)
+                    as treated_points_max,
+                max(t.treatment_date) as last_treatment_date
+            from patients as p
+            left join patient_cases as pc on pc.patient_id = p.id
+            left join treatment_cases as t on t.id = (
+                select tc2.id from treatment_cases as tc2
+                where tc2.patient_case_id = pc.id
+                order by tc2.treatment_date desc, tc2.id desc
+                limit 1
+            )
+            where p.id = :patient_id
+            group by p.id
+            """
+            ),
+            {"patient_id": patient_id},
+        )
+        .mappings()
+        .first()
+    )
+    data = dict(row)
+    planned, treated = data["planned_cases"], data["treated_cases"]
+    data["open_cases"] = planned - treated
+    data["progress_pct"] = round(100.0 * treated / planned, 1) if planned else None
+    return TreatmentProgress.model_validate(data)
+
+
+@router.get("/{patient_id}/treatments", response_model=list[TreatmentCaseOut])
+def get_patient_treatments(patient_id: int, db: Session = Depends(get_db)):
+    """Komplette Behandlungshistorie eines Patienten, chronologisch - Kurzform
+    für GET /treatment-cases?patient_id=... ."""
+    _require_patient(patient_id, db)
+    query = text(
+        _SELECT_TREATMENT_CASES
+        + " where tc.patient_id = :patient_id order by tc.treatment_date, tc.id;"
+    )
+    rows = db.execute(query, {"patient_id": patient_id}).mappings()
+    return [TreatmentCaseOut.model_validate(r) for r in rows]
 
 
 def _require_patient(patient_id: int, db: Session) -> None:
@@ -300,7 +446,22 @@ def update_patient_case(
     dependencies=[Depends(require_write_key)],
 )
 def delete_patient_case(patient_id: int, case_id: int, db: Session = Depends(get_db)):
+    """409, wenn der Fall schon behandelt wurde: die Behandlungen verweisen per
+    patient_case_id darauf. Erst die Behandlung löschen oder die Verknüpfung
+    lösen (PATCH /treatment-cases/{id} mit patient_case_id=null)."""
     _load_case(patient_id, case_id, db)
+    count = db.execute(
+        text("select count(*) from treatment_cases where patient_case_id = :case_id"),
+        {"case_id": case_id},
+    ).scalar()
+    if count:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Fall wurde bereits {count}x behandelt und kann nicht gelöscht "
+                "werden. Erst die Behandlung(en) löschen oder die Verknüpfung lösen."
+            ),
+        )
     db.execute(
         text("delete from patient_cases where id = :case_id"), {"case_id": case_id}
     )

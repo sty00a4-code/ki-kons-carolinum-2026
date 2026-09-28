@@ -60,7 +60,9 @@ Danach im Browser öffnen:
 ```
 api/
 ├── requirements.txt
+├── requirements-dev.txt           zusätzlich pytest + httpx für die Tests
 ├── leistungen.db                  (Symlink auf ../leistungen.db)
+├── tests/                         pytest-Suite (frische Wegwerf-DB pro Test)
 └── app/
     ├── main.py                    FastAPI-Einstiegspunkt: App-Objekt, CORS, bindet alle Router ein, ruft ensure_schema() beim Start
     ├── database.py                SQLAlchemy-Engine + get_db()-Dependency (eine Session pro Request)
@@ -68,12 +70,13 @@ api/
     ├── schemas.py                 Pydantic-Modelle für Requests/Responses
     ├── security.py                require_write_key(): X-API-Key-Prüfung für Schreib-Endpunkte
     ├── routers/
-    │   ├── students.py            /students - Studentenliste, Fortschritt pro Kategorie/Klasse
+    │   ├── students.py            /students - Studentenliste, Übersicht, Fortschritt pro Kategorie/Klasse
+    │   ├── categories.py          /categories - Katalog, direkt vergebene Kategorie-Punkte
     │   ├── classes.py             /classes, Klassenkatalog lesen und Planungswerte ändern
     │   ├── semesters.py           /semesters, alle Semester mit Daten
-    │   ├── patients.py            /patients - Patientenfälle
+    │   ├── patients.py            /patients - Patientenfälle, Behandlungsstand
     │   ├── assignments.py         /assignments, Zuordnung Patient zu Studierendem
-    │   ├── treatment_cases.py     /treatment-cases - lesen + anlegen
+    │   ├── treatment_cases.py     /treatment-cases - lesen, anlegen, korrigieren, löschen
     │   ├── osce.py                /osce - OSCE-Ergebnisse
     │   └── analysis.py            /analysis - KI-Trigger/Job-Status, Patienten-Matching
     └── services/
@@ -133,6 +136,7 @@ Schlüssel oder stimmt er nicht, antwortet die API mit 401.
 | GET | `/students` | Alle Studierenden (id, anon_code, enrollment_semester) |
 | GET | `/students/{student_id}/category-progress` | Fortschritt pro **Kategorie** für einen Studenten |
 | GET | `/students/{student_id}/class-progress` | Fortschritt pro einzelner **Klasse** (feingranularer) |
+| GET | `/students/{student_id}/overview` | Alles Wesentliche in einem Aufruf: Kategorie-Fortschritt, erfüllte/offene Kategorien und Klassen, Zahl der Behandlungen, zugeordnete Patienten. 404 bei unbekannter ID |
 | GET | `/students/{student_id}/category-points` | Nur die direkt an Kategorien vergebenen Punkte (`students_categories`), ohne die über Klassen erreichten |
 
 Beide Progress-Endpunkte akzeptieren optional `?semester=2025SoSe`, um auf
@@ -166,6 +170,7 @@ curl "http://localhost:8000/students/0/class-progress?semester=2025SoSe"
 | GET | `/categories` | Katalog aller Oberkategorien (`id`, `name`, `descr`, `min_points`) |
 | GET | `/categories/{category_id}/points` | Alle direkt an dieser Kategorie vergebenen Punkte, über alle Studierenden |
 | PUT | `/categories/{category_id}/points` | Direkte Punkte für einen Studenten/ein Semester setzen (`CategoryPointsIn`) |
+| DELETE | `/categories/{category_id}/points?student_id=&semester=` | Direkt vergebene Punkte zurücknehmen, 204; 404 ohne passenden Eintrag |
 
 Damit lässt sich eine Oberkategorie **pauschal bepunkten, ohne eine einzelne
 Klasse (Unterkategorie) darunter anzufassen** - z.B. für Bonuspunkte oder eine
@@ -218,6 +223,8 @@ werden geschrieben, ein gesendetes `null` löscht den Wert:
 | GET | `/patients/{patient_id}` | Ein Patient mit seinen geplanten Fällen (`PatientDetail`), 404 falls unbekannt |
 | GET | `/patients/{patient_id}/cases` | Alle geplanten Leistungen (`patient_cases`) für einen Patienten, inkl. Behandlungsstatus |
 | GET | `/patients/{patient_id}/treatments` | Komplette Behandlungshistorie dieses Patienten, chronologisch |
+| GET | `/patients/{patient_id}/treatment-progress` | Behandlungsstand: geplante/behandelte/offene Fälle, Fortschritt in %, Punkte-Spannen, letzter Behandlungstermin |
+| GET | `/patients/open-cases` | Arbeitsliste: alle noch nicht behandelten geplanten Fälle über alle Patienten, filterbar mit `?class_id=` und `?category_id=` |
 | POST | `/patients` | Patient anlegen (`PatientIn`), Antwort 201 mit `PatientDetail` |
 | PATCH | `/patients/{patient_id}` | Patient ändern (`PatientUpdate`), nur gesendete Felder |
 | DELETE | `/patients/{patient_id}` | Patient samt Zuordnung und geplanten Fällen löschen, 204; 409 wenn Behandlungsfälle auf ihn verweisen |
@@ -266,6 +273,13 @@ zum selben geplanten Fall, zeigt das Feld die zeitlich letzte. Für die volle
 Historie eines Patienten (alle Behandlungen, nicht nur die zu geplanten
 Fällen) `GET /patients/{patient_id}/treatments` verwenden - kurz für
 `GET /treatment-cases?patient_id=...` (siehe [/treatment-cases](#treatment-cases)).
+`GET /patients/{patient_id}/cases?treated=false` liefert nur die noch offenen
+Fälle, `?treated=true` nur die behandelten.
+
+Ein bereits behandelter geplanter Fall lässt sich nicht löschen
+(`DELETE /patients/{id}/cases/{case_id}` antwortet mit **409**): erst die
+Behandlung löschen oder ihre Verknüpfung lösen (`PATCH /treatment-cases/{id}`
+mit `patient_case_id: null`).
 
 ### `/assignments`
 
@@ -296,6 +310,8 @@ bestehende Zuordnung ersetzt sie vollständig, `created_at` wird neu gesetzt.
 | GET | `/treatment-cases` | Liste, optional gefiltert nach `?student_id=`, `?patient_id=` und/oder `?semester=` |
 | GET | `/treatment-cases/{case_id}` | Einzelner Behandlungsfall, 404 falls nicht gefunden |
 | POST | `/treatment-cases` | Neuen Behandlungsfall anlegen |
+| PATCH | `/treatment-cases/{case_id}` | Behandlungsfall korrigieren (`TreatmentCaseUpdate`), nur gesendete Felder ändern sich |
+| DELETE | `/treatment-cases/{case_id}` | Behandlungsfall löschen, 204 |
 
 **Geplanten Fall als behandelt tracken:** `TreatmentCaseIn` akzeptiert optional
 `patient_case_id` (verweist auf `patient_cases.id`). Wird es gesetzt, gilt der
@@ -331,6 +347,15 @@ angereicherten Datensatz (inkl. aufgelöster Kategorie-/Klassen-/Patientennamen)
 erreicht, kann Behandlungsfälle anlegen. Das ist als Platzhalter gedacht
 (siehe Haupt-README: "Lehrende: ... Behandlungsfälle anlegen/bewerten") und
 muss vor echtem Einsatz mit Auth abgesichert werden.
+
+**Korrigieren und löschen:** `PATCH` ändert nur die gesendeten Felder. Mit
+`patient_case_id: null` löst man die Verknüpfung, der geplante Fall gilt dann
+wieder als offen; `student_id`, `class_id` und `semester` dürfen nicht `null`
+werden (422). Wird nur `patient_case_id` geändert, übernimmt die API den
+Patienten vom neuen Fall, passen `patient_id` und `patient_case_id` danach
+nicht zusammen, gibt es 422. `DELETE` öffnet den verknüpften geplanten Fall
+wieder; hängen Bewertungen (`case_assessments`) oder erworbene Kompetenzen
+(`student_competencies`) an der Behandlung, antwortet die API mit 409.
 
 Die Tabelle `treatment_cases` ist in der aktuellen Testdatenbank leer. Die
 Query funktioniert, liefert aber `[]`, bis Daten reinkommen.
@@ -508,8 +533,11 @@ Antwortformat:
 - **Matching ist greedy, nicht global optimal.** Für die aktuelle
   Kohortengröße unkritisch, bei deutlich mehr Studierenden/Patienten ggf.
   auf `scipy.optimize.linear_sum_assignment` umstellen.
-- **`update_treatment_case`** (aus dem ursprünglichen Outline) fehlt noch.
-  Bisher nur Anlegen (`POST`), kein Bearbeiten (`PUT`/`PATCH`) oder Löschen.
+- **Punkte werden nicht automatisch aus Behandlungen berechnet.** Eine
+  erfasste Behandlung (`treatment_cases`) füllt `students_classes` nicht von
+  selbst; die aggregierten Punkte kommen weiterhin aus dem Import. Ob und wie
+  Bewertungen (`case_assessments`) in Klassenpunkte einfließen sollen, ist
+  fachlich noch zu klären.
 - **`treatment_cases` und `student_osce_results` sind in der Testdatenbank
   leer.** Die zugehörigen Endpunkte sind fertig und funktionieren, liefern
   aber `[]`, bis über die DB oder `POST /treatment-cases` Daten angelegt werden.
@@ -517,6 +545,21 @@ Antwortformat:
   erzeugt SQL, das nicht zum aktuellen Schema passt (schreibt in eine
   Spalte `classes.min`, die es nicht gibt). Betrifft die API nicht direkt,
   aber die Testdaten-Erzeugung aus der echten Kursleistungs-Excel.
+
+## Tests
+
+```bash
+cd projekt2/api
+pip install -r requirements-dev.txt
+python -m pytest tests -q
+```
+
+Jeder Test läuft gegen eine frische Kopie einer Datenbank, die aus
+`leistungen.sql` und `test.sql` im Projektordner aufgebaut wird; die echte
+`leistungen.db` wird nicht angefasst. Dafür überschreibt die Umgebungsvariable
+`PROJEKT2_DB` den Datenbankpfad (ohne sie gilt weiter `api/leistungen.db`).
+Die Suite deckt u.a. die direkt vergebenen Kategorie-Punkte, das Tracken und
+Korrigieren von Behandlungen, die 409/422-Fehlerfälle und den `X-API-Key`-Schutz ab.
 
 ## Typische Stolpersteine
 

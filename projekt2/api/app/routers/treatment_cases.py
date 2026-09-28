@@ -1,150 +1,241 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Response
+from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..schemas import CategoryPointsOut, CategoryProgress, ClassProgress, StudentOut
+from ..schemas import TreatmentCaseIn, TreatmentCaseOut, TreatmentCaseUpdate
+from ..security import require_write_key
 
-router = APIRouter(prefix="/students", tags=["students"])
+router = APIRouter(prefix="/treatment-cases", tags=["treatment-cases"])
+
+_SELECT = """
+    select
+        tc.id as id,
+        tc.student_id,
+        c.name as category,
+        cl.name as class_name,
+        cc.name as case_category,
+        tc.patient_id,
+        coalesce(p.pseudonym, p.name) as patient,
+        tc.patient_case_id,
+        tc.semester,
+        tc.difficulty,
+        tc.expected_duration_min,
+        tc.actual_duration_min,
+        tc.setting,
+        tc.treatment_date,
+        tc.notes
+    from treatment_cases as tc
+    left join classes as cl on tc.class_id = cl.id
+    left join categories as c on cl.category_id = c.id
+    left join case_categories as cc on tc.case_category_id = cc.id
+    left join patients as p on tc.patient_id = p.id
+"""
 
 
-@router.get("", response_model=list[StudentOut])
-def list_students(db: Session = Depends(get_db)):
-    rows = db.execute(
-        text("select id, anon_code, enrollment_semester from students order by id")
-    ).mappings()
-    return [StudentOut.model_validate(r) for r in rows]
-
-
-@router.get("/{student_id}/category-progress", response_model=list[CategoryProgress])
-def get_category_progress(
-    student_id: int,
+@router.get("", response_model=list[TreatmentCaseOut])
+def list_treatment_cases(
+    student_id: int | None = None,
+    patient_id: int | None = None,
     semester: str | None = None,
     db: Session = Depends(get_db),
 ):
-    """Fortschritt pro Kategorie für einen Studenten.
-
-    total_points ist die Summe aus zwei unabhängigen Quellen: den Punkten aus
-    students_classes (über die Klassen/Unterkategorien) UND den Punkten aus
-    students_categories (direkt an der Kategorie vergeben, siehe
-    routers/categories.py). Eine Kategorie mit ausschließlich direkt
-    vergebenen Punkten - ganz ohne Klassen-Einträge - taucht hier genauso auf
-    wie eine, die nur über Klassen befüllt ist.
-    """
-    # Zwei getrennte Aggregate (per_class, per_category) statt eines direkten
-    # Joins beider Tabellen: ein Join von students_classes und
-    # students_categories über category_id würde die Zeilen der einen Seite
-    # mit denen der anderen multiplizieren (Kreuzprodukt) und die Summen
-    # verfälschen.
-    #
-    # Ohne Semester-Filter summiert die Query über alle Semester. Das Feld
-    # semester liefert deshalb den Filterwert oder null und nicht einen
-    # beliebigen Wert aus der Gruppe.
+    """Behandlungshistorie, wahlweise nach Student:in und/oder Patient:in
+    gefiltert - über ?patient_id= lassen sich alle bisherigen Behandlungen
+    eines bestimmten Patienten nachvollziehen (chronologisch sortiert)."""
     query = text(
+        _SELECT
+        + """
+        where (:student_id is null or tc.student_id = :student_id)
+          and (:patient_id is null or tc.patient_id = :patient_id)
+          and (:semester is null or tc.semester = :semester)
+        order by tc.treatment_date, tc.id;
         """
-        with per_class as (
-            select cl.category_id as category_id, sum(sc.points) as pts
-            from students_classes as sc
-            join classes as cl on sc.class_id = cl.id
-            where sc.student_id = :student_id
-              and (:semester is null or sc.semester = :semester)
-            group by cl.category_id
-        ),
-        per_category as (
-            select sca.category_id as category_id, sum(sca.points) as pts
-            from students_categories as sca
-            where sca.student_id = :student_id
-              and (:semester is null or sca.semester = :semester)
-            group by sca.category_id
+    )
+    rows = db.execute(
+        query,
+        {"student_id": student_id, "patient_id": patient_id, "semester": semester},
+    ).mappings()
+    return [TreatmentCaseOut.model_validate(r) for r in rows]
+
+
+@router.get("/{case_id}", response_model=TreatmentCaseOut)
+def get_treatment_case(case_id: int, db: Session = Depends(get_db)):
+    query = text(_SELECT + " where tc.id = :case_id")
+    row = db.execute(query, {"case_id": case_id}).mappings().first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Behandlungsfall nicht gefunden")
+    return TreatmentCaseOut.model_validate(row)
+
+
+def _check_references(payload: TreatmentCaseIn, db: Session) -> int | None:
+    """Prüft die referenzierten IDs vor dem Insert und liefert 422 statt 500.
+    Gibt die zu verwendende patient_id zurück (ggf. aus patient_case_id
+    übernommen, siehe unten)."""
+    references = [
+        ("student_id", payload.student_id, "students"),
+        ("class_id", payload.class_id, "classes"),
+        ("patient_id", payload.patient_id, "patients"),
+        ("case_category_id", payload.case_category_id, "case_categories"),
+    ]
+    for field, value, table in references:
+        if value is None:
+            continue
+        row = db.execute(
+            text(f"select id from {table} where id = :id"), {"id": value}
+        ).first()
+        if row is None:
+            raise HTTPException(status_code=422, detail=f"Unbekannte {field}: {value}")
+
+    if payload.patient_case_id is None:
+        return payload.patient_id
+
+    case_row = (
+        db.execute(
+            text("select patient_id from patient_cases where id = :id"),
+            {"id": payload.patient_case_id},
         )
-        select
-            c.name as category,
-            :student_id as student_id,
-            :semester as semester,
-            coalesce(pcl.pts, 0) + coalesce(pca.pts, 0) as total_points,
-            c.min_points as min,
-            (coalesce(pcl.pts, 0) + coalesce(pca.pts, 0)) >= c.min_points as done,
-            case
-                when c.min_points > 0 then
-                    100.0 * cast(coalesce(pcl.pts, 0) + coalesce(pca.pts, 0) as real) / c.min_points
-                else null
-            end as progress_pct
-        from categories as c
-        left join per_class as pcl on pcl.category_id = c.id
-        left join per_category as pca on pca.category_id = c.id
-        where pcl.category_id is not null or pca.category_id is not null
-        order by c.id;
+        .mappings()
+        .first()
+    )
+    if case_row is None:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unbekannte patient_case_id: {payload.patient_case_id}",
+        )
+    if payload.patient_id is not None and payload.patient_id != case_row["patient_id"]:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"patient_id ({payload.patient_id}) passt nicht zu "
+                f"patient_case_id {payload.patient_case_id} "
+                f"(gehört zu Patient {case_row['patient_id']})"
+            ),
+        )
+    # patient_id fehlte im Request -> vom geplanten Fall übernehmen.
+    return case_row["patient_id"]
+
+
+@router.post(
+    "",
+    response_model=TreatmentCaseOut,
+    status_code=201,
+    dependencies=[Depends(require_write_key)],
+)
+def create_treatment_case(payload: TreatmentCaseIn, db: Session = Depends(get_db)):
+    """Schreib-Endpoint. X-API-Key schützt ihn, sobald PROJEKT2_API_KEY gesetzt
+    ist; Rollen (nur Lehrende) folgen später.
+
+    Wird patient_case_id mitgeschickt, gilt der referenzierte geplante Fall
+    (patient_cases) ab sofort als behandelt - sichtbar über
+    GET /patients/{patient_id}/cases (Feld treated) und
+    GET /treatment-cases?patient_id=... für die volle Historie."""
+    resolved_patient_id = _check_references(payload, db)
+    insert = text(
+        """
+        insert into treatment_cases
+            (student_id, class_id, case_category_id, patient_id, patient_case_id,
+             semester, difficulty, expected_duration_min, actual_duration_min,
+             setting, treatment_date, notes)
+        values
+            (:student_id, :class_id, :case_category_id, :patient_id, :patient_case_id,
+             :semester, :difficulty, :expected_duration_min, :actual_duration_min,
+             :setting, :treatment_date, :notes)
         """
     )
-    rows = db.execute(
-        query, {"student_id": student_id, "semester": semester}
-    ).mappings()
-    return [CategoryProgress.model_validate(r) for r in rows]
+    result = db.execute(
+        insert, {**payload.model_dump(), "patient_id": resolved_patient_id}
+    )
+    db.commit()
+    new_id = result.lastrowid
+    return get_treatment_case(new_id, db)
 
 
-@router.get("/{student_id}/category-points", response_model=list[CategoryPointsOut])
-def get_direct_category_points(student_id: int, db: Session = Depends(get_db)):
-    """Nur die DIREKT an Kategorien vergebenen Punkte dieses Studenten
-    (students_categories), ohne die über Klassen erreichten - zur Kontrolle,
-    was pauschal statt über eine Unterkategorie eingetragen wurde."""
-    rows = db.execute(
-        text(
-            """
-            select
-                sca.student_id,
-                sca.category_id,
-                c.name as category,
-                sca.semester,
-                sca.points
-            from students_categories as sca
-            join categories as c on sca.category_id = c.id
-            where sca.student_id = :student_id
-            order by c.id, sca.semester
-            """
-        ),
-        {"student_id": student_id},
-    ).mappings()
-    return [CategoryPointsOut.model_validate(r) for r in rows]
+_COLUMNS = (
+    "student_id, class_id, case_category_id, patient_id, patient_case_id, "
+    "semester, difficulty, expected_duration_min, actual_duration_min, "
+    "setting, treatment_date, notes"
+)
 
 
-@router.get("/{student_id}/class-progress", response_model=list[ClassProgress])
-def get_class_progress(
-    student_id: int,
-    semester: str | None = None,
-    db: Session = Depends(get_db),
+@router.patch(
+    "/{case_id}",
+    response_model=TreatmentCaseOut,
+    dependencies=[Depends(require_write_key)],
+)
+def update_treatment_case(
+    case_id: int, payload: TreatmentCaseUpdate, db: Session = Depends(get_db)
 ):
-    """Feingranulare Sicht: Fortschritt pro einzelner Klasse."""
-    # Semester als Bind-Wert, gleicher Grund wie beim Kategorie-Fortschritt.
-    query = text(
-        """
-        select
-            c.name as category,
-            cl.name as class_name,
-            sc.student_id,
-            :semester as semester,
-            sum(sc.points) as total_points,
-            sum(sc.count) as total_count,
-            cl.min_points as min_points_required,
-            cl.min_count as min_count_required,
-            (
-                (cl.min_points is null or sum(sc.points) >= cl.min_points)
-                and (cl.min_count is null or sum(sc.count) >= cl.min_count)
-            ) as done,
-            case
-                when cl.min_points > 0 then
-                    100.0 * cast(sum(sc.points) as real) / cl.min_points
-                else null
-            end as progress_pct
-        from students_classes as sc
-        join classes as cl on sc.class_id = cl.id
-        join categories as c on cl.category_id = c.id
-        where sc.student_id = :student_id
-          and (:semester is null or sc.semester = :semester)
-        group by cl.id, sc.student_id
-        order by c.id, cl.id;
-        """
+    """Korrigiert einen Behandlungsfall; nur gesendete Felder ändern sich.
+
+    patient_case_id=null löst die Verknüpfung zum geplanten Fall (der gilt
+    dann wieder als offen). Wird nur patient_case_id gesetzt, übernimmt die
+    API den Patienten vom Fall; sind patient_id und patient_case_id danach
+    nicht stimmig, antwortet sie mit 422 wie beim Anlegen."""
+    existing = (
+        db.execute(
+            text(f"select {_COLUMNS} from treatment_cases where id = :id"),
+            {"id": case_id},
+        )
+        .mappings()
+        .first()
     )
-    rows = db.execute(
-        query, {"student_id": student_id, "semester": semester}
-    ).mappings()
-    return [ClassProgress.model_validate(r) for r in rows]
+    if existing is None:
+        raise HTTPException(status_code=404, detail="Behandlungsfall nicht gefunden")
+
+    changes = payload.model_dump(exclude_unset=True)
+    for field in ("student_id", "class_id", "semester"):
+        if field in changes and changes[field] is None:
+            raise HTTPException(status_code=422, detail=f"{field} darf nicht null sein")
+    if not changes:
+        return get_treatment_case(case_id, db)
+
+    merged = dict(existing)
+    merged.update(changes)
+    if changes.get("patient_case_id") is not None and "patient_id" not in changes:
+        # Patient kommt vom neuen Fall, nicht vom bisherigen Wert.
+        merged["patient_id"] = None
+    try:
+        candidate = TreatmentCaseIn.model_validate(merged)
+    except ValidationError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+    resolved_patient_id = _check_references(candidate, db)
+    if "patient_id" in changes or "patient_case_id" in changes:
+        changes["patient_id"] = resolved_patient_id
+
+    set_clause = ", ".join(f"{field} = :{field}" for field in changes)
+    db.execute(
+        text(f"update treatment_cases set {set_clause} where id = :case_id"),
+        {**changes, "case_id": case_id},
+    )
+    db.commit()
+    return get_treatment_case(case_id, db)
+
+
+@router.delete(
+    "/{case_id}",
+    status_code=204,
+    dependencies=[Depends(require_write_key)],
+)
+def delete_treatment_case(case_id: int, db: Session = Depends(get_db)):
+    """Löscht einen Behandlungsfall (z.B. eine Fehleingabe); der verknüpfte
+    geplante Fall gilt danach wieder als offen. 409, wenn Bewertungen oder
+    erworbene Kompetenzen auf die Behandlung verweisen."""
+    get_treatment_case(case_id, db)
+    for table, column, label in (
+        ("case_assessments", "treatment_case_id", "Bewertungen"),
+        ("student_competencies", "treatment_cases_id", "erworbene Kompetenzen"),
+    ):
+        count = db.execute(
+            text(f"select count(*) from {table} where {column} = :id"), {"id": case_id}
+        ).scalar()
+        if count:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Behandlung hat noch {count} {label} und kann nicht gelöscht werden",
+            )
+    db.execute(text("delete from treatment_cases where id = :id"), {"id": case_id})
+    db.commit()
+    return Response(status_code=204)

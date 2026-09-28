@@ -1,12 +1,14 @@
 """Zentrale DB-Engine. Ein Engine-Objekt pro Prozess, Sessions pro Request."""
 
+import os
 from pathlib import Path
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "leistungen.db"
+# PROJEKT2_DB überschreibt den Pfad (z.B. für die Tests mit einer Wegwerf-DB).
+DB_PATH = Path(os.environ.get("PROJEKT2_DB") or BASE_DIR / "leistungen.db")
 
 # check_same_thread=False: SQLite + mehrere Worker-Threads unter uvicorn.
 # Für den Uni-Server auf Postgres migrieren, sobald mehrere Nutzer gleichzeitig

@@ -3,13 +3,30 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from pathlib import Path
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, inspect, text
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "leistungen.db"
 engine = create_engine(f"sqlite:///{DB_PATH}")
 
 st.set_page_config(page_title="Leistungsübersicht", layout="wide")
+
+
+def _category_points_source() -> str:
+    """Punkte je Student/Semester/Kategorie: über die Klassen (students_classes)
+    plus direkt an der Kategorie vergebene (students_categories). Die zweite
+    Tabelle gibt es erst, seit die API einmal gestartet wurde; fehlt sie noch,
+    zählen nur die Klassenpunkte (wie bisher)."""
+    parts = [
+        "select cl.category_id as category_id, sc.student_id as student_id, "
+        "sc.semester as semester, sc.points as points "
+        "from students_classes as sc join classes as cl on sc.class_id = cl.id"
+    ]
+    if inspect(engine).has_table("students_categories"):
+        parts.append(
+            "select category_id, student_id, semester, points from students_categories"
+        )
+    return "(" + " union all ".join(parts) + ")"
 
 
 # ---------------------------------------------------------------------------
@@ -20,7 +37,7 @@ st.set_page_config(page_title="Leistungsübersicht", layout="wide")
 @st.cache_data(show_spinner=False)
 def load_category_overview():
     query = text(
-        """
+        f"""
         select
             c.name as category,
             sc.student_id,
@@ -33,9 +50,8 @@ def load_category_overview():
                     100.0 * cast(sum(sc.points) as real) / c.min_points
                 else null
             end as progress_pct
-        from students_classes as sc
-        join classes as cl on sc.class_id = cl.id
-        join categories as c on cl.category_id = c.id
+        from {_category_points_source()} as sc
+        join categories as c on sc.category_id = c.id
         group by c.id, sc.student_id
         order by
             c.id,
@@ -49,15 +65,14 @@ def load_category_overview():
 @st.cache_data(show_spinner=False)
 def load_category_totals():
     query = text(
-        """
+        f"""
         select
             sc.student_id,
             sc.semester,
             c.name as category,
             sum(sc.points) as total_points
-        from students_classes as sc
-        join classes as cl on sc.class_id = cl.id
-        join categories as c on cl.category_id = c.id
+        from {_category_points_source()} as sc
+        join categories as c on sc.category_id = c.id
         group by sc.student_id, sc.semester, c.id
         order by
             sc.student_id,
