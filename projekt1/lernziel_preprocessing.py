@@ -1,5 +1,8 @@
+import pandas as pd
+import pdfplumber
 from PyPDF2 import PdfReader, PdfWriter
 import os
+
 
 def pdf_in_einzelne_seiten_aufteilen(input_pdf, output_ordner="einzelne_seiten_vorlesung"):
     """Teilt eine PDF in einzelne PDFs pro Seite auf."""
@@ -24,5 +27,27 @@ def pdf_in_einzelne_seiten_aufteilen(input_pdf, output_ordner="einzelne_seiten_v
 
     print(f"Erfolgreich! {len(reader.pages)} Seiten wurden nach '{output_ordner}' gespeichert.")
 
+
+def lernzielToJSON(input_pdf, output_ordner="Lernziele"):
+    erfolgreiche_tabellen = []
+
+    with pdfplumber.open(input_pdf) as pdf:
+        for page in pdf.pages:
+            # Holt alle Tabellen von der aktuellen Seite (als Liste von Listen)
+            tabellen = page.extract_tables()
+
+            for tabelle in tabellen:
+                if tabelle and len(tabelle) > 1:
+                    # Erste Zeile als Spaltennamen, Rest als Daten
+                    df = pd.DataFrame(tabelle[1:], columns=tabelle[0])
+                    # Komplett leere Zeilen entfernen
+                    df = df.dropna(how="all")
+                    erfolgreiche_tabellen.append(df)
+
+    return erfolgreiche_tabellen
+
+
+#print(lernzielToJSON("assets/Lernziele/NKLZLernziele242248.pdf"))
+
 # Beispielaufruf
-pdf_in_einzelne_seiten_aufteilen("assets/Vorlesung_1_OraleMedizinUndSystemischeAspekte.pdf")
+#pdf_in_einzelne_seiten_aufteilen("assets/Vorlesung_1_OraleMedizinUndSystemischeAspekte.pdf")
