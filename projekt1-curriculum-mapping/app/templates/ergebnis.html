@@ -24,42 +24,41 @@
             </div>
         </div>
         <div class="actions">
-            {% if e.zeilen and a.status != 'laeuft' %}
+            {% if e.zeilen and a.status != "laeuft" %}
                 <a class="btn small"
                    href="{{ url_for('zuordnung.excel', token=a.token) }}">Excel herunterladen</a>
             {% endif %}
             <form method="post"
                   action="{{ url_for('zuordnung.loeschen', token=a.token) }}"
                   class="inline"
-                  onsubmit="return confirm('Dieses Ergebnis wirklich löschen?')">
+                  data-bestaetigen="Dieses Ergebnis wirklich löschen?">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                <button class="btn small danger">Löschen</button>
+                <button type="submit" class="btn small danger">Löschen</button>
             </form>
         </div>
     </div>
     {{ subnav(aktive_ansicht, reiter) }}
-    {% if a.status == 'laeuft' %}
+    {% if a.status == "laeuft" %}
         <div class="card laufend"
-             id="laufend"
              data-stand="{{ url_for('zuordnung.stand', token=a.token) }}">
             <div class="row-between">
                 <h2 class="ohne-abstand">Das Modell arbeitet</h2>
                 <span class="spinner" aria-hidden="true"></span>
             </div>
             <p>
-                <strong id="stand-zeilen">{{ e.zeilen|length }}</strong> von {{ e.zaehlend }} Prüfzielen beantwortet.
+                <strong data-stand-zahl>{{ e.zeilen|length }}</strong> von {{ e.zaehlend }} Prüfzielen beantwortet.
             </p>
             <div class="pbar">
                 <div class="pfill app"
-                     id="stand-balken"
-                     style="width: {{ [e.zeilen|length / e.zaehlend * 100, 100]|min }}%"></div>
+                     data-stand-balken
+                     data-breite="{{ [e.zeilen|length / e.zaehlend * 100, 100]|min|round(1) }}%"></div>
             </div>
             <p class="muted klein">
                 Die Tabelle erscheint, sobald die Antwort vollständig ist; die Seite aktualisiert sich
                 selbst. Sie kann auch geschlossen werden, der Durchlauf läuft auf dem Server weiter.
             </p>
         </div>
-    {% elif a.status == 'fehler' %}
+    {% elif a.status == "fehler" %}
         <div class="card fehlerkarte">
             <h2 class="ohne-abstand">Der Durchlauf ist fehlgeschlagen</h2>
             <p>{{ a.fehler }}</p>
@@ -72,8 +71,8 @@
             {% endif %}
         </div>
     {% endif %}
-    {% if ansicht == 'tabelle' %}
-        {% if e.zeilen and a.status != 'laeuft' %}
+    {% if ansicht == "tabelle" %}
+        {% if e.zeilen and a.status != "laeuft" %}
             <div class="card">
                 <div class="metrics">
                     <div class="metric ok">
@@ -104,7 +103,7 @@
                 </div>
                 {{ verteilung(e) }}
                 <div class="legend">{{ legende() }}</div>
-                {% if a.abbruch == 'length' %}
+                {% if a.abbruch == "length" %}
                     <p class="hint warnung">
                         Die Antwort wurde an der Längengrenze des Modells abgeschnitten. Prüfziele am Ende der
                         Liste fehlen deshalb.
@@ -136,7 +135,7 @@
                     </p>
                 {% endif %}
             </div>
-            <div class="card">
+            <div class="card" data-filterbereich>
                 <div class="filterleiste">
                     <div class="subnav ohne-abstand"
                          role="group"
@@ -162,11 +161,10 @@
                         {% endif %}
                     </div>
                     <input type="search"
-                           id="suche"
                            placeholder="Suche in Prüfziel, Begründung, Lernziel-ID"
                            aria-label="Tabelle durchsuchen">
                     <label class="schalter">
-                        <input type="checkbox" id="wortlaut">
+                        <input type="checkbox" data-klasse="mit-wortlaut" data-tabelle="zuordnung">
                         Wortlaut der Lernziele
                     </label>
                 </div>
@@ -180,23 +178,24 @@
                         </colgroup>
                         <thead>
                             <tr>
-                                <th>Prüfziel</th>
-                                <th>Abdeckung</th>
-                                <th>Begründung</th>
-                                <th>Lernziel-ID (Kapitel)</th>
+                                <th scope="col">Prüfziel</th>
+                                <th scope="col">Abdeckung</th>
+                                <th scope="col">Begründung</th>
+                                <th scope="col">Lernziel-ID (Kapitel)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for t in e.tabelle %}
-                                {% if t.art in ('teil', 'bereich', 'gruppe') %}
+                                {% if t.art in ("teil", "bereich", "gruppe") %}
                                     {{ kopfzeile(t.art, t.eintrag, 4) }}
-                                {% elif t.art == 'fehlt' %}
+                                {% elif t.art == "fehlt" %}
                                     <tr class="zeile-fehlt" data-stufe="fehlt">
                                         <td>{{ pruefziel(t.eintrag, none) }}</td>
                                         <td>
                                             <span class="badge fehlt">fehlt</span>
                                         </td>
-                                        <td class="muted" colspan="2">Zu diesem Prüfziel hat die Antwort keine Zeile.</td>
+                                        <td class="muted"
+                                            colspan="2">Zu diesem Prüfziel hat die Antwort keine Zeile.</td>
                                     </tr>
                                 {% else %}
                                     {% set z = t.zeile %}
@@ -217,16 +216,16 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="muted" id="keine-treffer" hidden>Keine Zeile passt zu Filter und Suche.</p>
+                <p class="muted keine-treffer" hidden>Keine Zeile passt zu Filter und Suche.</p>
             </div>
-        {% elif a.status == 'fertig' %}
+        {% elif a.status == "fertig" %}
             <div class="card">
                 <p>In der Antwort steht keine Zeile im verlangten Format (Prüfziel;Abdeckung;Begründung;Lernziel-ID).</p>
                 <a class="btn small"
                    href="{{ url_for('zuordnung.ergebnis', token=a.token, ansicht='antwort') }}">Antwort ansehen</a>
             </div>
         {% endif %}
-    {% elif ansicht == 'lernziele' %}
+    {% elif ansicht == "lernziele" %}
         <div class="card">
             <p class="muted">
                 Die Übersicht zeigt, welche Prüfziele das Modell den einzelnen Lernzielen zugeordnet hat. Es
@@ -239,9 +238,9 @@
                 <table class="lernziele">
                     <thead>
                         <tr>
-                            <th>Lernziel</th>
-                            <th>Wortlaut</th>
-                            <th>Zugeordnete Prüfziele</th>
+                            <th scope="col">Lernziel</th>
+                            <th scope="col">Wortlaut</th>
+                            <th scope="col">Zugeordnete Prüfziele</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -279,7 +278,7 @@
                 </table>
             {% endif %}
         </div>
-    {% elif ansicht == 'antwort' %}
+    {% elif ansicht == "antwort" %}
         <div class="card">
             {% if e.uebrig %}
                 <p class="hint warnung">
@@ -289,116 +288,121 @@
                         {{ e.uebrig|length }} Zeilen im Tabellenformat ließen sich keinem Prüfziel zuordnen:
                     {% endif %}
                 </p>
-                <pre class="roh kurz">{{ e.uebrig|join('\n') }}</pre>
+                <pre class="roh kurz" tabindex="0">{{ e.uebrig|join('\n') }}</pre>
             {% endif %}
             <h2 class="ohne-abstand">
-                {% if a.quelle == 'import' %}
+                {% if a.quelle == "import" %}
                     Zeilen aus der Excel-Datei
                 {% else %}
-                    Antwort des Modells{% if a.status == 'laeuft' %} (bisher){% endif %}
+                    Antwort des Modells{% if a.status == "laeuft" %} (bisher){% endif %}
                 {% endif %}
             </h2>
             <p class="muted">
                 {{ a.rohantwort|length }} Zeichen
-                {% if a.abbruch == 'stop' %}
+                {% if a.abbruch == "stop" %}
                     · vollständig
-                {% elif a.abbruch == 'length' %}
+                {% elif a.abbruch == "length" %}
                     · an der Längengrenze abgeschnitten
                 {% elif a.abbruch %}
                     · Ende: {{ a.abbruch }}
                 {% endif %}
             </p>
             {% if a.rohantwort %}
-                <pre class="roh">{{ a.rohantwort }}</pre>
+                <pre class="roh" tabindex="0">{{ a.rohantwort }}</pre>
             {% else %}
                 <p class="muted">Noch keine Antwort.</p>
             {% endif %}
         </div>
-    {% elif ansicht == 'eingaben' %}
+    {% elif ansicht == "eingaben" %}
         <div class="card">
             <table class="kv">
-                <tr>
-                    <th>Titel</th>
-                    <td>{{ a.titel }}</td>
-                </tr>
-                <tr>
-                    <th>Kategorie</th>
-                    <td>{{ a.kategorie }}: Prüfziele und Lernziele mit Begründung</td>
-                </tr>
-                <tr>
-                    <th>Prüfziel-Liste</th>
-                    <td>
-                        {{ liste.titel }} ({{ liste.zaehlend|length }} Prüfziele)
-                        <a class="btn small secondary"
-                           href="{{ url_for('zuordnung.pruefziel_liste', liste=liste.schluessel) }}">Ansehen</a>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Modell</th>
-                    <td>
-                        {{ modell_name(a.modell) }} <code>{{ a.modell }}</code>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Temperatur</th>
-                    <td>
-                        {% if a.temperatur is not none %}
-                            {{ a.temperatur|temperatur }}
-                        {% else %}
-                            <span class="muted">nicht angegeben</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Quelle</th>
-                    <td>
-                        {% if a.quelle == 'import' %}
-                            übernommen aus {{ a.quelle_hinweis }}
-                        {% else %}
-                            Durchlauf in der App
-                        {% endif %}
-                    </td>
-                </tr>
-                {% for bezeichnung, name, text in [('Vorlesung', a.vorlesung_name, a.vorlesung_text), ('Lernziele', a.lernziele_name, a.lernziele_text)] %}
+                <tbody>
                     <tr>
-                        <th>{{ bezeichnung }}</th>
+                        <th scope="row">Titel</th>
+                        <td>{{ a.titel }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Kategorie</th>
+                        <td>{{ a.kategorie }}: Prüfziele und Lernziele mit Begründung</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Prüfziel-Liste</th>
                         <td>
-                            {% if name %}
-                                {{ name }} <small class="muted">({{ text|length }} Zeichen Text)</small>
-                                <details class="optional">
-                                    <summary>Gelesenen Text zeigen</summary>
-                                    <pre class="roh">{{ text }}</pre>
-                                </details>
+                            {{ liste.titel }} ({{ liste.zaehlend|length }} Prüfziele)
+                            <a class="btn small secondary"
+                               href="{{ url_for('zuordnung.pruefziel_liste', liste=liste.schluessel) }}">Ansehen</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Modell</th>
+                        <td>
+                            {{ modell_name(a.modell) }} <code>{{ a.modell }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Temperatur</th>
+                        <td>
+                            {% if a.temperatur is not none %}
+                                {{ a.temperatur|temperatur }}
                             {% else %}
-                                <span class="muted">keine Datei</span>
+                                <span class="muted">nicht angegeben</span>
                             {% endif %}
                         </td>
                     </tr>
-                {% endfor %}
-                <tr>
-                    <th>Prompt</th>
-                    <td>
-                        {% if a.prompt %}
-                            <pre class="roh kurz">{{ a.prompt }}</pre>
-                        {% else %}
-                            <span class="muted">nicht angegeben</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Erstellt</th>
-                    <td>
-                        {{ a.erstellt_am|datum }}
-                        {% if a.erstellt_von %}von {{ a.erstellt_von }}{% endif %}
-                    </td>
-                </tr>
+                    <tr>
+                        <th scope="row">Quelle</th>
+                        <td>
+                            {% if a.quelle == "import" %}
+                                übernommen aus {{ a.quelle_hinweis }}
+                            {% else %}
+                                Durchlauf in der App
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% for bezeichnung, name, text in [('Vorlesung', a.vorlesung_name, a.vorlesung_text), ('Lernziele', a.lernziele_name, a.lernziele_text)] %}
+                        <tr>
+                            <th scope="row">{{ bezeichnung }}</th>
+                            <td>
+                                {% if name and text %}
+                                    {{ name }} <small class="muted">({{ text|length }} Zeichen Text)</small>
+                                    <details class="optional">
+                                        <summary>Gelesenen Text zeigen</summary>
+                                        <pre class="roh" tabindex="0">{{ text }}</pre>
+                                    </details>
+                                {% elif name %}
+                                    {{ name }} <small class="muted">(ohne gespeicherten Text)</small>
+                                {% else %}
+                                    <span class="muted">keine Datei</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <th scope="row">Prompt</th>
+                        <td>
+                            {% if a.prompt %}
+                                <pre class="roh kurz" tabindex="0">{{ a.prompt }}</pre>
+                            {% else %}
+                                <span class="muted">nicht angegeben</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Erstellt</th>
+                        <td>
+                            {{ a.erstellt_am|datum }}
+                            {% if a.erstellt_von %}von {{ a.erstellt_von }}{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
         {% if a.lernziele_text %}
             <form method="post"
                   action="{{ url_for('zuordnung.wiederholen', token=a.token) }}"
                   class="card"
-                  id="wiederholen">
+                  id="wiederholen"
+                  data-entwurf="projekt1-wiederholen-{{ a.token }}">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                 <h2 class="ohne-abstand">Erneut ausführen</h2>
                 <p class="muted">
@@ -411,13 +415,15 @@
                         Modell
                         <select name="modell">
                             {% for mid, name in modelle %}
-                                <option value="{{ mid }}" {% if mid == werte.modell %}selected{% endif %}>{{ name }}</option>
+                                <option value="{{ mid }}"
+                                        {% if mid == werte.modell %}selected{% endif %}>{{ name }}</option>
                             {% endfor %}
                         </select>
                     </label>
                     <label>
                         Temperatur
-                        <input name="temperatur"
+                        <input type="text"
+                               name="temperatur"
                                value="{{ werte.temperatur }}"
                                inputmode="decimal"
                                pattern="[01]([.,][0-9]+)?|2([.,]0+)?"
@@ -440,82 +446,6 @@
                     {% endif %}
                 </div>
             </form>
-            <script src="{{ url_for('static', filename='entwurf.js') }}"></script>
-            <script>
-                entwurfEinrichten(document.getElementById("wiederholen"), "projekt1-wiederholen-" + {{ a.token|tojson }});
-            </script>
         {% endif %}
     {% endif %}
-    <script src="{{ url_for('static', filename='tabelle.js') }}"></script>
-    <script>
-        (function() {
-            const ABFRAGE_MS = 3000;
-            const MAX_FEHLVERSUCHE = 5;
-            const karte = document.getElementById("laufend");
-            if (karte) {
-                const standZeilen = document.getElementById("stand-zeilen");
-                const standBalken = document.getElementById("stand-balken");
-                let fehlversuche = 0;
-                async function abfragen() {
-                    try {
-                        const antwort = await fetch(karte.dataset.stand, {
-                            headers: {
-                                Accept: "application/json"
-                            }
-                        });
-                        const stand = await antwort.json();
-                        fehlversuche = 0;
-                        standZeilen.textContent = stand.zeilen;
-                        standBalken.style.width = Math.min(100, stand.zeilen / stand.zaehlend * 100) + "%";
-                        if (stand.status !== "laeuft") {
-                            location.reload();
-                            return;
-                        }
-                    } catch {
-                        // Server kurz nicht erreichbar oder Sitzung abgelaufen
-                        if (++fehlversuche >= MAX_FEHLVERSUCHE) {
-                            location.reload();
-                            return;
-                        }
-                    }
-                    setTimeout(abfragen, ABFRAGE_MS);
-                }
-                setTimeout(abfragen, ABFRAGE_MS);
-            }
-
-            const tabelle = document.getElementById("zuordnung");
-            if (!tabelle) return;
-            const zeilen = Array.from(tabelle.tBodies[0].rows);
-            const knoepfe = document.querySelectorAll("[data-filter]");
-            const suche = document.getElementById("suche");
-            const leer = document.getElementById("keine-treffer");
-            let filter = "alle";
-
-            function anwenden() {
-                const begriff = suche.value.trim().toLowerCase();
-                let sichtbar = 0;
-                for (const tr of zeilen) {
-                    if (tr.classList.contains("kopf")) continue;
-                    const passt = (filter === "alle" || tr.dataset.stufe === filter) &&
-                        (!begriff || tr.textContent.toLowerCase().includes(begriff));
-                    tr.hidden = !passt;
-                    if (passt) sichtbar++;
-                }
-                kopfzeilenAnpassen(zeilen);
-                leer.hidden = sichtbar > 0;
-            }
-
-            knoepfe.forEach(function(knopf) {
-                knopf.addEventListener("click", function() {
-                    filter = knopf.dataset.filter;
-                    knoepfe.forEach(k => k.classList.toggle("aktiv", k === knopf));
-                    anwenden();
-                });
-            });
-            suche.addEventListener("input", anwenden);
-            document.getElementById("wortlaut").addEventListener("change", function() {
-                tabelle.classList.toggle("mit-wortlaut", this.checked);
-            });
-        })();
-    </script>
 {% endblock %}

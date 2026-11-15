@@ -2,7 +2,7 @@
 // sie nach dem Neuladen wieder her. Absenden oder der Knopf .entwurf-verwerfen
 // löschen den Entwurf. Von Dateifeldern bleibt nur der Dateiname für den
 // Hinweis in .entwurf-hinweis.
-function entwurfEinrichten(formular, schluessel) {
+export function entwurfEinrichten(formular, schluessel) {
   const hinweis = formular.querySelector(".entwurf-hinweis");
   const typen = ["text", "search", "number", "textarea", "select-one", "file"];
   const felder = Array.from(formular.elements).filter(

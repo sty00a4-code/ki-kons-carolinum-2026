@@ -7,20 +7,22 @@
               content="Zuordnung von Prüfzielen und Lernzielen mit Begründung (Projekt 1, Zahnmedizin, Kategorie 1).">
         <title>{% block titel %}Curriculum-Mapping{% endblock %} · Projekt 1</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script type="module" src="{{ url_for('static', filename='seiten.js') }}"></script>
     </head>
     <body>
         <header>
             <div class="brand">🦷 Curriculum-Mapping <small>Projekt 1</small></div>
-            <nav>
-                {% if session.get('user_id') %}
+            <nav aria-label="Hauptnavigation">
+                {% if session.get("user_id") %}
                     <a href="{{ url_for('zuordnung.neu') }}">Neue Zuordnung</a>
                     <a href="{{ url_for('zuordnung.ergebnisse') }}">Ergebnisse</a>
                     <a href="{{ url_for('zuordnung.vergleich') }}">Vergleich</a>
+                    <a href="{{ url_for('folien.liste') }}">Vorlesungsabgleich</a>
                     <a href="{{ url_for('zuordnung.pruefziel_liste') }}">Prüfziele</a>
                     <span class="who">{{ session.username }} · {{ session.role }}</span>
                     <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-                        <button class="linkbtn">Logout</button>
+                        <button type="submit" class="linkbtn">Logout</button>
                     </form>
                 {% endif %}
             </nav>

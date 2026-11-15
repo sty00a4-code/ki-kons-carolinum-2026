@@ -1,7 +1,7 @@
 {# Bereichsleiste am Kopf einer Seite.
    aktiv: Beschriftung des aktiven Eintrags, eintraege: Liste von (Beschriftung, URL) #}
 {% macro subnav(aktiv, eintraege) %}
-    <nav class="subnav">
+    <nav class="subnav" aria-label="Bereich">
         {% for name, ziel in eintraege %}
             <a class="btn small{% if name == aktiv %} aktiv{% endif %}"
                href="{{ ziel }}">{{ name }}</a>
@@ -10,6 +10,9 @@
 {% endmacro %}
 {% macro subnav_neu(aktiv) %}
     {{ subnav(aktiv, [('Mit KI zuordnen', url_for('zuordnung.neu')), ('Aus Excel übernehmen', url_for('zuordnung.excel_uebernehmen'))]) }}
+{% endmacro %}
+{% macro subnav_folien_neu(aktiv) %}
+    {{ subnav(aktiv, [('Mit KI abgleichen', url_for('folien.neu')), ('Ergebnis übernehmen', url_for('folien.uebernehmen'))]) }}
 {% endmacro %}
 {# Abdeckung als Badge: 2 abgedeckt, 1 teilweise, 0 nicht abgedeckt #}
 {% macro abdeckung(stufe) %}
@@ -22,16 +25,16 @@
     {% endif %}
 {% endmacro %}
 {% macro status(a) %}
-    {% if a.status == 'laeuft' %}
+    {% if a.status == "laeuft" %}
         <span class="badge laeuft">läuft</span>
-    {% elif a.status == 'fehler' %}
+    {% elif a.status == "fehler" %}
         <span class="badge fehlt">Fehler</span>
     {% else %}
         <span class="badge ok">fertig</span>
     {% endif %}
 {% endmacro %}
 {% macro quelle(a) %}
-    {% if a.quelle == 'import' %}
+    {% if a.quelle == "import" %}
         <span class="badge info">aus Excel</span>
     {% else %}
         <span class="badge info">KI-Durchlauf</span>
@@ -56,11 +59,14 @@
     {% if gesamt %}
         <div class="pbar{% if klein %} sm{% endif %}"
              title="{{ e.abgedeckt }} abgedeckt, {{ e.teilweise }} teilweise, {{ e.nicht }} nicht abgedeckt, {{ e.fehlend|length }} fehlen">
-            <div class="pfill app" style="width: {{ e.abgedeckt / gesamt * 100 }}%"></div>
-            <div class="pfill pen" style="width: {{ e.teilweise / gesamt * 100 }}%"></div>
-            <div class="pfill nein" style="width: {{ e.nicht / gesamt * 100 }}%"></div>
+            <div class="pfill app"
+                 data-breite="{{ (e.abgedeckt / gesamt * 100)|round(2) }}%"></div>
+            <div class="pfill pen"
+                 data-breite="{{ (e.teilweise / gesamt * 100)|round(2) }}%"></div>
+            <div class="pfill nein"
+                 data-breite="{{ (e.nicht / gesamt * 100)|round(2) }}%"></div>
             <div class="pfill fehlt"
-                 style="width: {{ e.fehlend|length / gesamt * 100 }}%"></div>
+                 data-breite="{{ (e.fehlend|length / gesamt * 100)|round(2) }}%"></div>
         </div>
     {% endif %}
 {% endmacro %}
@@ -77,7 +83,7 @@
     <tr class="kopf kopf-{{ ebene }}"
         data-ebene="{{ {'teil': 0, 'bereich': 1, 'gruppe': 2}[ebene] }}">
         <td colspan="{{ spalten }}">
-            {% if ebene == 'teil' %}
+            {% if ebene == "teil" %}
                 {{ eintrag.nr }} {{ eintrag.name }}
             {% else %}
                 <span class="nr">{{ eintrag.nr }}</span> {{ eintrag.name }}

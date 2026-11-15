@@ -37,10 +37,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="auswahl"></th>
-                            <th>Ergebnis</th>
-                            <th>Modell</th>
-                            <th>Erstellt</th>
+                            <th scope="col" class="auswahl"><span class="unsichtbar">Auswahl</span></th>
+                            <th scope="col">Ergebnis</th>
+                            <th scope="col">Modell</th>
+                            <th scope="col">Erstellt</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,11 +105,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Ergebnis A</th>
-                        <th>Ergebnis B</th>
-                        <th>Prüfziele in beiden</th>
-                        <th>Gleiche Abdeckung</th>
-                        <th>Kappa</th>
+                        <th scope="col">Ergebnis A</th>
+                        <th scope="col">Ergebnis B</th>
+                        <th scope="col">Prüfziele in beiden</th>
+                        <th scope="col">Gleiche Abdeckung</th>
+                        <th scope="col">Kappa</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,11 +137,13 @@
         <div class="card">
             <div class="filterleiste">
                 <label class="schalter">
-                    <input type="checkbox" id="nur-abweichungen">
+                    <input type="checkbox" data-nur-abweichungen="vergleich">
                     Nur Prüfziele mit unterschiedlicher Abdeckung
                 </label>
                 <label class="schalter">
-                    <input type="checkbox" id="begruendungen">
+                    <input type="checkbox"
+                           data-klasse="mit-begruendung"
+                           data-tabelle="vergleich">
                     Begründungen zeigen
                 </label>
                 <a class="btn small secondary"
@@ -151,9 +153,9 @@
                 <table class="vergleich" id="vergleich">
                     <thead>
                         <tr>
-                            <th>Prüfziel</th>
+                            <th scope="col">Prüfziel</th>
                             {% for a, e in laeufe %}
-                                <th>
+                                <th scope="col">
                                     {{ a.titel }}
                                     <br>
                                     <small>{{ modell_name(a.modell) }}
@@ -165,7 +167,7 @@
                     </thead>
                     <tbody>
                         {% for t in daten.zeilen %}
-                            {% if t.art != 'zeile' %}
+                            {% if t.art != "zeile" %}
                                 {{ kopfzeile(t.art, t.eintrag, laeufe|length + 1) }}
                             {% else %}
                                 <tr class="{% if not t.einig %}abweichung{% endif %}"
@@ -191,26 +193,5 @@
                 </table>
             </div>
         </div>
-        <script src="{{ url_for('static', filename='tabelle.js') }}"></script>
-        <script>
-            (function() {
-                const tabelle = document.getElementById("vergleich");
-                const zeilen = Array.from(tabelle.tBodies[0].rows);
-                const nurAbweichungen = document.getElementById("nur-abweichungen");
-
-                function anwenden() {
-                    for (const tr of zeilen) {
-                        if (!tr.classList.contains("kopf")) {
-                            tr.hidden = nurAbweichungen.checked && tr.dataset.einig === "1";
-                        }
-                    }
-                    kopfzeilenAnpassen(zeilen);
-                }
-                nurAbweichungen.addEventListener("change", anwenden);
-                document.getElementById("begruendungen").addEventListener("change", function() {
-                    tabelle.classList.toggle("mit-begruendung", this.checked);
-                });
-            })();
-        </script>
     {% endif %}
 {% endblock %}

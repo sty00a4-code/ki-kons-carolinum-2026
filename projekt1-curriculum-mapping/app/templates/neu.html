@@ -20,7 +20,8 @@
     <form method="post"
           enctype="multipart/form-data"
           class="card"
-          id="neu-formular">
+          data-entwurf="projekt1-neu"
+          data-warten="Dateien werden gelesen">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <p class="hint entwurf-hinweis" hidden></p>
         <h2 class="schritt"><span>1</span> Prompt</h2>
@@ -66,7 +67,8 @@
             </label>
             <label>
                 Temperatur
-                <input name="temperatur"
+                <input type="text"
+                       name="temperatur"
                        value="{{ werte.temperatur }}"
                        inputmode="decimal"
                        pattern="[01]([.,][0-9]+)?|2([.,]0+)?"
@@ -75,7 +77,10 @@
         </div>
         <label>
             Titel <span class="muted">(optional, sonst der Name der Vorlesung)</span>
-            <input name="titel" value="{{ werte.titel }}" maxlength="{{ max_titel }}">
+            <input type="text"
+                   name="titel"
+                   value="{{ werte.titel }}"
+                   maxlength="{{ max_titel }}">
         </label>
         <div class="row">
             <button type="submit" {% if not ki_bereit %}disabled{% endif %}>Zuordnung starten</button>
@@ -84,17 +89,8 @@
                     data-ziel="{{ url_for('zuordnung.neu') }}">Verwerfen</button>
             <a class="btn small secondary"
                href="{{ url_for('zuordnung.pruefziel_liste') }}">Prüfziel-Liste ansehen ({{ liste.zaehlend|length }} Prüfziele)</a>
-            <span class="muted klein" id="neu-hinweis">Je nach Modell dauert ein Durchlauf einige Minuten.</span>
+            <span class="muted klein"
+                  data-warten-hinweis="Gleich geht es auf der Ergebnisseite weiter.">Je nach Modell dauert ein Durchlauf einige Minuten.</span>
         </div>
     </form>
-    <script src="{{ url_for('static', filename='entwurf.js') }}"></script>
-    <script>
-        entwurfEinrichten(document.getElementById("neu-formular"), "projekt1-neu");
-        document.getElementById("neu-formular").addEventListener("submit", function() {
-            const knopf = this.querySelector("button[type=submit]");
-            knopf.disabled = true;
-            knopf.textContent = "Dateien werden gelesen";
-            document.getElementById("neu-hinweis").textContent = "Gleich geht es auf der Ergebnisseite weiter.";
-        });
-    </script>
 {% endblock %}

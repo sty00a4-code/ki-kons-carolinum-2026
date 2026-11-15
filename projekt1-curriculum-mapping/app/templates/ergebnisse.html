@@ -25,12 +25,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="auswahl"></th>
-                        <th>Ergebnis</th>
-                        <th>Status</th>
-                        <th class="spalte-verteilung">Abdeckung</th>
-                        <th>Erstellt</th>
-                        <th></th>
+                        <th scope="col" class="auswahl"><span class="unsichtbar">Vergleichen</span></th>
+                        <th scope="col">Ergebnis</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="spalte-verteilung">Abdeckung</th>
+                        <th scope="col">Erstellt</th>
+                        <th scope="col"><span class="unsichtbar">Öffnen</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,7 +39,7 @@
                         {% set e = eintrag.e %}
                         <tr>
                             <td class="auswahl">
-                                {% if e and a.status == 'fertig' %}
+                                {% if e and a.status == "fertig" %}
                                     <input type="checkbox"
                                            name="t"
                                            value="{{ a.token }}"
@@ -58,7 +58,7 @@
                             </td>
                             <td>{{ status(a) }}</td>
                             <td class="spalte-verteilung">
-                                {% if a.status == 'laeuft' %}
+                                {% if a.status == "laeuft" %}
                                     <small class="muted">{{ (e.zeilen|length if e else 0)|anzahl('Zeile', 'Zeilen') }} bisher</small>
                                 {% elif e and e.zeilen %}
                                     {{ verteilung(e, klein=true) }}

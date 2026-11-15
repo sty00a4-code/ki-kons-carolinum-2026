@@ -12,7 +12,8 @@
     <form method="post"
           enctype="multipart/form-data"
           class="card"
-          id="import-formular">
+          data-entwurf="projekt1-import"
+          data-warten="Wird übernommen">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <p class="hint entwurf-hinweis" hidden></p>
         <label class="upload">
@@ -54,7 +55,8 @@
         <label>
             Titel <span class="muted">(optional, sonst der Dateiname; der Blattname kommt dazu)</span>
             {# 40 Zeichen bleiben für den Blattnamen, der an den Titel angehängt wird. #}
-            <input name="titel"
+            <input type="text"
+                   name="titel"
                    value="{{ werte.titel }}"
                    maxlength="{{ max_titel - 40 }}">
         </label>
@@ -69,13 +71,4 @@
                     data-ziel="{{ url_for('zuordnung.excel_uebernehmen') }}">Verwerfen</button>
         </div>
     </form>
-    <script src="{{ url_for('static', filename='entwurf.js') }}"></script>
-    <script>
-        entwurfEinrichten(document.getElementById("import-formular"), "projekt1-import");
-        document.getElementById("import-formular").addEventListener("submit", function() {
-            const knopf = this.querySelector("button[type=submit]");
-            knopf.disabled = true;
-            knopf.textContent = "Wird übernommen";
-        });
-    </script>
 {% endblock %}

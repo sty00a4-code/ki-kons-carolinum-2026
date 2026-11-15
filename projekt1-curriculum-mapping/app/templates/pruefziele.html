@@ -25,14 +25,14 @@
         <table class="pruefziele">
             <thead>
                 <tr>
-                    <th>Nr.</th>
-                    <th>Prüfziel</th>
-                    <th>Hinweis</th>
+                    <th scope="col">Nr.</th>
+                    <th scope="col">Prüfziel</th>
+                    <th scope="col">Hinweis</th>
                 </tr>
             </thead>
             <tbody>
                 {% for e in liste.eintraege %}
-                    {% if e.ebene != 'pruefziel' %}
+                    {% if e.ebene != "pruefziel" %}
                         {{ kopfzeile(e.ebene, e, 3) }}
                     {% else %}
                         <tr>
@@ -50,6 +50,6 @@
     </div>
     <details class="card optional">
         <summary>So steht die Liste in der Anfrage an das Modell</summary>
-        <pre class="roh">{{ liste.text_fuer_modell() }}</pre>
+        <pre class="roh" tabindex="0">{{ liste.text_fuer_modell() }}</pre>
     </details>
 {% endblock %}

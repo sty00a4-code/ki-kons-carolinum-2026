@@ -14,7 +14,7 @@ repos:
 
   # Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.4
+    rev: v0.17.5
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -22,7 +22,7 @@ repos:
 
   # Jinja-Templates
   - repo: https://github.com/djlint/djLint
-    rev: v1.44.2
+    rev: v1.50.3
     hooks:
       - id: djlint-reformat
         files: ^projekt1-curriculum-mapping/app/templates/
@@ -35,7 +35,7 @@ repos:
 
   # SQL
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 4.3.0
+    rev: 4.5.0
     hooks:
       - id: sqlfluff-fix
         args: [--dialect, sqlite]
@@ -46,10 +46,29 @@ repos:
 
   # CSS
   - repo: https://github.com/thibaudcolas/pre-commit-stylelint
-    rev: v17.14.1
+    rev: v18.0.0
     hooks:
       - id: stylelint
         args: [--fix]
         additional_dependencies:
-          - stylelint@17.14.1
-          - stylelint-config-standard
+          - stylelint@18.0.0
+          - stylelint-config-standard@41.0.0
+
+  # JavaScript (Regeln in eslint.config.cjs)
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: eslint --max-warnings 0
+        language: node
+        types: [javascript]
+        additional_dependencies:
+          - eslint@10.15.0
+          - "@eslint/js@10.0.1"
+          - globals@17.14.0
+
+  # Markdown (Regeln in .markdownlint.yaml)
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.24.1
+    hooks:
+      - id: markdownlint-cli2

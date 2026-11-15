@@ -1,41 +1,54 @@
-"""Erzeugt die Prüfziel-Liste aus der Prüfziel-Tabelle und dem IMPP-Katalog.
+"""Erzeugt die eingebaute Prüfziel-Liste aus der Prüfziel-Tabelle und dem IMPP-Katalog.
 
     python -m scripts.pruefziele_bauen <Tabelle Prüfziele.xlsx> <IMPP-Prüfziele.pdf>
 
 Grundlage ist die Tabelle "08 QB Z2 Orale Medizin". Nummern, die Excel in
 Datumswerte umgewandelt hat, werden zurückverwandelt. Namen und Nummern
-werden mit dem IMPP-Gegenstandskatalog abgeglichen (pdftotext -layout).
-Namen, die pdftotext abschneidet, stehen vollständig in KORREKTUR.
+werden mit dem IMPP-Gegenstandskatalog abgeglichen, den pruefziele.aus_text()
+liest. Namen, die im Katalog über mehrere Zeilen laufen, stehen vollständig in
+KORREKTUR.
 
 Ausgabe: app/daten/pruefziele_orale_medizin.json
 """
+
+from __future__ import annotations
 
 import argparse
 import datetime
 import difflib
 import json
-import os
 import re
-import shutil
-import subprocess
 import sys
+import zipfile
+from collections.abc import Iterable, Sequence
+from pathlib import Path
+from typing import NamedTuple
 
 import openpyxl
+from openpyxl.utils.exceptions import InvalidFileException
 
-ZIEL = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "app",
-    "daten",
-    "pruefziele_orale_medizin.json",
+from app import dokumente, pruefziele
+from app.pruefziele import Eintrag
+
+ZIEL = pruefziele.DATEN / pruefziele.DATEIEN[pruefziele.STANDARD]
+TITEL = "Orale Medizin und systemische Aspekte (08 QB Z2)"
+QUELLE = (
+    "Prüfziel-Tabelle (Stand 15.06.2026), Schreibweise und "
+    "Nummern nach IMPP-Gegenstandskatalog Zahnmedizin"
 )
-
-TEILE = {"VI": "Erkrankungen", "VIII": "Übergeordnete Kompetenzen"}
 
 # Jahr der Tabelle, Excel hat Nummern wie "1.1." als Datum dieses Jahres gespeichert.
 TABELLENJAHR = 2026
+# Die Prüfziele beginnen in Zeile 7; Spalte B enthält die Nummer, Spalte D den Namen.
+ERSTE_ZEILE = 7
+SPALTE_NUMMER = 1
+SPALTE_NAME = 3
+# Ab dieser Ähnlichkeit gilt ein Katalogname als derselbe Eintrag (Nummernsuche)
+# beziehungsweise als zulässige Schreibweise des Tabellennamens.
+MIN_GLEICHER_EINTRAG = 0.8
+MIN_SCHREIBWEISE = 0.6
 
-# Mehrzeilige Namen, die pdftotext -layout abschneidet, wörtlich aus dem
-# Katalog ohne Querverweise.
+# Mehrzeilige Namen aus dem Katalog, wörtlich und ohne Querverweise.
 KORREKTUR = {
     ("VI", "1.2.9"): "Entwicklungsbedingte und erworbene Deformationen und Zustände des Parodonts",
     ("VI", "1.4.5"): (
@@ -118,7 +131,18 @@ KORREKTUR = {
 }
 
 
-def nummer(wert):
+Schluessel = tuple[str, str]
+
+
+class Tabellenzeile(NamedTuple):
+    """Eine belegte Zeile der Prüfziel-Tabelle."""
+
+    teil: str
+    nr: str
+    name: str
+
+
+def nummer(wert: object) -> str:
     """Liefert den Zellwert der Nummernspalte als Text.
 
     Excel speichert "1.1." als 1.1.2026 und "2.1.11" als 2.1.2011.
@@ -129,127 +153,159 @@ def nummer(wert):
         if wert.year == TABELLENJAHR:
             return f"{wert.day}.{wert.month}"
         return f"{wert.day}.{wert.month}.{wert.year % 100}"
-    text = re.sub(r"\s+", "", str(wert))
-    return text.rstrip(".")
+    return re.sub(r"\s+", "", str(wert)).rstrip(".")
 
 
-def sauber(text):
+def sauber(text: object) -> str:
+    """Fasst Leerraum zusammen."""
     return re.sub(r"\s+", " ", str(text or "")).strip()
 
 
-def katalog_namen(pdf):
-    """Liefert {(Teil, Nummer): Name} aus dem IMPP-Katalog ohne Querverweise."""
-    pdftotext = shutil.which("pdftotext")
-    if not pdftotext:
-        sys.exit("pdftotext wurde nicht gefunden (Paket poppler).")
-    roh = subprocess.run(  # noqa: S603
-        [pdftotext, "-layout", pdf, "-"], capture_output=True, text=True, check=True
-    ).stdout
-    namen = {}
-    for zeile in roh.splitlines():
-        treffer = re.match(r"^\s*(VIII|VI)\.(\d+(?:\.\d+)*)\s+(\S.*?)\s*$", zeile)
-        if not treffer:
-            continue
-        name = re.sub(r"\s*\(\d[^()]*\)", "", treffer.group(3))
-        name = re.sub(r"\s*\(\d[^()]*$", "", name).strip()
-        namen.setdefault((treffer.group(1), treffer.group(2)), name)
-    return namen
-
-
-def aehnlich(a, b):
+def aehnlich(a: str, b: str) -> float:
+    """Zeichenweise Ähnlichkeit zweier Namen zwischen 0 und 1."""
     return difflib.SequenceMatcher(None, a.lower(), b.lower()).ratio()
 
 
-def tabellenzeilen(pfad):
-    """Liefert (Teil, Nummer, Name) für jede belegte Zeile der Prüfziel-Tabelle."""
-    blatt = openpyxl.load_workbook(pfad).worksheets[0]
+def katalog_namen(daten: bytes) -> dict[Schluessel, str]:
+    """Liefert {(Teil, Nummer): Name} aus dem IMPP-Katalog ohne Querverweise."""
+    katalog = pruefziele.aus_text(dokumente.pdf_text(daten, "IMPP-Katalog"), "IMPP-Katalog")
+    return {(e["teil"], e["nr"]): e["name"] for e in katalog.eintraege if e["ebene"] != "teil"}
+
+
+def tabellenzeilen(zellen: Iterable[Sequence[object]]) -> list[Tabellenzeile]:
+    """Liefert die belegten Zeilen der Prüfziel-Tabelle; "VIII" beginnt den zweiten Teil."""
     zeilen = []
     teil = "VI"
-    for zeile in blatt.iter_rows(min_row=7):
-        nr, name = nummer(zeile[1].value), sauber(zeile[3].value)
-        if not nr and not name:
-            continue
+    for zeile in zellen:
+        nr, name = nummer(zeile[SPALTE_NUMMER]), sauber(zeile[SPALTE_NAME])
         if nr == "VIII":
-            teil = "VIII"
-            continue
-        zeilen.append((teil, nr, name))
+            teil = nr
+        elif nr or name:
+            zeilen.append(Tabellenzeile(teil, nr, name))
     return zeilen
 
 
-def eintrag_abgleichen(teil, nr, name, impp):
+def tabelle_lesen(pfad: Path) -> list[Tabellenzeile]:
+    """Liest die Prüfziel-Tabelle aus der ersten Tabelle der Excel-Datei."""
+    mappe = openpyxl.load_workbook(pfad, read_only=True)
+    try:
+        werte = mappe.worksheets[0].iter_rows(min_row=ERSTE_ZEILE, values_only=True)
+        return tabellenzeilen(werte)
+    finally:
+        mappe.close()
+
+
+def nummer_nach_name(zeile: Tabellenzeile, impp: dict[Schluessel, str]) -> str:
+    """Sucht die Nummer eines Prüfziels im Katalog über den Namen.
+
+    Nötig, wenn die Tabelle eine veraltete Nummer nennt, etwa "4.12.2 Depression"
+    statt 4.13.2. Ohne eindeutigen Treffer bleibt die Nummer der Tabelle.
+    """
+    tiefe = zeile.nr.count(".")
+    kandidaten = [
+        (aehnlich(name, zeile.name), nr)
+        for (teil, nr), name in impp.items()
+        if teil == zeile.teil and nr.count(".") == tiefe
+    ]
+    wert, nr = max(kandidaten, default=(0.0, zeile.nr))
+    return nr if wert >= MIN_GLEICHER_EINTRAG else zeile.nr
+
+
+def eintrag_abgleichen(zeile: Tabellenzeile, impp: dict[Schluessel, str]) -> Eintrag:
     """Liefert den Eintrag der Liste mit Nummer und Schreibweise nach dem IMPP-Katalog."""
-    tiefe = nr.count(".") + 1
-    ebene = "bereich" if tiefe == 1 else "gruppe" if tiefe == 2 else "pruefziel"
-    eintrag = {"ebene": ebene, "teil": teil, "nr": nr, "name": name}
-
-    # Passt der Name nicht zur Nummer, wird die Nummer im Katalog über den Namen
-    # gesucht (Tabelle "4.12.2 Depression", Katalog 4.13.2).
-    katalog = impp.get((teil, nr))
-    if (
-        ebene == "pruefziel"
-        and (teil, nr) not in KORREKTUR
-        and (not katalog or aehnlich(katalog, name) < 0.8)
-    ):
-        kandidaten = [
-            (aehnlich(n, name), k)
-            for k, n in impp.items()
-            if k[0] == teil and k[1].count(".") == nr.count(".")
-        ]
-        wert, schluessel = max(kandidaten)
-        if wert >= 0.8 and schluessel[1] != nr:
-            print(f"Nummer {teil} {nr} ersetzt durch {schluessel[1]} ({name})")
-            eintrag["nr_tabelle"] = nr
-            eintrag["nr"] = nr = schluessel[1]
-            katalog = impp[schluessel]
-
-    neu = KORREKTUR.get((teil, nr)) or katalog
-    if neu and neu != name:
-        if (teil, nr) not in KORREKTUR and aehnlich(neu, name) < 0.6:
-            print(f"WARNUNG {teil} {nr}: Tabelle {name!r}, Katalog {neu!r}", file=sys.stderr)
-        else:
-            eintrag["name"] = neu
+    ebene = pruefziele.EBENE_NACH_TIEFE.get(zeile.nr.count(".") + 1, "pruefziel")
+    eintrag: Eintrag = {"ebene": ebene, "teil": zeile.teil, "nr": zeile.nr, "name": zeile.name}
+    if ebene == "pruefziel":
+        nr = nummer_abgleichen(zeile, impp)
+        if nr != zeile.nr:
+            print(f"Nummer {zeile.teil} {zeile.nr} ersetzt durch {nr} ({zeile.name})")
+            eintrag.update(nr_tabelle=zeile.nr, nr=nr)
+    eintrag["name"] = schreibweise(zeile, eintrag["nr"], impp)
     return eintrag
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("tabelle", help="Prüfziel-Tabelle als Excel-Datei")
-    parser.add_argument("katalog", help="IMPP-Gegenstandskatalog als PDF")
-    args = parser.parse_args()
-    impp = katalog_namen(args.katalog)
+def nummer_abgleichen(zeile: Tabellenzeile, impp: dict[Schluessel, str]) -> str:
+    """Nummer des Prüfziels im Katalog.
 
-    eintraege = [{"ebene": "teil", "teil": "VI", "nr": "VI", "name": TEILE["VI"]}]
-    for teil, nr, name in tabellenzeilen(args.tabelle):
-        if teil == "VIII" and eintraege[-1]["teil"] == "VI":
-            eintraege.append({"ebene": "teil", "teil": "VIII", "nr": "VIII", "name": TEILE["VIII"]})
-        eintraege.append(eintrag_abgleichen(teil, nr, name, impp))
+    Weicht der Name unter der Nummer der Tabelle zu stark ab, gilt die Nummer
+    des Katalogeintrags mit dem ähnlichsten Namen. Nummern aus KORREKTUR
+    bleiben unverändert.
+    """
+    schluessel = (zeile.teil, zeile.nr)
+    if schluessel in KORREKTUR or aehnlich(impp.get(schluessel, ""), zeile.name) >= (
+        MIN_GLEICHER_EINTRAG
+    ):
+        return zeile.nr
+    return nummer_nach_name(zeile, impp)
 
+
+def schreibweise(zeile: Tabellenzeile, nr: str, impp: dict[Schluessel, str]) -> str:
+    """Name nach KORREKTUR oder Katalog; bei zu großer Abweichung bleibt der Name der Tabelle."""
+    korrektur = KORREKTUR.get((zeile.teil, nr))
+    if korrektur:
+        return korrektur
+    katalog = impp.get((zeile.teil, nr))
+    if not katalog or katalog == zeile.name:
+        return zeile.name
+    if aehnlich(katalog, zeile.name) >= MIN_SCHREIBWEISE:
+        return katalog
+    print(
+        f"WARNUNG {zeile.teil} {nr}: Tabelle {zeile.name!r}, Katalog {katalog!r}",
+        file=sys.stderr,
+    )
+    return zeile.name
+
+
+def liste_bauen(zeilen: Iterable[Tabellenzeile], impp: dict[Schluessel, str]) -> list[Eintrag]:
+    """Liefert die Einträge der Liste mit Teilen und markiert Prüfziele mit Unterpunkten."""
+    eintraege: list[Eintrag] = []
+    for zeile in zeilen:
+        if not eintraege or eintraege[-1]["teil"] != zeile.teil:
+            name = pruefziele.TEILE[zeile.teil]
+            eintraege.append({"ebene": "teil", "teil": zeile.teil, "nr": zeile.teil, "name": name})
+        eintraege.append(eintrag_abgleichen(zeile, impp))
     # Prüfziele mit Unterpunkten zählen nicht zur Vollständigkeit.
     for e in eintraege:
         if e["ebene"] == "pruefziel":
             e["unterpunkte"] = any(
-                o["teil"] == e["teil"] and o["nr"].startswith(e["nr"] + ".") for o in eintraege
+                o["teil"] == e["teil"] and o["nr"].startswith(f"{e['nr']}.") for o in eintraege
             )
+    return eintraege
 
+
+def speichern(eintraege: list[Eintrag], ziel: Path) -> None:
+    """Schreibt die Liste im Format von pruefziele.liste()."""
     daten = {
-        "schluessel": "orale-medizin",
-        "titel": "Orale Medizin und systemische Aspekte (08 QB Z2)",
-        "quelle": (
-            "Prüfziel-Tabelle (Stand 15.06.2026), Schreibweise und "
-            "Nummern nach IMPP-Gegenstandskatalog Zahnmedizin"
-        ),
+        "schluessel": pruefziele.STANDARD,
+        "titel": TITEL,
+        "quelle": QUELLE,
         "eintraege": eintraege,
     }
-    os.makedirs(os.path.dirname(ZIEL), exist_ok=True)
-    with open(ZIEL, "w", encoding="utf-8") as fh:
-        json.dump(daten, fh, ensure_ascii=False, indent=1)
-        fh.write("\n")
-    anzahl = sum(1 for e in eintraege if e["ebene"] == "pruefziel")
-    ohne_unterpunkte = sum(
-        1 for e in eintraege if e["ebene"] == "pruefziel" and not e["unterpunkte"]
+    ziel.write_text(json.dumps(daten, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Baut die Liste und meldet die Anzahl der Prüfziele."""
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("tabelle", type=Path, help="Prüfziel-Tabelle als Excel-Datei")
+    parser.add_argument("katalog", type=Path, help="IMPP-Gegenstandskatalog als PDF")
+    parser.add_argument("--ziel", type=Path, default=ZIEL, help="Ausgabedatei (JSON)")
+    args = parser.parse_args(argv)
+    try:
+        impp = katalog_namen(args.katalog.read_bytes())
+        eintraege = liste_bauen(tabelle_lesen(args.tabelle), impp)
+        speichern(eintraege, args.ziel)
+    except (OSError, zipfile.BadZipFile, InvalidFileException, dokumente.DokumentFehler) as exc:
+        print(f"Fehler: {exc}", file=sys.stderr)
+        return 1
+    pruefziele_gesamt = [e for e in eintraege if e["ebene"] == "pruefziel"]
+    ohne_unterpunkte = sum(1 for e in pruefziele_gesamt if not e["unterpunkte"])
+    print(
+        f"{len(pruefziele_gesamt)} Prüfziele ({ohne_unterpunkte} ohne Unterpunkte) "
+        f"geschrieben nach {args.ziel}"
     )
-    print(f"{anzahl} Prüfziele ({ohne_unterpunkte} ohne Unterpunkte) geschrieben nach {ZIEL}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

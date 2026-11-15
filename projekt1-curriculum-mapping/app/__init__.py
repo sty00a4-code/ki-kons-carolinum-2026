@@ -1,105 +1,109 @@
-"""Curriculum-Mapping: Zuordnung von Prüfzielen zu Lernzielen (Kategorie 1).
+"""Curriculum-Mapping: Prüfziele den Lernzielen zuordnen (Kategorie 1) und
+Vorlesungsfolien mit Lernzielen oder Prüfzielen abgleichen.
 
-Die Datenbank liegt unter data/, der Sitzungsschlüssel unter instance/.
+create_app() baut die Anwendung. Die Datenbank liegt unter data/, der
+Sitzungsschlüssel unter instance/, die Einstellungen kommen aus
+Umgebungsvariablen (siehe config).
 """
 
-import os
+from __future__ import annotations
+
 import secrets
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Any
 
-from flask import Flask, abort, redirect, render_template, request, session, url_for
-from werkzeug.exceptions import RequestEntityTooLarge
+from flask import Flask, current_app, redirect, render_template, session, url_for
+from flask.typing import ResponseReturnValue
+from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 
-from . import auswertungen, db, formate, ki_dienst, security
+from . import config, db, formate, hintergrund, security
 from .auth import bp as auth_bp
-from .routes import bp as zuordnung_bp
+from .folien.routes import bp as folien_bp
+from .zuordnung.routes import bp as zuordnung_bp
+from .zuordnung.speicher import MAX_TITEL
 
-MB = 1024 * 1024
+SCHLUESSEL_BYTES = 32
 
 
-def create_app(test_config=None):
+def create_app(test_config: Mapping[str, Any] | None = None) -> Flask:
+    """Baut die Anwendung; test_config ergänzt oder ersetzt die Konfiguration."""
     app = Flask(__name__, instance_relative_config=True)
-    os.makedirs(app.instance_path, exist_ok=True)
-
-    data_dir = os.path.join(os.path.dirname(app.root_path), "data")
-    os.makedirs(data_dir, exist_ok=True)
-
-    app.config.update(
-        DATABASE=os.path.join(data_dir, "projekt1.db"),
-        SECRET_KEY=_load_or_create_secret(app),
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE="Lax",
-        # Hinter HTTPS COOKIE_SECURE=1 setzen.
-        SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "") == "1",
-        # Foliensätze als PDF sind oft größer als 30 MB.
-        MAX_CONTENT_LENGTH=int(os.environ.get("P1_MAX_UPLOAD_MB", "80")) * MB,
-        # Grenze für Textfelder wie den Prompt (Flask-Standard: 500 KB).
-        MAX_FORM_MEMORY_SIZE=2 * MB,
-    )
+    app.config.update(config.flask_konfiguration())
+    app.config["DATABASE"] = str(db.STANDARD_PFAD)
     if test_config:
         app.config.update(test_config)
+    if not app.config.get("SECRET_KEY"):
+        app.config["SECRET_KEY"] = sitzungsschluessel(Path(app.instance_path) / "secret_key")
+    Path(app.config["DATABASE"]).parent.mkdir(parents=True, exist_ok=True)
 
     db.init_app(app)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(zuordnung_bp)
+    hintergrund.einrichten(app)
+    app.before_request(security.csrf_pruefen)
+    app.after_request(security.kopfzeilen_setzen)
+    for blueprint in (auth_bp, zuordnung_bp, folien_bp):
+        app.register_blueprint(blueprint)
 
-    @app.before_request
-    def _csrf_protect():
-        if request.method == "POST" and not security.check_csrf(
-            request.form.get("_csrf_token", "")
-        ):
-            abort(
-                400,
-                "Das Formular ist abgelaufen (CSRF-Token fehlt oder ist ungültig). "
-                "Bitte die Seite neu laden und noch einmal senden.",
-            )
-
-    @app.errorhandler(RequestEntityTooLarge)
-    def _zu_gross(_exc):
-        grenze = app.config["MAX_CONTENT_LENGTH"] // MB
-        meldung = f"Die Dateien sind zusammen größer als {grenze} MB."
-        return render_template("fehler.html", titel="Upload zu groß", meldung=meldung), 413
-
-    @app.errorhandler(400)
-    def _ungueltig(exc):
-        return render_template(
-            "fehler.html", titel="Anfrage ungültig", meldung=exc.description
-        ), 400
-
-    @app.errorhandler(404)
-    def _nicht_gefunden(_exc):
-        meldung = "Diese Seite oder dieses Ergebnis gibt es nicht (mehr)."
-        return render_template("fehler.html", titel="Nicht gefunden", meldung=meldung), 404
-
-    @app.context_processor
-    def _inject_globals():
-        return {
-            "csrf_token": security.csrf_token,
-            "ki_bereit": ki_dienst.bereit(),
-            "modell_name": ki_dienst.modell_name,
-            "max_titel": auswertungen.MAX_TITEL,
-        }
-
-    app.add_template_filter(formate.datum)
-    app.add_template_filter(formate.zahl)
-    app.add_template_filter(formate.temperatur)
-    app.add_template_filter(formate.anzahl)
-
-    @app.route("/")
-    def index():
-        if session.get("user_id"):
-            return redirect(url_for("zuordnung.neu"))
-        return redirect(url_for("auth.login"))
-
+    app.register_error_handler(RequestEntityTooLarge, _zu_gross)
+    app.register_error_handler(400, _ungueltig)
+    app.register_error_handler(404, _nicht_gefunden)
+    app.register_error_handler(500, _interner_fehler)
+    app.context_processor(_vorlagenwerte)
+    for filter_funktion in (formate.datum, formate.zahl, formate.temperatur, formate.anzahl):
+        app.add_template_filter(filter_funktion)
+    app.add_url_rule("/", "index", _startseite)
     return app
 
 
-def _load_or_create_secret(app):
-    """Liest den Sitzungsschlüssel aus instance/secret_key oder legt ihn an."""
-    path = os.path.join(app.instance_path, "secret_key")
-    if os.path.exists(path):
-        with open(path, "rb") as f:
-            return f.read()
-    key = secrets.token_bytes(32)
-    with open(path, "wb") as f:
-        f.write(key)
-    return key
+def sitzungsschluessel(pfad: Path) -> bytes:
+    """Liest den Sitzungsschlüssel oder legt ihn an, lesbar nur für den Besitzer."""
+    if pfad.exists():
+        return pfad.read_bytes()
+    schluessel = secrets.token_bytes(SCHLUESSEL_BYTES)
+    pfad.parent.mkdir(parents=True, exist_ok=True)
+    pfad.touch(mode=0o600)
+    pfad.write_bytes(schluessel)
+    return schluessel
+
+
+def _vorlagenwerte() -> dict[str, object]:
+    ki = config.ki_einstellungen()
+    return {
+        "csrf_token": security.csrf_token,
+        "ki_bereit": ki.bereit,
+        "modell_name": ki.modell_name,
+        "max_titel": MAX_TITEL,
+    }
+
+
+def _startseite() -> ResponseReturnValue:
+    if session.get("user_id"):
+        return redirect(url_for("zuordnung.neu"))
+    return redirect(url_for("auth.login"))
+
+
+def _fehlerseite(titel: str, meldung: str, status: int) -> ResponseReturnValue:
+    return render_template("fehler.html", titel=titel, meldung=meldung), status
+
+
+def _zu_gross(_fehler: RequestEntityTooLarge) -> ResponseReturnValue:
+    grenze = current_app.config["MAX_CONTENT_LENGTH"] // config.MB
+    return _fehlerseite("Upload zu groß", f"Die Dateien sind zusammen größer als {grenze} MB.", 413)
+
+
+def _ungueltig(fehler: HTTPException) -> ResponseReturnValue:
+    return _fehlerseite("Anfrage ungültig", fehler.description or "", 400)
+
+
+def _nicht_gefunden(_fehler: HTTPException) -> ResponseReturnValue:
+    return _fehlerseite(
+        "Nicht gefunden", "Diese Seite oder dieses Ergebnis gibt es nicht (mehr).", 404
+    )
+
+
+def _interner_fehler(_fehler: Exception) -> ResponseReturnValue:
+    return _fehlerseite(
+        "Fehler auf dem Server",
+        "Die Anfrage ließ sich nicht bearbeiten. Der Fehler ist protokolliert.",
+        500,
+    )

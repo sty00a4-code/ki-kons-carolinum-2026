@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_subnav.html" import subnav_folien_neu %}
+{% block titel %}Ergebnis übernehmen{% endblock %}
+{% block content %}
+    {{ subnav_folien_neu("Ergebnis übernehmen") }}
+    <h1>Ergebnis übernehmen</h1>
+    <p class="muted">
+        Übernimmt einen Abgleich, der außerhalb der App entstanden ist: den Excel-Export eines Abgleichs oder eine
+        JSON-Datei mit einem Eintrag je Folie (Schlüssel <code>folien-nr</code> und <code>Zuordnung</code>). Die
+        Vorlesung liefert Vorschaubilder und Folientexte, die Lernziele den Wortlaut.
+    </p>
+    <form method="post"
+          enctype="multipart/form-data"
+          class="card"
+          data-entwurf="projekt1-folien-import"
+          data-zielauswahl
+          data-warten="Folien werden gelesen">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <p class="hint entwurf-hinweis" hidden></p>
+        <h2 class="schritt"><span>1</span> Abgleich mit</h2>
+        <div class="grid3">
+            <label>
+                Ziele
+                <select name="ziel">
+                    {% for schluessel, name in ziele.items() %}
+                        <option value="{{ schluessel }}"
+                                {% if schluessel == werte.ziel %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <h2 class="schritt"><span>2</span> Dateien</h2>
+        <div class="grid3">
+            <label class="upload">
+                Ergebnis
+                <input type="file" name="ergebnis" accept=".xlsx,.json" required>
+                <small class="muted">Excel-Datei mit den Spalten Folie und Lernziele oder Prüfziele, oder eine JSON-Datei</small>
+            </label>
+            <label class="upload">
+                Vorlesung
+                <input type="file" name="vorlesung" accept=".pdf" required>
+                <small class="muted">Die PDF-Datei, aus der das Ergebnis stammt</small>
+            </label>
+            <div>
+                <label class="upload" data-fuer="lernziele">
+                    Lernziele
+                    <input type="file" name="lernziele" accept=".pdf,.txt,.md" data-pflicht>
+                    <small class="muted">Lernziel-Katalog als PDF, z. B. NKLZLernziele242248.pdf</small>
+                </label>
+                <div class="stapel" data-fuer="pruefziele" hidden>
+                    <label class="upload">
+                        Prüfziel-Liste
+                        <select name="liste">
+                            {% for schluessel, titel in listen %}
+                                <option value="{{ schluessel }}"
+                                        {% if schluessel == werte.liste %}selected{% endif %}>{{ titel }}</option>
+                            {% endfor %}
+                        </select>
+                        <small class="muted">Die Liste ist in der App hinterlegt.</small>
+                    </label>
+                    <label class="upload">
+                        Eigene Prüfziele <span class="muted">(optional)</span>
+                        <input type="file" name="pruefziele" accept=".pdf,.txt,.md">
+                        <small class="muted">Die Prüfziel-Datei des Abgleichs; ersetzt die Liste</small>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <p class="muted klein">
+            Die Folien werden über ihre Nummer zugeordnet. Beginnt die Nummerierung in der Datei bei 0, erhöht die App
+            alle Nummern um 1.
+        </p>
+        <h2 class="schritt"><span>3</span> Angaben</h2>
+        <div class="grid2">
+            <label>
+                Modell, das die Datei erzeugt hat
+                <select name="modell">
+                    {% for mid, name in modelle %}
+                        <option value="{{ mid }}" {% if mid == werte.modell %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Titel <span class="muted">(optional, sonst der Name der Vorlesung)</span>
+                <input type="text"
+                       name="titel"
+                       value="{{ werte.titel }}"
+                       maxlength="{{ max_titel }}">
+            </label>
+        </div>
+        <div class="row">
+            <button type="submit">Übernehmen</button>
+            <button type="button"
+                    class="secondary entwurf-verwerfen"
+                    data-ziel="{{ url_for('folien.uebernehmen') }}">Verwerfen</button>
+        </div>
+    </form>
+{% endblock %}
