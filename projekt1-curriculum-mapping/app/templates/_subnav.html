@@ -1,0 +1,19 @@
+{# Bereichsleiste am Kopf einer Seite.
+   aktiv: Beschriftung des aktiven Eintrags, eintraege: Liste von (Beschriftung, URL) #}
+{% macro subnav(aktiv, eintraege) %}
+    <nav class="subnav" aria-label="Bereich">
+        {% for name, ziel in eintraege %}
+            <a class="btn small{% if name == aktiv %} aktiv{% endif %}"
+               href="{{ ziel }}">{{ name }}</a>
+        {% endfor %}
+    </nav>
+{% endmacro %}
+{% macro status(a) %}
+    {% if a.status == "laeuft" %}
+        <span class="badge laeuft">läuft</span>
+    {% elif a.status == "fehler" %}
+        <span class="badge fehlt">Fehler</span>
+    {% else %}
+        <span class="badge ok">fertig</span>
+    {% endif %}
+{% endmacro %}

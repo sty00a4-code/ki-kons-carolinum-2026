@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% from "_subnav.html" import status %}
+{% block titel %}Ergebnisse{% endblock %}
+{% block content %}
+    <div class="row-between">
+        <h1>Ergebnisse</h1>
+        <div class="actions">
+            <a class="btn small" href="{{ url_for('folien.neu') }}">Neuer Abgleich</a>
+        </div>
+    </div>
+    <p class="muted">
+        Das Modell geht eine Vorlesung Folie für Folie durch und nennt die Lernziele oder Prüfziele, die dort
+        gelehrt werden. Das Ergebnis zeigt, welche Ziele die Vorlesung abdeckt und welche auf keiner Folie vorkommen.
+    </p>
+    {% if not eintraege %}
+        <div class="card">
+            <p>Noch kein Abgleich.</p>
+        </div>
+    {% else %}
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Abgleich</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="spalte-verteilung">Abdeckung</th>
+                        <th scope="col">Erstellt</th>
+                        <th scope="col"><span class="unsichtbar">Öffnen</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eintrag in eintraege %}
+                        {% set a = eintrag.a %}
+                        {% set e = eintrag.e %}
+                        <tr>
+                            <td>
+                                <strong>{{ a.titel }}</strong>
+                                <div class="meta klein">
+                                    <span class="badge info">{{ ziele[a.ziel] }}</span>
+                                    <span class="muted">
+                                        {{ modell_name(a.modell) }}
+                                        {%- if a.temperatur is not none %}, Temperatur {{ a.temperatur|temperatur }}{% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>{{ status(a) }}</td>
+                            <td class="spalte-verteilung">
+                                {% if a.status == "laeuft" %}
+                                    <small class="muted">{{ e.bearbeitet }} von {{ e.gesamt }} Folien bearbeitet</small>
+                                {% elif e.bearbeitet %}
+                                    <div class="pbar sm"
+                                         title="{{ e.abgedeckt }} von {{ e.zaehlend }} {{ ziele[a.ziel] }} auf mindestens einer Folie">
+                                        <div class="pfill app"
+                                             data-breite="{{ ((e.abgedeckt / e.zaehlend * 100) if e.zaehlend else 0)|round(1) }}%">
+                                        </div>
+                                    </div>
+                                    <small class="num">
+                                        <strong class="ok-txt">{{ e.abgedeckt }} von {{ e.zaehlend }}</strong> {{ ziele[a.ziel] }}
+                                        · {{ e.mit_zuordnung }} von {{ e.gesamt }} Folien mit Zuordnung
+                                    </small>
+                                {% else %}
+                                    <small class="muted">keine Folie bearbeitet</small>
+                                {% endif %}
+                            </td>
+                            <td class="num">
+                                {{ a.erstellt_am|datum }}
+                                {% if a.erstellt_von %}
+                                    <br>
+                                    <span class="muted">{{ a.erstellt_von }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn small"
+                                   href="{{ url_for('folien.ergebnis', token=a.token) }}">Öffnen</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

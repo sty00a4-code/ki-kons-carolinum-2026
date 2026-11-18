@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block titel %}Neuer Vorlesungsabgleich{% endblock %}
+{% block content %}
+    <h1>Neuer Vorlesungsabgleich</h1>
+    <p class="muted">
+        Das Modell bearbeitet die Vorlesung Folie für Folie: Ein Bildmodell beschreibt jede Folie in einem Satz,
+        danach nennt das Modell die Lernziele oder Prüfziele, die auf der Folie gelehrt werden. Das Ergebnis zeigt
+        die Ziele je Folie und die Anzahl der Folien je Ziel.
+    </p>
+    {% if not ki_bereit %}
+        <p class="hint">
+            Für den KI-Dienst ist noch kein Schlüssel hinterlegt (Umgebungsvariable <code>P1_LLM_API_KEY</code>).
+            Ohne ihn lässt sich kein Abgleich starten.
+        </p>
+    {% endif %}
+    <form method="post"
+          enctype="multipart/form-data"
+          class="card"
+          data-entwurf="projekt1-folien-neu"
+          data-zielauswahl
+          data-warten="Folien werden gelesen">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <p class="hint entwurf-hinweis" hidden></p>
+        <h2 class="schritt"><span>1</span> Abgleich mit</h2>
+        <div class="grid3">
+            <label>
+                Ziele
+                <select name="ziel">
+                    {% for schluessel, name in ziele.items() %}
+                        <option value="{{ schluessel }}"
+                                {% if schluessel == werte.ziel %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <h2 class="schritt"><span>2</span> Dateien</h2>
+        <div class="grid2">
+            <label class="upload">
+                Vorlesung
+                <input type="file" name="vorlesung" accept=".pdf" required>
+                <small class="muted">Foliensatz als PDF, am besten ein Kapitel, z. B. Vorlesung_1_OraleMedizinUndSystemischeAspekte.pdf</small>
+            </label>
+            <div>
+                <label class="upload" data-fuer="lernziele">
+                    Lernziele
+                    <input type="file" name="lernziele" accept=".pdf,.txt,.md" data-pflicht>
+                    <small class="muted">Lernziel-Katalog als PDF, z. B. NKLZ Kapitel 25 (NKLZLernziele242248.pdf)</small>
+                </label>
+                <label class="upload" data-fuer="pruefziele" hidden>
+                    Prüfziele
+                    <input type="file" name="pruefziele" accept=".pdf,.txt,.md" data-pflicht>
+                    <small class="muted">Ein Kapitel des IMPP-Prüfziel-Katalogs als PDF, z. B. IMPPPrüfziele_OraleMedizinUndSystemischeAspekte.pdf</small>
+                </label>
+            </div>
+        </div>
+        <p class="muted klein">
+            Die App speichert die PDF-Datei der Vorlesung, je Folie den Text und ein Vorschaubild. Von den Lernzielen
+            und Prüfzielen speichert sie nur den Text.
+        </p>
+        <h2 class="schritt"><span>3</span> Einstellungen</h2>
+        <div class="grid3">
+            <label>
+                Modell
+                <select name="modell">
+                    {% for mid, name in modelle %}
+                        <option value="{{ mid }}" {% if mid == werte.modell %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                Bildmodell
+                <select name="bildmodell">
+                    {% for mid, name in bildmodelle %}
+                        <option value="{{ mid }}"
+                                {% if mid == werte.bildmodell %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                    <option value=""
+                            {% if not werte.bildmodell %}selected{% endif %}>ohne, nur der Text der Folien</option>
+                </select>
+            </label>
+            <label>
+                Temperatur
+                <input type="text"
+                       name="temperatur"
+                       value="{{ werte.temperatur }}"
+                       inputmode="decimal"
+                       pattern="[01]([.,][0-9]+)?|2([.,]0+)?"
+                       title="Zahl von 0 bis 2">
+            </label>
+        </div>
+        <h2 class="schritt"><span>4</span> Prompt</h2>
+        <textarea name="prompt"
+                  rows="6"
+                  required
+                  aria-label="Prompt"
+                  data-vorgaben="{{ prompts|tojson|forceescape }}">{{ werte.prompt }}</textarea>
+        <p class="muted klein">
+            Vor dem Prompt bekommt das Modell je Folie die Liste der Ziele, den Text der Folie und die Bildbeschreibung.
+            Beim Wechsel der Ziele wird der Prompt gegen die passende Vorgabe getauscht, solange er unverändert ist.
+        </p>
+        <label>
+            Titel <span class="muted">(optional, sonst der Name der Vorlesung)</span>
+            <input type="text"
+                   name="titel"
+                   value="{{ werte.titel }}"
+                   maxlength="{{ max_titel }}">
+        </label>
+        <div class="row">
+            <button type="submit" {% if not ki_bereit %}disabled{% endif %}>Abgleich starten</button>
+            <button type="button"
+                    class="secondary entwurf-verwerfen"
+                    data-ziel="{{ url_for('folien.neu') }}">Verwerfen</button>
+            <span class="muted klein"
+                  data-warten-hinweis="Gleich geht es auf der Ergebnisseite weiter.">Bei 80 Folien dauert ein Abgleich je nach Modell 10 bis 30 Minuten.</span>
+        </div>
+    </form>
+{% endblock %}

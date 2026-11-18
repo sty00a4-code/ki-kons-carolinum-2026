@@ -1,0 +1,13 @@
+# Tests und Codeprüfung, zusätzlich zu den Paketen der Anwendung
+-r requirements.txt
+bandit==1.9.4
+mypy==2.4.1
+pip-audit==2.10.1
+pylint==4.1.4
+pytest==9.2.0
+pytest-cov==7.1.0
+pytest-randomly==5.1.0
+ruff==0.17.5
+types-openpyxl==3.1.5.20261017
+types-requests==2.33.0.20261030
+vulture==2.16
