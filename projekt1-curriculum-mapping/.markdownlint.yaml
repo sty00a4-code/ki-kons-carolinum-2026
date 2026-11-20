@@ -1,4 +1,0 @@
-# Tabellen und Codeblöcke dürfen länger als 80 Zeichen sein.
-MD013:
-  tables: false
-  code_blocks: false

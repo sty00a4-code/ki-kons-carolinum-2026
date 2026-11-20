@@ -1,3 +1,0 @@
-Ordne der Folie die passenden Prüfziele zu. Berücksichtige den Textinhalt und, falls vorhanden, die Beschreibung des Bildes. Achte darauf, dass das Prüfziel auf der Folie wirklich behandelt wird. Falls dies nicht der Fall ist, nimm keine Zuordnung vor.
-
-Nenne nur Teil und Nummer der Prüfziele, eine je Zeile, z. B. „VI 1.2.4“. Verzichte auf Erklärungen, Sätze oder Bezeichnungen. Passt kein Prüfziel, antworte mit „keine“.

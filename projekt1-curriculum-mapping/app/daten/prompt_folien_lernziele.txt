@@ -1,3 +1,0 @@
-Ordne der Folie die passenden Lernziele zu. Berücksichtige den Textinhalt und, falls vorhanden, die Beschreibung des Bildes. Achte darauf, dass das Lernziel auf der Folie wirklich gelehrt wird. Falls dies nicht der Fall ist, nimm keine Zuordnung vor.
-
-Nenne nur die Lernziel-IDs, eine je Zeile. Verzichte auf Erklärungen, Sätze oder Bezeichnungen. Passt kein Lernziel, antworte mit „keine“.

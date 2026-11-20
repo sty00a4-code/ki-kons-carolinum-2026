@@ -1,0 +1,215 @@
+/* Grundlayout: Farben, Karte, Formularfelder, Knöpfe und Tabelle */
+
+:root {
+  --bg: #f6f7fb;
+  --card: #fff;
+  --ink: #1c2230;
+  --muted: #5f6673;
+  --line: #e5e7eb;
+  --brand: #4a63b7;
+  --brand-d: #3b4f97;
+  --ok: #2c7830;
+  --bad: #b3261e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.brand small {
+  color: var(--brand);
+  font-weight: 500;
+}
+
+main {
+  max-width: 1280px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+
+h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+h3 {
+  font-size: 18px;
+  margin: 0 0 12px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+label {
+  display: block;
+  margin: 12px 0;
+  font-weight: 500;
+}
+
+[hidden] {
+  display: none;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 9px 10px;
+  margin-top: 4px;
+  font: inherit;
+  font-weight: 400;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+input[type="file"] {
+  cursor: pointer;
+}
+
+/* Knopf im Dateifeld wie die hellen Knöpfe */
+input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef1fb;
+  color: var(--brand-d);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #e0e5f7;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 20px 0;
+}
+
+button,
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:hover,
+.btn:hover {
+  background: var(--brand-d);
+}
+
+.meldung {
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #e8f4e9;
+  border: 1px solid #bcdcbe;
+  color: var(--ok);
+}
+
+.meldung.fehler {
+  background: #fdecea;
+  border-color: #f3c1bd;
+  color: var(--bad);
+}
+
+.meldung.hinweis {
+  background: #fff8e1;
+  border-color: #f6e2a8;
+  color: var(--ink);
+}
+
+/* Überschrift des Ergebnisses mit dem Knopf für die Excel-Datei */
+.kopfzeile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 12px;
+}
+
+.grafik {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+td.folie {
+  white-space: nowrap;
+}
+
+thead th {
+  background: #f0f2f8;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
