@@ -1,0 +1,292 @@
+[
+  {
+    "id": "25.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Die Absolventin/der Absolvent können Auswirkungen von Allgemeinerkrankungen oder allgemeinmedizinischen Veränderungen auf die Ätiologie, Pathogenese, Prävention und Therapie oraler Erkrankungen darstellen, bewerten und berücksichtigen. Sie können ..."
+  },
+  {
+    "id": "25.1.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "wichtige relevante Erkrankungen oder Zustände, die einen Einfluss auf die Ätiologie und Pathogenese sowie die Therapie oraler Erkrankungen haben, erkennen und in Diagnostik und Therapieplanung berücksichtigen."
+  },
+  {
+    "id": "25.1.1.2",
+    "beinhaltet": "NEIN",
+    "beschreibung": "psychische Auffälligkeiten erkennen und somatische Ursachen abklären, die das Inanspruchnahmeverhalten der Patientinnen/Patienten für zahnärztlich-therapeutische oder -präventive Maßnahmen beeinflussen. Sie können diese exemplarisch beschreiben und in Diagnostik und Therapieplanung berücksichtigen."
+  },
+  {
+    "id": "25.1.1.3",
+    "beinhaltet": "JA",
+    "beschreibung": "das individuelle orale Erkrankungsrisiko und das Risiko für das Fortschreiten oraler Erkrankungen auf Grund bestehender Allgemeinerkrankungen einschätzen und bei der zahnärztlichen Behandlung berücksichtigen."
+  },
+  {
+    "id": "25.1.1.4",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Änderungen in den Ernährungsgewohnheiten älterer Menschen sowie auch Menschen mit Behinderungen beschreiben und deren Auswirkungen auf die Mundgesundheit einordnen."
+  },
+  {
+    "id": "25.1.1.5",
+    "beinhaltet": "NEIN",
+    "beschreibung": "alternative enterale und parenterale Ernährung definieren."
+  },
+  {
+    "id": "25.1.1.6",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Defizite im Ernährungszustand von älteren autarken oder pflegebedürftigen Patientinnen/Patienten identifizieren und in die Behandlungsplanung einbeziehen."
+  },
+  {
+    "id": "25.1.1.7",
+    "beinhaltet": "JA",
+    "beschreibung": "Befunde im Rahmen der allgemeinmedizinischen Routinediagnostik bewerten und ihren Einfluss auf orale Erkrankungen oder deren Therapie einschätzen."
+  },
+  {
+    "id": "25.1.1.8",
+    "beinhaltet": "JA",
+    "beschreibung": "Befunde im Rahmen der Routinediagnostik, die Verdachtsdiagnosen außerhalb der Zahnmedizin nach sich ziehen, erkennen, bewerten und die weiteren Schritte planen."
+  },
+  {
+    "id": "25.1.1.9",
+    "beinhaltet": "JA",
+    "beschreibung": "wichtige relevante Allgemeinerkrankungen oder Zustände, die einen Einfluss auf die zahnärztliche Therapie haben, nennen und die deren Zusammenhänge erläutern."
+  },
+  {
+    "id": "25.1.1.10",
+    "beinhaltet": "JA",
+    "beschreibung": "Allgemeinerkrankungen oder Zustände, die einen Einfluss auf die zahnärztliche Therapie haben, bei der Planung therapeutischer Maßnahmen berücksichtigen und ihr Handeln situativ an diesen ausrichten."
+  },
+  {
+    "id": "25.2",
+    "beinhaltet": "JA",
+    "beschreibung": "Die Absolventin/der Absolvent können Auswirkungen der Therapie von Allgemeinerkrankungen auf die Ätiologie, Pathogenese, Prävention und Therapie oraler Erkrankungen darstellen, bewerten und berücksichtigen."
+  },
+  {
+    "id": "25.2.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "allgemeinmedizinische Therapieverfahren, die einen Einfluss auf die Ätiologie und Pathogenese oraler Erkrankungen haben, nennen und die Wechselwirkungen erläutern."
+  },
+  {
+    "id": "25.2.1.2",
+    "beinhaltet": "NEIN",
+    "beschreibung": "die Wirkungsweise von Medikamenten, die einen Einfluss auf die Ätiologie und Pathogenese oraler Erkrankungen haben, darstellen."
+  },
+  {
+    "id": "25.2.1.3",
+    "beinhaltet": "JA",
+    "beschreibung": "das individuelle orale Erkrankungs- und Komplikationsrisiko und das Risiko für das Fortschreiten oraler Erkrankungen in Bezug auf die aktuelle Therapie der Patientinnen und Patienten kritisch einschätzen und bei individuell erforderlichen Maßnahmen berücksichtigen."
+  },
+  {
+    "id": "25.2.1.4",
+    "beinhaltet": "JA",
+    "beschreibung": "das individuelle orale Erkrankungsrisiko und das Risiko für das Fortschreiten oraler Erkrankungen aufgrund laufender und/oder abgeschlossener anderer medizinischer Therapieverfahren kritisch einschätzen und bei individuell erforderlichen Maßnahmen berücksichtigen."
+  },
+  {
+    "id": "25.2.1.5",
+    "beinhaltet": "NEIN",
+    "beschreibung": "die Folgen von Mundtrockenheit darlegen und Maßnahmen zur Prävention von Mundtrockenheit durchführen."
+  },
+  {
+    "id": "25.2.1.6",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Patientinnen/Patienten bei der Erlernung effektiver häuslicher Mundhygienemaßnahmen einschließlich der optionalen Verwendung pharmakologischer Therapeutika praktisch anleiten."
+  },
+  {
+    "id": "25.2.1.7",
+    "beinhaltet": "JA",
+    "beschreibung": "therapiebedingte Einschränkungen oder besondere Anforderungen an zahnärztliche therapeutische Maßnahmen bewerten und bei der Beratung sowie der Behandlung berücksichtigen."
+  },
+  {
+    "id": "25.3",
+    "beinhaltet": "JA",
+    "beschreibung": "Die Absolventin/der Absolvent können Auswirkungen oraler Erkrankungen und Zustände auf die Ätiologie, Pathogenese und Therapie systemischer Erkrankungen und unerwünschter Zustände darstellen, bewerten und berücksichtigen."
+  },
+  {
+    "id": "25.3.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "wichtige relevante Erkrankungen oder unerwünschte Zustände, auf die orale Erkrankungen Einfluss haben können, in Bezug auf die vorliegende Evidenz bewerten."
+  },
+  {
+    "id": "25.3.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "ätiopathologische Pathways erläutern, die eine periphere Auswirkung oraler Erkrankungen erklären."
+  },
+  {
+    "id": "25.3.1.3",
+    "beinhaltet": "JA",
+    "beschreibung": "auf der Basis der jeweils aktuellen wissenschaftlichen Evidenz Konsequenzen für die individuelle Therapie von Patientinnen/Patienten ziehen und ihr Handeln danach ausrichten."
+  },
+  {
+    "id": "25.3.1.4",
+    "beinhaltet": "JA",
+    "beschreibung": "wichtige relevante allgemeinmedizinische Therapieverfahren und Medikationen, die durch orale Erkrankungen beeinflusst werden, mit den Patientinnen/Patienten besprechen und die Wechselwirkungen darstellen."
+  },
+  {
+    "id": "25.3.1.5",
+    "beinhaltet": "JA",
+    "beschreibung": "ätiopathologische Pathways, durch die orale Erkrankungen eine allgemeinmedizinische Therapie beeinflussen können, mit den Patientinnen/Patienten besprechen."
+  },
+  {
+    "id": "25.4",
+    "beinhaltet": "JA",
+    "beschreibung": "Auswirkungen der Therapie oraler Erkrankungen auf die Ätiologie, Pathogenese und Therapie systemischer Erkrankungen und unerwünschter Zustände darstellen, bewerten und berücksichtigen."
+  },
+  {
+    "id": "25.4.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "die Konsequenzen von therapeutischen zahnärztlichen Maßnahmen für die Allgemeingesundheit erläutern und bei der Behandlung berücksichtigen."
+  },
+  {
+    "id": "25.4.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "die Planung und Durchführung einer zahnärztlichen Therapie den individuellen Anforderungen aufgrund des allgemeinen Erkrankungsrisikos der Patientinnen/Patienten anhand der jeweils aktuellen wissenschaftlichen Evidenz anpassen."
+  },
+  {
+    "id": "25.4.1.3",
+    "beinhaltet": "JA",
+    "beschreibung": "die Effekte therapeutischer zahnärztlicher Maßnahmen auf allgemeinmedizinische Therapieverfahren und Medikationen einschätzen und bei der Behandlung berücksichtigen."
+  },
+  {
+    "id": "25.5",
+    "beinhaltet": "JA",
+    "beschreibung": "Auswirkungen oraler Manipulationen auf allgemeinmedizinische Erkrankungen oder Zustände (ohne Vorliegen einer damit verbundenen oralen Erkrankung) darstellen, bewerten und berücksichtigen."
+  },
+  {
+    "id": "25.5.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "die Allgemeinerkrankungen oder Zustände erkennen und bei der Beratung und Therapieplanung berücksichtigen, die durch Manipulation im Bereich des stomatognathen Systems therapiert oder beeinflusst werden können."
+  },
+  {
+    "id": "25.5.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "Patientinnen/Patienten über diese Zusammenhänge adäquat aufklären und bezüglich der individuell erforderlichen Maßnahmen beraten."
+  },
+  {
+    "id": "25.6",
+    "beinhaltet": "JA",
+    "beschreibung": "Auswirkungen oraler Manipulationen auf allgemeinmedizinische Erkrankungen oder Zustände (ohne Vorliegen einer damit verbundenen oralen Erkrankung) darstellen, bewerten und berücksichtigen."
+  },
+  {
+    "id": "25.6.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Faktoren erläutern, die sowohl auf orale als auch auf allgemeine Erkrankungen einwirken."
+  },
+  {
+    "id": "25.6.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "Interaktionen zwischen oralen Erkrankungen und Allgemeinerkrankungen/-zuständen adäquat bewerten und mit Patient:innen im individuellen Kontext besprechen."
+  },
+  {
+    "id": "25.7",
+    "beinhaltet": "JA",
+    "beschreibung": "Die Absolventin/der Absolvent können Zusammenhänge zwischen oraler und allgemeiner Medizin im Gespräch mit Patient:innen erläutern und zielgerichtet mit Allgemeinmediziner:innen kommunizieren."
+  },
+  {
+    "id": "25.7.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Patient:innen situationsbezogen in verständlicher Sprache aufklären (Vermeidung angstauslösender Aspekte)."
+  },
+  {
+    "id": "25.7.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "Erkennen, wann eine Konsultation mit behandelnden Allgemein- oder Fachärzt:innen erforderlich ist, und erforderliche Informationen erfragen."
+  },
+  {
+    "id": "25.7.1.3",
+    "beinhaltet": "JA",
+    "beschreibung": "Allgemeinmediziner:innen über die spezifische Situation der Patient:innen und potenzielle Implikationen der geplanten zahnärztlichen Maßnahmen auf deren Allgemeingesundheit aufklären."
+  },
+  {
+    "id": "5.3.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "eine gezielte Anamnese erheben und dokumentieren sowie daraus präventive, gesundheitsfördernde, diagnostische, therapeutische und/oder rehabilitative Maßnahmen ableiten"
+  },
+  {
+    "id": "5.3.1.3",
+    "beinhaltet": "NEIN",
+    "beschreibung": "eine gezielte klinische und psychosoziale Untersuchung durchführen und dokumentieren sowie daraus präventive, gesundheitsfördernde, diagnostische, therapeutische und/oder rehabilitative Maßnahmen ableiten."
+  },
+  {
+    "id": "9.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Die Absolventin/der Absolvent erfassen und fördern den Mundgesundheitszustand individueller Patientinnen/Patienten und integrieren Gesundheitsförderung in die individuelle Betreuung."
+  },
+  {
+    "id": "9.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Sie erkennen den speziellen mundbezogenen und orientierend den allgemeinen Gesundheitszustand von individuellen Personen als Ganzes, Ungleichgewichte sowie Missverhältnisse im Gesundheitszustand, deren Ursachen und Folgen. Sie können ..."
+  },
+  {
+    "id": "9.1.1.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Mundgesundheitsförderung und Prävention als wesentlichen Bestandteil in die individuelle Betreuung integrieren."
+  },
+  {
+    "id": "9.1.1.5",
+    "beinhaltet": "JA",
+    "beschreibung": "die Einflussfaktoren und Parameter mundbezogener Krankheiten, welche die gesundheitliche Gesamtsituation von Personen bestimmen, hinsichtlich ihrer individuellen Bedeutung für die jeweilige Person einschätzen und Auswirkungen der gesundheitlichen Gesamtsituation auf die Mundgesundheit identifizieren."
+  },
+  {
+    "id": "9.1.2",
+    "beinhaltet": "JA",
+    "beschreibung": "Sie wirken auf eine Verbesserung des Mundgesundheitszustandes und der allgemeinen Gesundheit von individuellen Personen hin. Sie können ..."
+  },
+  {
+    "id": "9.1.2.1",
+    "beinhaltet": "NEIN",
+    "beschreibung": "medizinische, edukative, normativ-regulatorische, sozioökonomische und gesundheitspolitische Einflussmöglichkeiten zur Förderung von Mundgesundheit und gesundem Lebenswandel von Individuen erläutern."
+  },
+  {
+    "id": "20.1.2.3",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Patientinnen/Patienten mit Endokarditis-Risiko erkennen und die zahnmedizinischen Maßnahmen anpassen."
+  },
+  {
+    "id": "20.1.4",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Sie können Auswirkungen von Tumoren auf die zahnmedizinische Therapieplanung erkennen und bewerten. Sie können …"
+  },
+  {
+    "id": "20.1.4.1",
+    "beinhaltet": "JA",
+    "beschreibung": "Behandlungsziele den Gegebenheiten anpassen und die Zusammenhänge zwischen Allgemeinerkrankung, oralen Erkrankungen/Symptomen und zahnärztlichen Maßnahmen herstellen und umsetzen"
+  },
+  {
+    "id": "20.1.6",
+    "beinhaltet": "JA",
+    "beschreibung": "Sie können Auswirkungen von Abwehrschwächen auf die zahnmedizinische Therapieplanung erkennen und bewerten. Sie können ..."
+  },
+  {
+    "id": "20.1.6.2",
+    "beinhaltet": "JA",
+    "beschreibung": "bei endokrinen-, Ernährungs- und Stoffwechselerkrankungen die Zusammenhänge zwischen Allgemeinerkrankung, oralen Erkrankungen/Symptomen und zahnärztlichen Maßnahmen herstellen und umsetzen."
+  },
+  {
+    "id": "20.1.7",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Sie können Auswirkungen von psychischen und Verhaltensstörungen auf die zahnmedizinische Therapieplanung erkennen und bewerten. Sie können …"
+  },
+  {
+    "id": "20.1.7.4",
+    "beinhaltet": "JA",
+    "beschreibung": "die Zusammenhänge zwischen Abusus, oralen Erkrankungen/Symptomen und zahnärztlichen Maßnahmen herstellen und umsetzen."
+  },
+  {
+    "id": "20.1.9",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Sie können Auswirkungen von Erkrankungen des blutbildenden Systems und hämorrhagische Diathesen auf die zahnmedizinische Therapieplanung erkennen und bewerten. Sie können …"
+  },
+  {
+    "id": "20.1.9.1",
+    "beinhaltet": "JA",
+    "beschreibung": "die Zusammenhänge zwischen Allgemeinerkrankungen, oralen Erkrankungen, Symptomen und zahnärztlichen Maßnahmen und das Risiko von Zwischenfällen erkennen und Maßnahmen zur Vermeidung ergreifen, sowie die eigenen Kompetenzen richtig einschätzen und wenn nötig, die Entscheidung zur Überweisung an eine Fachklinik treffen."
+  },
+  {
+    "id": "23b.4",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Die Absolventin/der Absolvent können Strategien für die parodontale Prophylaxe entwickeln und den Patientinnen/Patienten vermitteln. Sie können …"
+  },
+  {
+    "id": "23b.4.1.1",
+    "beinhaltet": "NEIN",
+    "beschreibung": "Patientinnen/Patienten über die Ätiologie und Prävention parodontaler und periimplantärer Erkrankungen aufklären und sie ermutigen, Verantwortung für ihre parodontale/periimplantäre Gesundheit zu übernehmen"
+  }
+]

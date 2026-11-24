@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Lernziel/Prüfziel Vorlesungsabgleich · Projekt 1</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <header>
+            <div class="brand">🦷 Curriculum-Mapping <small>Projekt 1</small></div>
+        </header>
+        <main>
+            <h1>Lernziel/Prüfziel Vorlesungsabgleich</h1>
+            {% if eingabefehler %}<div class="meldung fehler">{{ eingabefehler }}</div>{% endif %}
+            {% if not stand.laeuft %}
+                <form method="post" enctype="multipart/form-data" class="card">
+                    <label>
+                        Wählen Sie eine Option aus:
+                        <select name="auswahl" id="auswahl">
+                            {% for wert, name in optionen.items() %}
+                                <option value="{{ wert }}"
+                                        {% if wert == auswahl %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        Laden Sie Ihre Vorlesung als PDF hoch. Laden Sie dabei bitte nur ein Kapitel hoch:
+                        <input type="file" name="vorlesung" accept="application/pdf" required>
+                    </label>
+                    <label id="pruefziele-feld" hidden>
+                        Laden Sie Ihre Prüfziele als PDF hoch. Laden Sie dabei bitte nur ein Kapitel hoch:
+                        <input type="file"
+                               name="pruefziele"
+                               id="pruefziele"
+                               accept="application/pdf">
+                    </label>
+                    <hr>
+                    <button type="submit">Vergleich starten...</button>
+                </form>
+            {% endif %}
+            {% for ordner, name in stand.gespeichert %}
+                <div class="meldung">
+                    Erfolgreich gespeichert im Ordner 'projekt1/{{ ordner }}': <strong>{{ name }}</strong>
+                </div>
+            {% endfor %}
+            {% if stand.hinweis %}<div class="meldung hinweis">{{ stand.hinweis }}</div>{% endif %}
+            {% if stand.laeuft %}
+                <div class="card" id="laeuft">
+                    <p>Der Vergleich läuft. Je nach Anzahl der Folien dauert das einige Minuten.</p>
+                    <p class="muted">Das Ergebnis erscheint hier, sobald es fertig ist. Den Fortschritt zeigt das Terminal.</p>
+                </div>
+            {% elif stand.fehler %}
+                <div class="meldung fehler">Der Vergleich ist abgebrochen: {{ stand.fehler }}</div>
+            {% elif folien %}
+                <div class="kopfzeile">
+                    <h2>Ergebnis des letzten Vergleichs</h2>
+                    <a class="btn" href="{{ url_for('excel') }}">Excel herunterladen</a>
+                </div>
+                {% if grafik %}
+                    <div class="card">
+                        <h3>Anzahl pro Lernziel</h3>
+                        <img class="grafik"
+                             src="{{ url_for('grafik') }}"
+                             alt="Balkendiagramm mit der Anzahl der Folien je Lernziel">
+                    </div>
+                {% endif %}
+                <div class="card">
+                    <h3>Zuordnung der Lernziele zu den Folien</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Folie</th>
+                                <th>Lernziele</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for folie in folien %}
+                                <tr>
+                                    <td class="folie">{{ folie["folien-nr"] }}</td>
+                                    <td>{{ folie["Zuordnung"]|map("trim")|select|join(", ") }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </main>
+        <script src="{{ url_for('static', filename='seite.js') }}"></script>
+    </body>
+</html>
