@@ -84,7 +84,7 @@ st.divider()
 import os
 os.environ["STREAMLIT_SERVER_ENABLE_FILE_WATCHER"] = "false"
 
-"""
+
 if st.button("Vergleich starten..."):
 
     # Validierung: Prüfen, ob eine Eingabe da ist
@@ -96,6 +96,6 @@ if st.button("Vergleich starten..."):
         vorlesung_preprocessing.vorlesungs_preprocessing()
     else:
         st.warning("Bitte gib zuerst einen Projektnamen ein!")
-"""
+
 
 
