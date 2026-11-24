@@ -2,8 +2,7 @@
 helfen, ihre offenen Anforderungen aus dem Leistungskatalog zu erfüllen.
 
 Basis ist classes.min_points / min_count vs. die Summe aus students_classes
-ÜBER ALLE SEMESTER (nicht pro Semester - die Mindestanforderung gilt für die
-gesamte Ausbildungszeit, nicht für ein einzelnes Semester).
+ÜBER ALLE SEMESTER (nicht pro Semester)
 
 Hinweis: Im README-Outline war ursprünglich `find_missing_competencies`
 vorgesehen (competency-basiertes Matching). Die Tabellen `competencies` /
@@ -49,8 +48,7 @@ def find_missing_classes(student_id: int, db: Session) -> list[ClassDeficit]:
     fehlend gewertet, da es dafür schlicht keine Vorgabe gibt."""
     rows = (
         db.execute(
-            text(
-                """
+            text("""
             select
                 cl.id as class_id,
                 cl.name as class_name,
@@ -64,8 +62,7 @@ def find_missing_classes(student_id: int, db: Session) -> list[ClassDeficit]:
             left join students_classes as sc
                 on sc.class_id = cl.id and sc.student_id = :student_id
             group by cl.id
-            """
-            ),
+            """),
             {"student_id": student_id},
         )
         .mappings()
@@ -106,10 +103,7 @@ def get_patient_contributions(db: Session) -> list[PatientContribution]:
     """Was jeder Patient je Klasse an Punkten/Fällen beisteuern könnte:
     Durchschnitt aus (min_points+max_points)/2 je patient_cases-Zeile,
     plus Anzahl der Fälle, gruppiert nach Patient x Klasse."""
-    rows = (
-        db.execute(
-            text(
-                """
+    rows = db.execute(text("""
             select
                 p.id as patient_id,
                 coalesce(p.pseudonym, p.name) as patient_name,
@@ -119,12 +113,7 @@ def get_patient_contributions(db: Session) -> list[PatientContribution]:
             from patient_cases as pc
             join patients as p on pc.patient_id = p.id
             group by p.id, pc.class_id
-            """
-            )
-        )
-        .mappings()
-        .all()
-    )
+            """)).mappings().all()
     return [
         PatientContribution(
             patient_id=r["patient_id"],
@@ -218,7 +207,7 @@ def rank_patients_for_student(
 
 def suggest_global_matching(db: Session) -> dict:
     """Gemeinsame Zuordnung aller Studenten und Patienten: greedy, nicht
-    global optimal (das wäre der Hungarian-Algorithmus, braucht scipy) -
+    global optimal (geplant Hungarian-Algorithmus, braucht scipy) -
     aber nachvollziehbar und für ~5 Studenten/~10 Patienten völlig
     ausreichend. In jedem Schritt wird das aktuell beste (Student, Patient)-
     Paar zugewiesen; danach werden die Defizite des Studenten um das reduziert,
