@@ -2,8 +2,7 @@
 
 Flask-Fassung von UI.py: Option wählen, Vorlesung als PDF hochladen und den
 Vergleich starten. Der Vergleich läuft im Hintergrund. Danach zeigt die Seite
-die Grafik mit der Anzahl pro Lernziel und die Zuordnung der Lernziele zu den
-Folien.
+für jedes Lernziel, ob es in der Vorlesung enthalten ist.
 
 Start aus dem Hauptordner des Repositories:
 
@@ -30,13 +29,14 @@ from flask import (
 )
 
 import lernziel_preprocessing
+import pruefziel_preprocessing
 import vorlesung_preprocessing
 
 # Die Skripte lesen und schreiben relativ zu diesem Ordner.
 PROJEKT_ORDNER = os.path.dirname(os.path.abspath(__file__))
 os.chdir(PROJEKT_ORDNER)
 
-# Die Grafik entsteht als Datei, es öffnet sich kein Fenster.
+# Die Skripte laufen im Hintergrund, eine Grafik darf dort kein Fenster öffnen.
 matplotlib.use("Agg")
 
 OPTIONEN = {
@@ -48,9 +48,9 @@ ORDNER_PRUEFZIELE = "assets/Prüfziele"
 ORDNER_SEITEN = "einzelne_seiten_vorlesung"
 
 # Dateien, die der Vergleich schreibt
-ZUORDNUNG = "FolienUndLernzieleZuordnung.json"
-EXCEL = "folienUndLernziele.xlsx"
-GRAFIK = "anzahlLernziele.jpg"
+FOLIEN = "vorlesung.json"
+ERGEBNIS = "LernzielBeinhaltetZuordnung.json"
+EXCEL = "LernzielBeinhaltetZuordnung.xlsx"
 
 app = Flask(__name__)
 # Obergrenze für einen Upload, wie in Streamlit 200 MB
@@ -80,6 +80,15 @@ def speichern(datei, ordner):
     return name
 
 
+def folien_pruefen():
+    """Bricht ab, wenn die Auswertung der Vorlesung keine Folie geliefert hat."""
+    with open(FOLIEN, encoding="utf-8") as datei:
+        folien = json.load(datei)
+    if not folien:
+        meldung = "Die Auswertung hat keine Folien gefunden."
+        raise RuntimeError(meldung)
+
+
 def vergleichen(vorlesung_pfad):
     """Vergleicht die Vorlesung mit den Lernzielen, läuft im Hintergrund."""
     try:
@@ -90,7 +99,10 @@ def vergleichen(vorlesung_pfad):
         )
         # Text und Bild jeder Folie auswerten, Ergebnis in vorlesung.json
         vorlesung_preprocessing.vorlesungs_preprocessing()
-        # Lernziele aus lernziele.json zuordnen, Excel-Datei und Grafik schreiben
+        folien_pruefen()
+        # Alle Folien als ein Text in vorlesungFull.txt
+        runpy.run_path("vorlesungPartsToText.py")
+        # Jedes Lernziel mit der ganzen Vorlesung vergleichen (JSON und Excel)
         runpy.run_path("vorlesung_lernziel_processing.py")
     except Exception as fehler:
         stand["fehler"] = f"{type(fehler).__name__}: {fehler}"
@@ -99,12 +111,28 @@ def vergleichen(vorlesung_pfad):
         stand["laeuft"] = False
 
 
-def zuordnung_lesen():
-    """Liest die Zuordnung der Lernziele zu den Folien, sobald sie vorliegt."""
-    if stand["laeuft"] or stand["fehler"] or not os.path.exists(ZUORDNUNG):
+def pruefziele_aufbereiten(pruefziele_pfad):
+    """Schreibt die Prüfziele der PDF als JSON und liefert den Hinweis dazu."""
+    anzahl = pruefziel_preprocessing.pruefziele_speichern(pruefziele_pfad)
+    if not anzahl:
+        return "In der Datei wurde keine Tabelle mit Prüfzielen gefunden."
+    return (
+        f"{anzahl} Prüfziele stehen jetzt in {pruefziel_preprocessing.JSON}. "
+        "Der Vergleich mit der Vorlesung folgt für Prüfziele noch."
+    )
+
+
+def ergebnis_lesen():
+    """Liest das Ergebnis je Lernziel, sobald der Vergleich es geschrieben hat."""
+    if stand["laeuft"] or stand["fehler"] or not os.path.exists(ERGEBNIS):
         return []
-    with open(ZUORDNUNG, encoding="utf-8") as datei:
-        return json.load(datei)
+    with open(ERGEBNIS, encoding="utf-8") as datei:
+        ziele = json.load(datei)
+    for ziel in ziele:
+        # Antwort des Modells einheitlich als "JA" oder "NEIN"
+        antwort = str(ziel["beinhaltet"] or "")
+        ziel["beinhaltet"] = antwort.strip().rstrip(".").upper()
+    return ziele
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -130,9 +158,11 @@ def index():
             if auswahl == "pruefziele":
                 name_pruefziele = speichern(pruefziele, ORDNER_PRUEFZIELE)
                 stand["gespeichert"].append((ORDNER_PRUEFZIELE, name_pruefziele))
-                stand["hinweis"] = "Für Prüfziele gibt es noch keine Auswertung."
+                stand["hinweis"] = pruefziele_aufbereiten(
+                    os.path.join(ORDNER_PRUEFZIELE, name_pruefziele)
+                )
             else:
-                # Die Lernziele stehen in lernziele.json, ein Upload entfällt.
+                # Die Lernziele stehen als JSON-Datei bereit, ein Upload entfällt.
                 stand["laeuft"] = True
                 threading.Thread(
                     target=vergleichen,
@@ -147,8 +177,7 @@ def index():
         auswahl=auswahl,
         eingabefehler=eingabefehler,
         stand=stand,
-        folien=zuordnung_lesen(),
-        grafik=os.path.exists(GRAFIK),
+        ziele=ergebnis_lesen(),
     )
 
 
@@ -158,15 +187,9 @@ def stand_melden():
     return {"laeuft": stand["laeuft"]}
 
 
-@app.route("/grafik")
-def grafik():
-    """Liefert die Grafik mit der Anzahl pro Lernziel."""
-    return send_from_directory(PROJEKT_ORDNER, GRAFIK)
-
-
 @app.route("/excel")
 def excel():
-    """Liefert die Excel-Datei mit der Zuordnung zum Herunterladen."""
+    """Liefert die Excel-Datei mit dem Ergebnis zum Herunterladen."""
     return send_from_directory(PROJEKT_ORDNER, EXCEL, as_attachment=True)
 
 

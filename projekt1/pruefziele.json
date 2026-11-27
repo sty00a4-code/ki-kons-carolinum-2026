@@ -1,0 +1,958 @@
+{
+  "kapitel": "08 QB Z2 Orale Medizin",
+  "quelle": "PrüfzieleTabelle.pdf",
+  "prüfziele": [
+    {
+      "id": "1",
+      "beschreibung": "Orofaziales System",
+      "teilziele": [
+        {
+          "id": "1.1",
+          "beschreibung": "Zahnhartsubstanzdefekte und -veränderungen",
+          "teilziele": [
+            {
+              "id": "1.1.1",
+              "beschreibung": "Karies"
+            },
+            {
+              "id": "1.1.2",
+              "beschreibung": "Erosionen, Abrasionen, Attritionen"
+            },
+            {
+              "id": "1.1.3",
+              "beschreibung": "Erworbene und genetisch bedingte Zahnhartsubstanzdefekte"
+            },
+            {
+              "id": "1.1.5",
+              "beschreibung": "Pathologische Zahnresorptionen"
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "beschreibung": "Parodontale Erkrankungen",
+          "teilziele": [
+            {
+              "id": "1.2.3",
+              "beschreibung": "Gingivale Erkrankungen (nicht Biofilm induziert)"
+            },
+            {
+              "id": "1.2.4",
+              "beschreibung": "Parodontitis"
+            },
+            {
+              "id": "1.2.5",
+              "beschreibung": "Parodontitis als Manifestation einer systemischen Erkrankung"
+            },
+            {
+              "id": "1.2.6",
+              "beschreibung": "Nekrotisierende parodontale Erkrankungen"
+            },
+            {
+              "id": "1.2.8",
+              "beschreibung": "Gingivawucherung"
+            },
+            {
+              "id": "1.2.9",
+              "beschreibung": "Entwicklungsbedingte und erworbene Deformationen und Zustände des Parodonts"
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "beschreibung": "Erkrankungen des Pulpa-Dentin-Komplexes und periradikuläre Erkrankungen",
+          "teilziele": [
+            {
+              "id": "1.3.1",
+              "beschreibung": "Pulpitiden und Pulpanekrosen"
+            },
+            {
+              "id": "1.3.3",
+              "beschreibung": "Pulpale und radikuläre Fehlbildungen"
+            }
+          ]
+        },
+        {
+          "id": "1.4",
+          "beschreibung": "Zahnverlust, Zahnentfernung und fehlende Zähne",
+          "teilziele": [
+            {
+              "id": "1.4.1",
+              "beschreibung": "Intra- und postoperative Komplikationen bei Zahnentfernungen"
+            },
+            {
+              "id": "1.4.3",
+              "beschreibung": "Zahnverlust und seine Folgen"
+            },
+            {
+              "id": "1.4.4",
+              "beschreibung": "Durchbruchsstörungen"
+            },
+            {
+              "id": "1.4.5",
+              "beschreibung": "Kieferkammatrophie, Alveolarfortsatzatrophie und weitere ungünstige anatomische Situationen"
+            }
+          ]
+        },
+        {
+          "id": "1.5",
+          "beschreibung": "Funktionsstörungen",
+          "teilziele": [
+            {
+              "id": "1.5.1",
+              "beschreibung": "Orale Parafunktionen"
+            },
+            {
+              "id": "1.5.2",
+              "beschreibung": "Kraniomandibuläre Dysfunktionen"
+            }
+          ]
+        },
+        {
+          "id": "1.6",
+          "beschreibung": "Entwicklungs- und altersabhängige Erkrankungen",
+          "teilziele": [
+            {
+              "id": "1.6.2",
+              "beschreibung": "Entwicklungsstörungen der Zähne"
+            },
+            {
+              "id": "1.6.3",
+              "beschreibung": "Entwicklungsstörungen und Fehlbildungen des Milchgebisses"
+            }
+          ]
+        },
+        {
+          "id": "1.7",
+          "beschreibung": "Erkrankungen der Speicheldrüsen",
+          "teilziele": [
+            {
+              "id": "1.7.1",
+              "beschreibung": "Xerostomie"
+            },
+            {
+              "id": "1.7.2",
+              "beschreibung": "Speichelretentionszyste (Ranula)"
+            },
+            {
+              "id": "1.7.3",
+              "beschreibung": "Sialadenose"
+            },
+            {
+              "id": "1.7.8",
+              "beschreibung": "Syndrome mit Speicheldrüsenbeteiligung"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "beschreibung": "Muskoloskelletales System und Weichgewebe",
+      "teilziele": [
+        {
+          "id": "2.1",
+          "beschreibung": "Rheumatische muskuloskelletale Erkrankungen",
+          "teilziele": [
+            {
+              "id": "2.1.5",
+              "beschreibung": "Reaktive Arthritis"
+            },
+            {
+              "id": "2.1.6",
+              "beschreibung": "Juvenile idiopathische Athritiden"
+            },
+            {
+              "id": "2.1.7",
+              "beschreibung": "Rheumathoide Athritis"
+            },
+            {
+              "id": "2.1.11",
+              "beschreibung": "Vaskulitiden der Haut und Mundschleimhaut (Kleingefäßvaskulitis,Vasculitis allergisch)"
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "beschreibung": "Infektiologische und weitere muskuloskelletale Erkrankungen",
+          "teilziele": [
+            {
+              "id": "2.2.5",
+              "beschreibung": "Knochenentzündungen"
+            },
+            {
+              "id": "2.2.6",
+              "beschreibung": "Infektionen des Weichgewebes im Kopf Hals Bereich"
+            }
+          ]
+        },
+        {
+          "id": "2.4",
+          "beschreibung": "Angeworbene und erworbene muskuloskelletale Erkrankungen",
+          "teilziele": [
+            {
+              "id": "2.4.1",
+              "beschreibung": "Angeborene und erworbene Knochenerkrankungen"
+            },
+            {
+              "id": "2.4.2",
+              "beschreibung": "Äthiologisch unklare Knochenerkrankungen"
+            },
+            {
+              "id": "2.4.3",
+              "beschreibung": "Störungen des Wachstums"
+            },
+            {
+              "id": "2.4.6",
+              "beschreibung": "Kindliche, frühkindliche, jugendliche instruktive Schlafapnoe"
+            },
+            {
+              "id": "2.4.7",
+              "beschreibung": "Obstruktive Schlafapnoe bei Erwachsenen"
+            },
+            {
+              "id": "2.4.11",
+              "beschreibung": "Entwicklungsstörungen und Fehlbildungen des Knochens"
+            }
+          ]
+        },
+        {
+          "id": "2.5",
+          "beschreibung": "Benigne und maligne Muskuloskelletale Erkrankungen",
+          "teilziele": [
+            {
+              "id": "2.5.1",
+              "beschreibung": "Benigne odontogene Tumore"
+            },
+            {
+              "id": "2.5.2",
+              "beschreibung": "Benigne Knochen und Knorpeltumoren"
+            },
+            {
+              "id": "2.5.3",
+              "beschreibung": "Maligne odontogene Tumore, Knochen- und Knorpeltumore"
+            },
+            {
+              "id": "2.5.4",
+              "beschreibung": "Ossäre Dysplasien"
+            },
+            {
+              "id": "2.5.5",
+              "beschreibung": "Kiefergelenkstumor"
+            },
+            {
+              "id": "2.5.6",
+              "beschreibung": "Benigne und maligne Weichgewebstumore"
+            }
+          ]
+        },
+        {
+          "id": "2.6",
+          "beschreibung": "Stoffwechselbedingte muskuloskelettale Erkrankungen",
+          "teilziele": [
+            {
+              "id": "2.6.1",
+              "beschreibung": "Osteoporose und Osteopenie"
+            },
+            {
+              "id": "2.6.2",
+              "beschreibung": "Formenkreis Rachitis, Hyperparathyreoidismus und muskuloskelettale Vitaminmangelfolgen"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "beschreibung": "Haut, Hautanhangsgebilde und Schleimhaut",
+      "teilziele": [
+        {
+          "id": "3.1",
+          "beschreibung": "Veränderungen der Haut und Schleimhaut",
+          "teilziele": [
+            {
+              "id": "3.1.1",
+              "beschreibung": "Effloreszenzen der Haut und Schleimhaut"
+            },
+            {
+              "id": "3.1.3",
+              "beschreibung": "Pigmentierungen der Mundschleimhaut"
+            },
+            {
+              "id": "3.1.4",
+              "beschreibung": "Veränderungen der Zunge"
+            },
+            {
+              "id": "3.1.6",
+              "beschreibung": "Zahnarztassoziierte Veränderungen der Mundschleimhaut"
+            },
+            {
+              "id": "3.1.7",
+              "beschreibung": "Sonstige Schleimhauterkrankungen"
+            },
+            {
+              "id": "3.1.8",
+              "beschreibung": "Aphten, Aphtöse Erkrankungen"
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "beschreibung": "Orale und periorale Manifestation systemischer Erkrankungen",
+          "teilziele": [
+            {
+              "id": "3.2.1",
+              "beschreibung": "Genetisch bedingte Erkrankungen mit Mundschleimhautbeteiligung"
+            },
+            {
+              "id": "3.2.2",
+              "beschreibung": "Erworbene Systemerkrankungen mit Mundschleimhautbeteiligung"
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "beschreibung": "Entzündliche und degenerative Hauterkrankungen",
+          "teilziele": [
+            {
+              "id": "3.3.3",
+              "beschreibung": "Medikamenteninduzierte Haut- und Schleimhautveränderungen"
+            },
+            {
+              "id": "3.3.4",
+              "beschreibung": "Urtikaria und Angioödem"
+            },
+            {
+              "id": "3.3.5",
+              "beschreibung": "Bullöse Intoleranzreaktionen"
+            },
+            {
+              "id": "3.3.7",
+              "beschreibung": "Krankheiten der Haut und der Unterhaut durch Strahleneinwirkung"
+            },
+            {
+              "id": "3.3.8",
+              "beschreibung": "Kollagenosen"
+            },
+            {
+              "id": "3.3.9",
+              "beschreibung": "Bullöse Autoimmundermatosen"
+            },
+            {
+              "id": "3.3.13",
+              "beschreibung": "Lichen Planus"
+            },
+            {
+              "id": "3.3.14",
+              "beschreibung": "Traumatisch bedingte Verletzungen und Veränderungen der Mundschleimhaut"
+            }
+          ]
+        },
+        {
+          "id": "3.4",
+          "beschreibung": "Infektionen der Haut, Hautanhangsgebilde und Schleimhaut",
+          "teilziele": [
+            {
+              "id": "3.4.3",
+              "beschreibung": "Mykosen der Haut und Schleimhaut"
+            }
+          ]
+        },
+        {
+          "id": "3.5",
+          "beschreibung": "Hauttumoren",
+          "teilziele": [
+            {
+              "id": "3.5.2",
+              "beschreibung": "Prämaligne Veränderungen von Kopfhaut, Gesichtshaut und Mundschleimhaut"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "beschreibung": "Nervensystem und Psyche",
+      "teilziele": [
+        {
+          "id": "4.1",
+          "beschreibung": "Autoimmunerkrankungen",
+          "teilziele": [
+            {
+              "id": "4.1.1",
+              "beschreibung": "Multiple Sklerose"
+            },
+            {
+              "id": "2.1.10",
+              "beschreibung": "Polymyalgia rheumatica und Riesenzellarteriitis"
+            }
+          ]
+        },
+        {
+          "id": "4.2",
+          "beschreibung": "Epileptische Anfälle",
+          "teilziele": [
+            {
+              "id": "4.2.1",
+              "beschreibung": "Epilepsie"
+            }
+          ]
+        },
+        {
+          "id": "4.3",
+          "beschreibung": "Erkrankungen in Folge neutraler Kompression",
+          "teilziele": [
+            {
+              "id": "4.3.1",
+              "beschreibung": "Paresen und Plegien im Kopf- Halsbereich"
+            },
+            {
+              "id": "4.3.2",
+              "beschreibung": "Horner Syndrom"
+            }
+          ]
+        },
+        {
+          "id": "4.4",
+          "beschreibung": "Infektiöse Erkrankungen",
+          "teilziele": [
+            {
+              "id": "4.4.1",
+              "beschreibung": "Meningitis"
+            },
+            {
+              "id": "4.4.2",
+              "beschreibung": "Neuroborreliose"
+            },
+            {
+              "id": "4.4.3",
+              "beschreibung": "Lyme Borrelliose"
+            },
+            {
+              "id": "4.4.4",
+              "beschreibung": "Zoster Erkrankung"
+            }
+          ]
+        },
+        {
+          "id": "4.5",
+          "beschreibung": "Neurodegenrative Erkrankungen",
+          "teilziele": [
+            {
+              "id": "4.5.1",
+              "beschreibung": "Demenz"
+            },
+            {
+              "id": "4.5.2",
+              "beschreibung": "Delir"
+            },
+            {
+              "id": "4.5.3",
+              "beschreibung": "M. Parkinson"
+            }
+          ]
+        },
+        {
+          "id": "4.6",
+          "beschreibung": "Nicht-kompressionsbedingte Erkrankung peripherer Nerven",
+          "teilziele": [
+            {
+              "id": "4.6.1",
+              "beschreibung": "Polyneuropathie"
+            },
+            {
+              "id": "4.6.2",
+              "beschreibung": "Läsionen sensibler Hirnnerven"
+            },
+            {
+              "id": "4.6.3",
+              "beschreibung": "Idiopathische Fazialisparese"
+            },
+            {
+              "id": "4.6.4",
+              "beschreibung": "Melkersson-Rosenthal-Syndrom"
+            }
+          ]
+        },
+        {
+          "id": "4.7",
+          "beschreibung": "Schmerzsyndrome",
+          "teilziele": [
+            {
+              "id": "4.7.2",
+              "beschreibung": "Trigemino-autonome Kopfschmerzen"
+            },
+            {
+              "id": "4.7.6",
+              "beschreibung": "Myofasziale Schmerzen der Kiefermuskulatur"
+            },
+            {
+              "id": "4.7.7",
+              "beschreibung": "Kiefergelenkschmerzen"
+            }
+          ]
+        },
+        {
+          "id": "4.9",
+          "beschreibung": "Abhängigkeit und Sucht, Suchterkrankungen",
+          "teilziele": [
+            {
+              "id": "4.9.1",
+              "beschreibung": "Suchtverhalten, Abhängigkeit, Gebrauch und Missbrauch von Genussmitteln, Drogen und Medikamenten"
+            },
+            {
+              "id": "4.9.2",
+              "beschreibung": "Intoxikationen durch Alkohol, Drogen, Medikamente und andere Toxine"
+            }
+          ]
+        },
+        {
+          "id": "4.11",
+          "beschreibung": "Angst- und Belastungsstörungen",
+          "teilziele": [
+            {
+              "id": "4.11.1",
+              "beschreibung": "Generalisierte Angsterkrankung"
+            },
+            {
+              "id": "4.11.2",
+              "beschreibung": "Panikstörung"
+            },
+            {
+              "id": "4.11.3",
+              "beschreibung": "Phobien"
+            }
+          ]
+        },
+        {
+          "id": "4.12",
+          "beschreibung": "Körperbezogene psychische Störungen",
+          "teilziele": [
+            {
+              "id": "4.12.1",
+              "beschreibung": "Somatoforme Störungen"
+            },
+            {
+              "id": "4.12.2",
+              "beschreibung": "Essstörungen"
+            }
+          ]
+        },
+        {
+          "id": "4.13",
+          "beschreibung": "Affektive Störungen und Persönlichkeitsstörungen",
+          "teilziele": [
+            {
+              "id": "4.13.1",
+              "beschreibung": "Persönlichkeitsstörungen (dissoziale, histrionische, paranoide, schizoide, emotional instabile Persönlichkeitsstörung)"
+            },
+            {
+              "id": "4.12.2",
+              "beschreibung": "Depression"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "beschreibung": "Sinnessysteme",
+      "teilziele": [
+        {
+          "id": "5.1",
+          "beschreibung": "Erkrankungen des Auges und der Orbita",
+          "teilziele": [
+            {
+              "id": "5.1.14",
+              "beschreibung": "Sehstörungen und Blindheit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "beschreibung": "Respiratorisches System",
+      "teilziele": [
+        {
+          "id": "6.1",
+          "beschreibung": "Atemwegserkrankungen",
+          "teilziele": [
+            {
+              "id": "6.1.2",
+              "beschreibung": "Asthma Bronchiale"
+            },
+            {
+              "id": "6.1.3",
+              "beschreibung": "Chronisch obstruktive Lungenerkrankung COPD, Chronische Bronchitis, Lungenemphysem"
+            }
+          ]
+        },
+        {
+          "id": "6.2",
+          "beschreibung": "Respiratorische Infektionen",
+          "teilziele": [
+            {
+              "id": "6.2.4",
+              "beschreibung": "Tuberkulose"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "beschreibung": "Verdauungssystem",
+      "teilziele": [
+        {
+          "id": "7.1",
+          "beschreibung": "Erkrankungen des oberen Gastrointestinaltrakts",
+          "teilziele": [
+            {
+              "id": "7.1.3",
+              "beschreibung": "Reflex, Refluxösophagitis, Barrett-Ösophagus"
+            },
+            {
+              "id": "7.1.4",
+              "beschreibung": "Infektiöse Ösophagitiden und sonstige Ösophagitiden"
+            }
+          ]
+        },
+        {
+          "id": "7.3",
+          "beschreibung": "Dünn- und Dickdarmerkrankungen, Erkrankungen des Peritoneums",
+          "teilziele": [
+            {
+              "id": "7.3.1",
+              "beschreibung": "Malassimilationssyndrom"
+            },
+            {
+              "id": "7.3.2",
+              "beschreibung": "Zöliakie"
+            },
+            {
+              "id": "7.3.5",
+              "beschreibung": "Chronisch entzündliche Darmerkrankungen"
+            }
+          ]
+        },
+        {
+          "id": "7.4",
+          "beschreibung": "Lebererkrankungen",
+          "teilziele": [
+            {
+              "id": "7.4.1",
+              "beschreibung": "Lebererkrankungen"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9",
+      "beschreibung": "Blut und Immunologie",
+      "teilziele": [
+        {
+          "id": "9.1",
+          "beschreibung": "Maligne Erkrankungen",
+          "teilziele": [
+            {
+              "id": "9.1.1",
+              "beschreibung": "Tumoren und tumorähnliche Erkrankungen des Gefäßsystems"
+            },
+            {
+              "id": "9.1.2",
+              "beschreibung": "AV Malformation"
+            },
+            {
+              "id": "9.1.3",
+              "beschreibung": "Akute Leukämie"
+            },
+            {
+              "id": "9.1.4",
+              "beschreibung": "Chronische Leukämien"
+            },
+            {
+              "id": "9.1.5",
+              "beschreibung": "Lymphome (Hodgkin, Non-Hodgkin-Lymphome)"
+            },
+            {
+              "id": "9.1.6",
+              "beschreibung": "Myeloproliferative Neoplasien"
+            },
+            {
+              "id": "9.1.7",
+              "beschreibung": "Meylodysplastisches Syndrom"
+            },
+            {
+              "id": "9.1.8",
+              "beschreibung": "Lymphknotenmetastasen"
+            }
+          ]
+        },
+        {
+          "id": "9.2",
+          "beschreibung": "Erkrankungen der Erythrozyten",
+          "teilziele": [
+            {
+              "id": "9.2.1",
+              "beschreibung": "Anämie"
+            }
+          ]
+        },
+        {
+          "id": "9.3",
+          "beschreibung": "Erkrankungen der Leukozyten",
+          "teilziele": [
+            {
+              "id": "9.3.1",
+              "beschreibung": "Leukopenien"
+            },
+            {
+              "id": "9.3.2",
+              "beschreibung": "Leukozytosen"
+            }
+          ]
+        },
+        {
+          "id": "9.4",
+          "beschreibung": "Erkrankungen der Thrombozyten",
+          "teilziele": [
+            {
+              "id": "9.4.1",
+              "beschreibung": "Thrombozytopenie"
+            },
+            {
+              "id": "9.4.2",
+              "beschreibung": "Thrombozytopathie"
+            },
+            {
+              "id": "9.4.3",
+              "beschreibung": "Idiopathische thrombozytopenische Purpura"
+            },
+            {
+              "id": "9.4.4",
+              "beschreibung": "Thrombozytose"
+            }
+          ]
+        },
+        {
+          "id": "9.6",
+          "beschreibung": "Infektionen",
+          "teilziele": [
+            {
+              "id": "9.6.2",
+              "beschreibung": "Epstein-Barr-Virus EBV"
+            },
+            {
+              "id": "9.6.4",
+              "beschreibung": "Herpesinfektionen, Herpes Simplex"
+            },
+            {
+              "id": "9.6.5",
+              "beschreibung": "HIV-1 und HIV-2 (AIDS: Acquired Immune Deficiency Snydrome)"
+            },
+            {
+              "id": "9.6.6",
+              "beschreibung": "Sexuell übertragbare Infektionen"
+            },
+            {
+              "id": "9.6.9",
+              "beschreibung": "Kinderkrankheiten"
+            }
+          ]
+        },
+        {
+          "id": "9.7",
+          "beschreibung": "Immunmediierte Erkrankungen",
+          "teilziele": [
+            {
+              "id": "9.7.3",
+              "beschreibung": "Autoimmunkrankheiten"
+            }
+          ]
+        },
+        {
+          "id": "9.8",
+          "beschreibung": "Lymphsystem",
+          "teilziele": [
+            {
+              "id": "9.8.2",
+              "beschreibung": "Lymphangiom"
+            },
+            {
+              "id": "9.8.3",
+              "beschreibung": "Lymphangitis, Lymphadenitis, Lymphknotenabszess"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "beschreibung": "Hormone und Stoffwechsel",
+      "teilziele": [
+        {
+          "id": "10.1",
+          "beschreibung": "Erkrankungen des endokrinen Pankreas und Störungen der Glucose-Homöostase",
+          "teilziele": [
+            {
+              "id": "10.1.1",
+              "beschreibung": "Diabetes mellitus"
+            },
+            {
+              "id": "10.1.2",
+              "beschreibung": "Begleit- und Folgeerkrankungen von Diabetes mellitus"
+            }
+          ]
+        },
+        {
+          "id": "10.6",
+          "beschreibung": "Defekte des Stoffwechsels- Abbau und Energiegewinnung",
+          "teilziele": [
+            {
+              "id": "10.6.2",
+              "beschreibung": "Störungen des Vitaminstoffwechsels"
+            },
+            {
+              "id": "10.6.2",
+              "beschreibung": "Störungen des Spurenelementsstoffwechsels"
+            }
+          ]
+        },
+        {
+          "id": "10.8",
+          "beschreibung": "Störungen von Wachstum und Pubertät",
+          "teilziele": [
+            {
+              "id": "10.8.1",
+              "beschreibung": "Störungen des Wachstums"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "VIII",
+      "beschreibung": "Übergeordnete Kompetenzen",
+      "teilziele": [
+        {
+          "id": "VIII.2",
+          "beschreibung": "Zahnärztliche Gesprächsführung",
+          "teilziele": [
+            {
+              "id": "VIII.2.5",
+              "beschreibung": "Soziodemografische und sozioökonomische Einflussfaktoren",
+              "teilziele": [
+                {
+                  "id": "VIII.2.5.4",
+                  "beschreibung": "Umgang mit Wahrnehmungs- und Kommunikationsstörungen",
+                  "teilziele": [
+                    {
+                      "id": "VIII.2.5.4.1",
+                      "beschreibung": "Wahrnehmungs- und Kommunikationsstörung"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "VIII.3",
+          "beschreibung": "Interprofessionelle Kompetenzen",
+          "teilziele": [
+            {
+              "id": "VIII.3.2",
+              "beschreibung": "Zusammenarbeit unterschiedlicher Gesundheitsberufe",
+              "teilziele": [
+                {
+                  "id": "VIII.3.2.2",
+                  "beschreibung": "Zusammenarbeit mit verschiedenen zahnärztlichen und ärztlichen Disziplinen",
+                  "teilziele": [
+                    {
+                      "id": "VIII.3.2.2.2",
+                      "beschreibung": "Bedeutung der Zusammenarbeit von Zahnarzt / -innen, Hausarzt / -innen und Fachazt / -innen"
+                    },
+                    {
+                      "id": "VIII.3.2.2.3",
+                      "beschreibung": "Aufgabenbereiche und Expertisen der für die Patientenversorgung in der Praxis relevanten zahnärztlichen und ärztlichen Fachdisziplinen"
+                    },
+                    {
+                      "id": "VIII.3.2.2.4",
+                      "beschreibung": "Notwendigkeit der Konsultation mit behandelnden Allgemein- oder Fachärzten und -innen"
+                    },
+                    {
+                      "id": "VIII.3.2.2.5",
+                      "beschreibung": "Aufklärung von Humanmedizinern und Humanmedizinerinnen über die spezifische Situation der Patientinnen und Patienten und die potentiellen Implikationen der geplanten zahnärztlichen Maßnahmen auf deren Allgemeingesundheit"
+                    }
+                  ]
+                },
+                {
+                  "id": "VIII.3.2.3",
+                  "beschreibung": "Zusammenarbeit mit anderen Gesundheitsberufen",
+                  "teilziele": [
+                    {
+                      "id": "VIII.3.2.3.3",
+                      "beschreibung": "Einholen B ehandlungsrelevanter Informationen zu individuellen biopsychosozialen Situation der behandelten Person"
+                    },
+                    {
+                      "id": "VIII.3.2.3.5",
+                      "beschreibung": "Teilhabeorientiertes Vorgehen unter Einschluss der multidisziplinären und interprofessionellen Problemerkennung und Arbeitsweise"
+                    },
+                    {
+                      "id": "VIII.3.2.3.6",
+                      "beschreibung": "Ausarbeiten eines Plans zum Teilhabemanagement (Interprofessionell und mit Betroffenen und gegebenenfalls Angehörigen und gesetzlichen Vertreterinnen und Vertreter)"
+                    },
+                    {
+                      "id": "VIII.3.2.3.8",
+                      "beschreibung": "Anpassen der Zusammenstellung der an Gesundheitsförderung, Prävention, Kuration, Rehabilitation und Palliation beteiligten, Gesundheitsberufe an entwicklungs-, alters- und geschlechtsspezifischen Unterschiede"
+                    },
+                    {
+                      "id": "VIII.3.2.3.9",
+                      "beschreibung": "Aspekte der interprofessionellen Gesundheitsvorsorge und Versorgung bei Kindern und Erwachsenen mit geistiger oder mehrfacher Behinderung"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "VIII.4",
+          "beschreibung": "Gesundheitsberatung, – Förderung und Prävention",
+          "teilziele": [
+            {
+              "id": "VIII.4.5",
+              "beschreibung": "Gesundheitsförderung und Prävention",
+              "teilziele": [
+                {
+                  "id": "VIII.4.5.2",
+                  "beschreibung": "Erkennen und erfassen des Gesundheitszustandes als Ganzes, des mundbezogenen Gesundheitszustandes und des Lebensstil",
+                  "teilziele": [
+                    {
+                      "id": "VIII.4.5.2.4",
+                      "beschreibung": "Einfluss von Mitarbeit, auch von Angehörigen /Pflegepersonal auf die Mundgesundheit"
+                    },
+                    {
+                      "id": "VIII.4.5.2.5",
+                      "beschreibung": "Auswirkungen und Einfluss von Allgemeinerkrankungen oder allgemeine medizinische Veränderungen sowie Auswirkungen der Therapie von Allgemeinerkrankungen"
+                    },
+                    {
+                      "id": "VIII.4.5.2.6",
+                      "beschreibung": "Individuelles, orales Erkrankungsrisiko, Risiko für das fortschreiten oraler Erkrankungen"
+                    }
+                  ]
+                },
+                {
+                  "id": "VIII.4.5.7",
+                  "beschreibung": "Behinderung und Gesundheit"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -52,33 +52,32 @@
                 </div>
             {% elif stand.fehler %}
                 <div class="meldung fehler">Der Vergleich ist abgebrochen: {{ stand.fehler }}</div>
-            {% elif folien %}
+            {% elif ziele %}
                 <div class="kopfzeile">
                     <h2>Ergebnis des letzten Vergleichs</h2>
                     <a class="btn" href="{{ url_for('excel') }}">Excel herunterladen</a>
                 </div>
-                {% if grafik %}
-                    <div class="card">
-                        <h3>Anzahl pro Lernziel</h3>
-                        <img class="grafik"
-                             src="{{ url_for('grafik') }}"
-                             alt="Balkendiagramm mit der Anzahl der Folien je Lernziel">
-                    </div>
-                {% endif %}
                 <div class="card">
-                    <h3>Zuordnung der Lernziele zu den Folien</h3>
+                    <h3>Lernziele in der Vorlesung</h3>
+                    <p class="muted">
+                        {{ ziele|selectattr('beinhaltet', 'equalto', 'JA')|list|length }} von {{ ziele|length }} Lernzielen sind in der Vorlesung enthalten.
+                    </p>
                     <table>
                         <thead>
                             <tr>
-                                <th>Folie</th>
-                                <th>Lernziele</th>
+                                <th>Lernziel</th>
+                                <th>Enthalten</th>
+                                <th>Beschreibung</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for folie in folien %}
+                            {% for ziel in ziele %}
                                 <tr>
-                                    <td class="folie">{{ folie["folien-nr"] }}</td>
-                                    <td>{{ folie["Zuordnung"]|map("trim")|select|join(", ") }}</td>
+                                    <td class="nummer">{{ ziel["id"] }}</td>
+                                    <td>
+                                        <span class="antwort{% if ziel["beinhaltet"] == "JA" %} ja{% elif ziel["beinhaltet"] == "NEIN" %} nein{% endif %}">{{ ziel["beinhaltet"] or "keine Antwort" }}</span>
+                                    </td>
+                                    <td>{{ ziel["beschreibung"] }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
