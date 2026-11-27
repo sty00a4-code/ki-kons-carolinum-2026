@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from .. import audit
 from ..database import get_db
+from ..pagination import Page, fetch_page, order_clause, page_params
 from ..schemas import (
     PatientCase,
     PatientCaseIn,
@@ -15,10 +19,12 @@ from ..schemas import (
     TreatmentCaseOut,
     TreatmentProgress,
 )
-from ..security import require_write_key
+from ..security import User, admin_only, staff
 from .treatment_cases import _SELECT as _SELECT_TREATMENT_CASES
 
-router = APIRouter(prefix="/patients", tags=["patients"])
+# Patientendaten sind sensibel: lesen dürfen Lehrende und Admins (Studierende
+# nicht), ändern nur Admins (Planung).
+router = APIRouter(prefix="/patients", tags=["patients"], dependencies=[Depends(staff)])
 
 # Der Scalar-Subquery holt je patient_case die zeitlich letzte Behandlung
 # (nach treatment_date, dann id), falls es mehrere gibt. treated ist einfach
@@ -46,18 +52,38 @@ _SELECT_CASES = """
     join categories as c on cl.category_id = c.id
     left join treatment_cases as t on t.id = (
         select tc2.id from treatment_cases as tc2
-        where tc2.patient_case_id = pc.id
+        where tc2.patient_case_id = pc.id and tc2.deleted_at is null
         order by tc2.treatment_date desc, tc2.id desc
         limit 1
     )
 """
 
 
+_PATIENT_SORT = {
+    "id": "p.id",
+    "pseudonym": "p.pseudonym",
+    "age": "p.age",
+    "case_count": "count(pc.id)",
+}
+
+
 @router.get("", response_model=list[PatientOut])
-def list_patients(db: Session = Depends(get_db)):
-    """Alle Patienten, auch ohne geplante Fälle (left join)."""
-    query = text(
-        """
+def list_patients(
+    response: Response,
+    search: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
+    sort: str | None = None,
+    order: Annotated[str, Query(pattern="^(asc|desc)$")] = "asc",
+    page: Page = Depends(page_params),
+    db: Session = Depends(get_db),
+):
+    """Alle Patienten, auch ohne geplante Fälle (left join). ?search= sucht in
+    Pseudonym und Name (Teilstring, ohne Groß-/Kleinschreibung); sort: id,
+    pseudonym, age, case_count; Gesamtzahl im Header X-Total-Count."""
+    ordering = order_clause(sort, order, _PATIENT_SORT, default="p.id")
+    rows = fetch_page(
+        db,
+        response,
+        f"""
         select
             p.id,
             p.name,
@@ -67,24 +93,31 @@ def list_patients(db: Session = Depends(get_db)):
             count(pc.id) as case_count
         from patients as p
         left join patient_cases as pc on pc.patient_id = p.id
+        where (:pattern is null
+               or p.pseudonym like :pattern or p.name like :pattern)
         group by p.id
-        order by p.id;
-        """
+        order by {ordering}
+        """,
+        {"pattern": f"%{search}%" if search else None},
+        page,
     )
-    rows = db.execute(query).mappings()
     return [PatientOut.model_validate(r) for r in rows]
 
 
 @router.get("/open-cases", response_model=list[PatientCase])
 def list_open_cases(
+    response: Response,
     class_id: int | None = None,
     category_id: int | None = None,
+    page: Page = Depends(page_params),
     db: Session = Depends(get_db),
 ):
     """Alle noch nicht behandelten geplanten Fälle über alle Patienten -
     die Arbeitsliste, was im Kurs noch an Behandlungen offen ist. Filterbar
     nach Klasse und/oder Kategorie."""
-    query = text(
+    rows = fetch_page(
+        db,
+        response,
         """
         select
             pc.id,
@@ -107,16 +140,16 @@ def list_open_cases(
         join classes as cl on pc.class_id = cl.id
         join categories as c on cl.category_id = c.id
         where not exists (
-                select 1 from treatment_cases as tc where tc.patient_case_id = pc.id
+                select 1 from treatment_cases as tc
+                where tc.patient_case_id = pc.id and tc.deleted_at is null
             )
           and (:class_id is null or pc.class_id = :class_id)
           and (:category_id is null or c.id = :category_id)
-        order by p.id, c.id, cl.id, pc.id;
-        """
+        order by p.id, c.id, cl.id, pc.id
+        """,
+        {"class_id": class_id, "category_id": category_id},
+        page,
     )
-    rows = db.execute(
-        query, {"class_id": class_id, "category_id": category_id}
-    ).mappings()
     return [PatientCase.model_validate(r) for r in rows]
 
 
@@ -171,7 +204,7 @@ def get_patient_cases(
         join categories as c on cl.category_id = c.id
         left join treatment_cases as t on t.id = (
             select tc2.id from treatment_cases as tc2
-            where tc2.patient_case_id = pc.id
+            where tc2.patient_case_id = pc.id and tc2.deleted_at is null
             order by tc2.treatment_date desc, tc2.id desc
             limit 1
         )
@@ -215,7 +248,7 @@ def get_treatment_progress(patient_id: int, db: Session = Depends(get_db)):
             left join patient_cases as pc on pc.patient_id = p.id
             left join treatment_cases as t on t.id = (
                 select tc2.id from treatment_cases as tc2
-                where tc2.patient_case_id = pc.id
+                where tc2.patient_case_id = pc.id and tc2.deleted_at is null
                 order by tc2.treatment_date desc, tc2.id desc
                 limit 1
             )
@@ -242,7 +275,8 @@ def get_patient_treatments(patient_id: int, db: Session = Depends(get_db)):
     _require_patient(patient_id, db)
     query = text(
         _SELECT_TREATMENT_CASES
-        + " where tc.patient_id = :patient_id order by tc.treatment_date, tc.id;"
+        + " where tc.patient_id = :patient_id and tc.deleted_at is null"
+        + " order by tc.treatment_date, tc.id;"
     )
     rows = db.execute(query, {"patient_id": patient_id}).mappings()
     return [TreatmentCaseOut.model_validate(r) for r in rows]
@@ -302,13 +336,12 @@ def _load_case(patient_id: int, case_id: int, db: Session) -> PatientCaseOut:
     return PatientCaseOut.model_validate(row)
 
 
-@router.post(
-    "",
-    response_model=PatientDetail,
-    status_code=201,
-    dependencies=[Depends(require_write_key)],
-)
-def create_patient(payload: PatientIn, db: Session = Depends(get_db)):
+@router.post("", response_model=PatientDetail, status_code=201)
+def create_patient(
+    payload: PatientIn,
+    user: User = Depends(admin_only),
+    db: Session = Depends(get_db),
+):
     _check_pseudonym(payload.pseudonym, None, db)
     insert = text(
         """
@@ -317,22 +350,27 @@ def create_patient(payload: PatientIn, db: Session = Depends(get_db)):
         """
     )
     result = db.execute(insert, payload.model_dump())
+    audit.record(
+        db, user, "create", "patient", result.lastrowid, after=payload.model_dump()
+    )
     db.commit()
     return get_patient(result.lastrowid, db)
 
 
-@router.patch(
-    "/{patient_id}",
-    response_model=PatientDetail,
-    dependencies=[Depends(require_write_key)],
-)
+@router.patch("/{patient_id}", response_model=PatientDetail)
 def update_patient(
-    patient_id: int, payload: PatientUpdate, db: Session = Depends(get_db)
+    patient_id: int,
+    payload: PatientUpdate,
+    user: User = Depends(admin_only),
+    db: Session = Depends(get_db),
 ):
     """Nur gesendete Felder werden geschrieben, ein gesendetes null löscht den Wert."""
     current = (
         db.execute(
-            text("select name, pseudonym from patients where id = :patient_id"),
+            text(
+                "select name, pseudonym, age, category from patients "
+                "where id = :patient_id"
+            ),
             {"patient_id": patient_id},
         )
         .mappings()
@@ -353,19 +391,42 @@ def update_patient(
             text(f"update patients set {set_clause} where id = :patient_id"),
             {**changes, "patient_id": patient_id},
         )
+        audit.record(
+            db,
+            user,
+            "update",
+            "patient",
+            patient_id,
+            before={k: current[k] for k in changes},
+            after=changes,
+        )
         db.commit()
     return get_patient(patient_id, db)
 
 
-@router.delete(
-    "/{patient_id}",
-    status_code=204,
-    dependencies=[Depends(require_write_key)],
-)
-def delete_patient(patient_id: int, db: Session = Depends(get_db)):
+@router.delete("/{patient_id}", status_code=204)
+def delete_patient(
+    patient_id: int,
+    user: User = Depends(admin_only),
+    db: Session = Depends(get_db),
+):
     """Löscht Zuordnung, geplante Fälle und den Patienten. Behandlungsfälle
-    bleiben Bestand: hängen welche am Patienten, antwortet die API mit 409."""
-    _require_patient(patient_id, db)
+    bleiben Bestand: hängen welche am Patienten, antwortet die API mit 409.
+    Das gilt auch für per Soft Delete entfernte Behandlungen: die Historie
+    eines Patienten wird nicht verwaist."""
+    before = (
+        db.execute(
+            text(
+                "select id, name, pseudonym, age, category from patients "
+                "where id = :patient_id"
+            ),
+            {"patient_id": patient_id},
+        )
+        .mappings()
+        .first()
+    )
+    if before is None:
+        raise HTTPException(status_code=404, detail="Patient nicht gefunden")
     count = db.execute(
         text("select count(*) from treatment_cases where patient_id = :patient_id"),
         {"patient_id": patient_id},
@@ -384,18 +445,17 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db)):
     db.execute(
         text("delete from patients where id = :patient_id"), {"patient_id": patient_id}
     )
+    audit.record(db, user, "delete", "patient", patient_id, before=before)
     db.commit()
     return Response(status_code=204)
 
 
-@router.post(
-    "/{patient_id}/cases",
-    response_model=PatientCaseOut,
-    status_code=201,
-    dependencies=[Depends(require_write_key)],
-)
+@router.post("/{patient_id}/cases", response_model=PatientCaseOut, status_code=201)
 def create_patient_case(
-    patient_id: int, payload: PatientCaseIn, db: Session = Depends(get_db)
+    patient_id: int,
+    payload: PatientCaseIn,
+    user: User = Depends(admin_only),
+    db: Session = Depends(get_db),
 ):
     _require_patient(patient_id, db)
     _check_class_id(payload.class_id, db)
@@ -409,24 +469,23 @@ def create_patient_case(
              :difficulty, :expected_dur_min)
         """
     )
-    result = db.execute(insert, {**payload.model_dump(), "patient_id": patient_id})
+    values = {**payload.model_dump(), "patient_id": patient_id}
+    result = db.execute(insert, values)
+    audit.record(db, user, "create", "patient_case", result.lastrowid, after=values)
     db.commit()
     return _load_case(patient_id, result.lastrowid, db)
 
 
-@router.patch(
-    "/{patient_id}/cases/{case_id}",
-    response_model=PatientCaseOut,
-    dependencies=[Depends(require_write_key)],
-)
+@router.patch("/{patient_id}/cases/{case_id}", response_model=PatientCaseOut)
 def update_patient_case(
     patient_id: int,
     case_id: int,
     payload: PatientCaseUpdate,
+    user: User = Depends(admin_only),
     db: Session = Depends(get_db),
 ):
     """404, wenn der Fall nicht zu diesem Patienten gehört."""
-    _load_case(patient_id, case_id, db)
+    existing = _load_case(patient_id, case_id, db)
     changes = payload.model_dump(exclude_unset=True)
     if "class_id" in changes:
         _check_class_id(changes["class_id"], db)
@@ -436,22 +495,35 @@ def update_patient_case(
             text(f"update patient_cases set {set_clause} where id = :case_id"),
             {**changes, "case_id": case_id},
         )
+        audit.record(
+            db,
+            user,
+            "update",
+            "patient_case",
+            case_id,
+            before={k: getattr(existing, k) for k in changes},
+            after=changes,
+        )
         db.commit()
     return _load_case(patient_id, case_id, db)
 
 
-@router.delete(
-    "/{patient_id}/cases/{case_id}",
-    status_code=204,
-    dependencies=[Depends(require_write_key)],
-)
-def delete_patient_case(patient_id: int, case_id: int, db: Session = Depends(get_db)):
+@router.delete("/{patient_id}/cases/{case_id}", status_code=204)
+def delete_patient_case(
+    patient_id: int,
+    case_id: int,
+    user: User = Depends(admin_only),
+    db: Session = Depends(get_db),
+):
     """409, wenn der Fall schon behandelt wurde: die Behandlungen verweisen per
     patient_case_id darauf. Erst die Behandlung löschen oder die Verknüpfung
     lösen (PATCH /treatment-cases/{id} mit patient_case_id=null)."""
-    _load_case(patient_id, case_id, db)
+    before = _load_case(patient_id, case_id, db)
     count = db.execute(
-        text("select count(*) from treatment_cases where patient_case_id = :case_id"),
+        text(
+            "select count(*) from treatment_cases "
+            "where patient_case_id = :case_id and deleted_at is null"
+        ),
         {"case_id": case_id},
     ).scalar()
     if count:
@@ -462,8 +534,21 @@ def delete_patient_case(patient_id: int, case_id: int, db: Session = Depends(get
                 "werden. Erst die Behandlung(en) löschen oder die Verknüpfung lösen."
             ),
         )
+    # Per Soft Delete entfernte Behandlungen behalten ihren Datensatz, aber nicht
+    # mehr den Verweis, sonst verletzt das Löschen den Fremdschlüssel. Der alte
+    # Verweis steht im Audit-Log der Behandlung (before.patient_case_id).
+    db.execute(
+        text(
+            "update treatment_cases set patient_case_id = null "
+            "where patient_case_id = :case_id and deleted_at is not null"
+        ),
+        {"case_id": case_id},
+    )
     db.execute(
         text("delete from patient_cases where id = :case_id"), {"case_id": case_id}
+    )
+    audit.record(
+        db, user, "delete", "patient_case", case_id, before=before.model_dump()
     )
     db.commit()
     return Response(status_code=204)

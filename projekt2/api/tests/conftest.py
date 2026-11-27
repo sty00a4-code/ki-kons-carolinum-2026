@@ -19,7 +19,14 @@ _TEMPLATE = _TMP / "template.db"
 _LIVE = _TMP / "live.db"
 
 os.environ["PROJEKT2_DB"] = str(_LIVE)
-os.environ.pop("PROJEKT2_API_KEY", None)
+for _name in (
+    "PROJEKT2_API_KEY",
+    "PROJEKT2_JWT_SECRET",
+    "PROJEKT2_ENV",
+    "PROJEKT2_CORS_ORIGINS",
+    "PROJEKT2_AUTO_MIGRATE",
+):
+    os.environ.pop(_name, None)
 
 _conn = sqlite3.connect(_TEMPLATE)
 _conn.executescript((PROJECT / "leistungen.sql").read_text(encoding="utf-8"))
@@ -42,6 +49,9 @@ def client():
 
     from app.main import app
 
+    from app.throttle import login_throttle
+
+    login_throttle._failures.clear()
     _reset_live_db()
     with TestClient(app) as test_client:
         yield test_client

@@ -3,27 +3,36 @@
 Struktur: Trajektorie aus der DB bauen -> an ein LLM schicken -> Ergebnis
 persistieren -> abrufbar machen. Den LLM-Client gibt die Umgebungsvariable
 LLM_CLI vor (Pfad oder Name eines Kommandos im PATH), LLM_MODEL optional das
-Modell. Ist LLM_CLI nicht gesetzt, liefert die Analyse den Platzhalter. Der
-Trigger ist synchron und dauert mit LLM-Client 10 bis 30 Sekunden.
+Modell. Ist LLM_CLI nicht gesetzt, liefert die Analyse den Platzhalter.
+
+Asynchroner Vertrag: POST /analysis/jobs antwortet sofort mit 202 und einer
+job_id, die Analyse läuft danach im Hintergrund, der Zustand steht in der
+Tabelle analysis_jobs und wird über GET /analysis/jobs/{job_id} abgefragt
+(queued -> running -> completed | failed, plus progress 0 bis 1).
+
+Grenze: Der Hintergrundlauf nutzt FastAPI-BackgroundTasks, also den eigenen
+Prozess. Der Job-STATUS überlebt einen Neustart, die laufende Arbeit nicht:
+beim Start werden unfertige Jobs als failed markiert. Für echte
+Ausfallsicherheit und mehrere Worker kommt später eine Task-Queue (RQ/Celery);
+der HTTP-Vertrag bleibt dabei gleich.
 """
 
 import json
 import os
 import subprocess
-import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from .. import audit, database
 from ..database import get_db
+from ..repositories import jobs
+from ..schemas import JobCreate, JobCreated, JobOut
+from ..security import User, any_user, ensure_student_access, staff
 from ..services import assignment_service
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
-
-# Platzhalter-Speicher für Job-Status. Für den Uni-Server durch eine echte
-# Tabelle (z.B. analysis_jobs) oder einen Task-Queue-Status (Celery/RQ) ersetzen.
-_JOBS: dict[str, dict] = {}
 
 
 def build_learning_trajectory(student_id: int, db: Session) -> dict:
@@ -106,25 +115,90 @@ def call_llm_for_insights(trajectory: dict) -> dict:
     }
 
 
-@router.post("/students/{student_id}/trigger")
-def trigger_learning_analysis(student_id: int, db: Session = Depends(get_db)):
-    trajectory = build_learning_trajectory(student_id, db)
-    insight = call_llm_for_insights(trajectory)
+def run_job(job_id: str) -> None:
+    """Führt einen Analyse-Job aus. Läuft im Hintergrund mit einer EIGENEN
+    Session (die des Requests ist dann schon geschlossen) und schreibt Status
+    und Fortschritt nach jedem Schritt, damit GET /jobs/{id} ihn sieht."""
+    db = database.SessionLocal()
+    try:
+        job = jobs.get(db, job_id)
+        if job is None:
+            return
+        jobs.mark_running(db, job_id)
+        db.commit()
+        trajectory = build_learning_trajectory(job["student_id"], db)
+        jobs.set_progress(db, job_id, 0.4)
+        db.commit()
+        insight = call_llm_for_insights(trajectory)
+        jobs.complete(db, job_id, insight)
+        db.commit()
+    except Exception as error:  # noqa: BLE001 - jeder Fehler wird am Job vermerkt
+        db.rollback()
+        jobs.fail(db, job_id, f"{type(error).__name__}: {error}")
+        db.commit()
+    finally:
+        db.close()
 
-    job_id = str(uuid.uuid4())
-    _JOBS[job_id] = {"status": "done", "student_id": student_id, "result": insight}
-    return {"job_id": job_id, "status": "done"}
+
+def _require_student(student_id: int, db: Session) -> None:
+    row = db.execute(
+        text("select 1 from students where id = :id"), {"id": student_id}
+    ).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Student nicht gefunden")
 
 
-@router.get("/jobs/{job_id}")
-def get_analysis_status(job_id: str):
-    job = _JOBS.get(job_id)
+@router.post("/jobs", response_model=JobCreated, status_code=202)
+def create_analysis_job(
+    payload: JobCreate,
+    background: BackgroundTasks,
+    user: User = Depends(staff),
+    db: Session = Depends(get_db),
+):
+    """Legt einen Analyse-Job an und antwortet sofort mit 202. Den Stand holt
+    man über GET /analysis/jobs/{job_id}. 404 bei unbekanntem Studenten."""
+    _require_student(payload.student_id, db)
+    job_id = jobs.create(db, payload.student_id, user.username)
+    audit.record(
+        db, user, "create", "analysis_job", job_id, after={"student_id": payload.student_id}
+    )
+    db.commit()
+    background.add_task(run_job, job_id)
+    return JobCreated(job_id=job_id)
+
+
+@router.get("/jobs/{job_id}", response_model=JobOut)
+def get_analysis_job(
+    job_id: str, user: User = Depends(any_user), db: Session = Depends(get_db)
+):
+    """Status und, sobald fertig, das Ergebnis. Studierende sehen nur Jobs,
+    die sie selbst betreffen."""
+    job = jobs.get(db, job_id)
     if job is None:
         raise HTTPException(status_code=404, detail="Job nicht gefunden")
-    return job
+    if job["student_id"] is not None:
+        ensure_student_access(user, job["student_id"])
+    return JobOut.model_validate(job)
 
 
-@router.get("/students/{student_id}/patient-recommendations")
+@router.post("/students/{student_id}/trigger", deprecated=True)
+def trigger_learning_analysis(
+    student_id: int, user: User = Depends(staff), db: Session = Depends(get_db)
+):
+    """VERALTET, stattdessen POST /analysis/jobs. Läuft wie bisher synchron
+    (Antwort erst, wenn der Job fertig ist), speichert den Job aber jetzt in
+    der Datenbank. status ist wie beim neuen Vertrag completed oder failed
+    (früher: done)."""
+    _require_student(student_id, db)
+    job_id = jobs.create(db, student_id, user.username)
+    db.commit()
+    run_job(job_id)
+    return {"job_id": job_id, "status": jobs.get(db, job_id)["status"]}
+
+
+@router.get(
+    "/students/{student_id}/patient-recommendations", dependencies=[Depends(staff)]
+)
 def get_patient_recommendations(
     student_id: int, limit: int = 5, db: Session = Depends(get_db)
 ):
@@ -135,7 +209,7 @@ def get_patient_recommendations(
     return assignment_service.rank_patients_for_student(student_id, db, limit=limit)
 
 
-@router.get("/patient-matching")
+@router.get("/patient-matching", dependencies=[Depends(staff)])
 def get_patient_matching(db: Session = Depends(get_db)):
     """Zuordnung ALLER Patienten zu Studenten: jeder Patient wird höchstens
     einem Studenten zugewiesen, gewählt danach, wo er den größten Beitrag zur

@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..schemas import OsceResult
+from ..security import User, any_user, scoped_student_id
+from ..semester import SEMESTER_PATTERN
 
 router = APIRouter(prefix="/osce", tags=["osce"])
 
@@ -11,9 +15,12 @@ router = APIRouter(prefix="/osce", tags=["osce"])
 @router.get("/results", response_model=list[OsceResult])
 def list_osce_results(
     student_id: int | None = None,
-    semester: str | None = None,
+    semester: Annotated[str | None, Query(pattern=SEMESTER_PATTERN)] = None,
+    user: User = Depends(any_user),
     db: Session = Depends(get_db),
 ):
+    """Studierende sehen nur ihre eigenen Ergebnisse."""
+    student_id = scoped_student_id(user, student_id)
     query = text(
         """
         select

@@ -13,10 +13,15 @@ werden, ohne dass sich an rank_patients_for_student / suggest_global_matching
 etwas ändern muss.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
+# Kennung der Bewertungslogik. Jede fachliche Änderung am Score (z.B. der
+# Wechsel von Klassen auf Kompetenzen) bekommt eine neue Version, damit sich
+# gespeicherte oder angezeigte Empfehlungen zuordnen lassen.
+ALGORITHM_VERSION = "class-match-v1"
 
 
 @dataclass
@@ -165,6 +170,9 @@ def score_patient_for_deficits(
                 "covered_points": round(covered_points, 2),
                 "covered_count": covered_count,
                 "available_cases": contrib.case_count,
+                # Erklärung: wie groß die Lücke VOR diesem Patienten war.
+                "deficit_points_before": round(deficit.deficit_points, 2),
+                "deficit_count_before": deficit.deficit_count,
             }
         )
 
@@ -197,6 +205,7 @@ def rank_patients_for_student(
                 "patient_id": patient_id,
                 "patient_name": names[patient_id],
                 "score": round(score, 2),
+                "algorithm_version": ALGORITHM_VERSION,
                 "matched_classes": matched_classes,
             }
         )
@@ -251,6 +260,7 @@ def suggest_global_matching(db: Session) -> dict:
                 "patient_id": pid,
                 "patient_name": patient_names[pid],
                 "score": round(score, 2),
+                "algorithm_version": ALGORITHM_VERSION,
                 "matched_classes": matched_classes,
             }
         )
@@ -270,6 +280,7 @@ def suggest_global_matching(db: Session) -> dict:
 
     unmatched = sorted(unassigned_patients)
     return {
+        "algorithm_version": ALGORITHM_VERSION,
         "assignments": assignments,
         "unmatched_patients": [
             {"patient_id": pid, "patient_name": patient_names[pid]} for pid in unmatched

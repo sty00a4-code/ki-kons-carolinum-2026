@@ -1,11 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from datetime import date
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import ValidationError
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from .. import audit
 from ..database import get_db
+from ..pagination import Page, fetch_page, order_clause, page_params
 from ..schemas import TreatmentCaseIn, TreatmentCaseOut, TreatmentCaseUpdate
-from ..security import require_write_key
+from ..security import User, any_user, ensure_student_access, require_roles, scoped_student_id
+from ..semester import SEMESTER_PATTERN
+
+# Erfassen, korrigieren, löschen: Lehrende und Admins.
+_writer = require_roles("teacher", "admin")
 
 router = APIRouter(prefix="/treatment-cases", tags=["treatment-cases"])
 
@@ -34,39 +43,79 @@ _SELECT = """
 """
 
 
+_SORTABLE = {
+    "treatment_date": "tc.treatment_date",
+    "semester": "tc.semester",
+    "student_id": "tc.student_id",
+    "id": "tc.id",
+}
+
+
 @router.get("", response_model=list[TreatmentCaseOut])
 def list_treatment_cases(
+    response: Response,
     student_id: int | None = None,
     patient_id: int | None = None,
-    semester: str | None = None,
+    semester: Annotated[str | None, Query(pattern=SEMESTER_PATTERN)] = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    sort: str | None = None,
+    order: Annotated[str, Query(pattern="^(asc|desc)$")] = "asc",
+    page: Page = Depends(page_params),
+    user: User = Depends(any_user),
     db: Session = Depends(get_db),
 ):
-    """Behandlungshistorie, wahlweise nach Student:in und/oder Patient:in
-    gefiltert - über ?patient_id= lassen sich alle bisherigen Behandlungen
-    eines bestimmten Patienten nachvollziehen (chronologisch sortiert)."""
-    query = text(
+    """Behandlungshistorie, wahlweise nach Student:in, Patient:in, Semester
+    und Behandlungsdatum (date_from/date_to, einschließlich) gefiltert. Ohne
+    sort chronologisch. sort: treatment_date, semester, student_id, id.
+    Studierende sehen nur ihre eigenen Behandlungen. Gelöschte (soft delete)
+    erscheinen nicht."""
+    student_id = scoped_student_id(user, student_id)
+    ordering = order_clause(
+        sort, order, _SORTABLE, default="tc.treatment_date, tc.id"
+    )
+    rows = fetch_page(
+        db,
+        response,
         _SELECT
-        + """
-        where (:student_id is null or tc.student_id = :student_id)
+        + f"""
+        where tc.deleted_at is null
+          and (:student_id is null or tc.student_id = :student_id)
           and (:patient_id is null or tc.patient_id = :patient_id)
           and (:semester is null or tc.semester = :semester)
-        order by tc.treatment_date, tc.id;
-        """
+          and (:date_from is null or tc.treatment_date >= :date_from)
+          and (:date_to is null or tc.treatment_date <= :date_to)
+        order by {ordering}
+        """,
+        {
+            "student_id": student_id,
+            "patient_id": patient_id,
+            "semester": semester,
+            "date_from": date_from.isoformat() if date_from else None,
+            "date_to": date_to.isoformat() if date_to else None,
+        },
+        page,
     )
-    rows = db.execute(
-        query,
-        {"student_id": student_id, "patient_id": patient_id, "semester": semester},
-    ).mappings()
     return [TreatmentCaseOut.model_validate(r) for r in rows]
 
 
-@router.get("/{case_id}", response_model=TreatmentCaseOut)
-def get_treatment_case(case_id: int, db: Session = Depends(get_db)):
-    query = text(_SELECT + " where tc.id = :case_id")
+def _load_case(case_id: int, db: Session) -> TreatmentCaseOut:
+    query = text(_SELECT + " where tc.id = :case_id and tc.deleted_at is null")
     row = db.execute(query, {"case_id": case_id}).mappings().first()
     if row is None:
         raise HTTPException(status_code=404, detail="Behandlungsfall nicht gefunden")
     return TreatmentCaseOut.model_validate(row)
+
+
+@router.get("/{case_id}", response_model=TreatmentCaseOut)
+def get_treatment_case(
+    case_id: int,
+    user: User = Depends(any_user),
+    db: Session = Depends(get_db),
+):
+    case = _load_case(case_id, db)
+    ensure_student_access(user, case.student_id)
+    return case
 
 
 def _check_references(payload: TreatmentCaseIn, db: Session) -> int | None:
@@ -117,15 +166,13 @@ def _check_references(payload: TreatmentCaseIn, db: Session) -> int | None:
     return case_row["patient_id"]
 
 
-@router.post(
-    "",
-    response_model=TreatmentCaseOut,
-    status_code=201,
-    dependencies=[Depends(require_write_key)],
-)
-def create_treatment_case(payload: TreatmentCaseIn, db: Session = Depends(get_db)):
-    """Schreib-Endpoint. X-API-Key schützt ihn, sobald PROJEKT2_API_KEY gesetzt
-    ist; Rollen (nur Lehrende) folgen später.
+@router.post("", response_model=TreatmentCaseOut, status_code=201)
+def create_treatment_case(
+    payload: TreatmentCaseIn,
+    user: User = Depends(_writer),
+    db: Session = Depends(get_db),
+):
+    """Schreib-Endpoint für Lehrende und Admins.
 
     Wird patient_case_id mitgeschickt, gilt der referenzierte geplante Fall
     (patient_cases) ab sofort als behandelt - sichtbar über
@@ -144,12 +191,12 @@ def create_treatment_case(payload: TreatmentCaseIn, db: Session = Depends(get_db
              :setting, :treatment_date, :notes)
         """
     )
-    result = db.execute(
-        insert, {**payload.model_dump(), "patient_id": resolved_patient_id}
-    )
-    db.commit()
+    values = {**payload.model_dump(), "patient_id": resolved_patient_id}
+    result = db.execute(insert, values)
     new_id = result.lastrowid
-    return get_treatment_case(new_id, db)
+    audit.record(db, user, "create", "treatment_case", new_id, after=values)
+    db.commit()
+    return _load_case(new_id, db)
 
 
 _COLUMNS = (
@@ -159,23 +206,27 @@ _COLUMNS = (
 )
 
 
-@router.patch(
-    "/{case_id}",
-    response_model=TreatmentCaseOut,
-    dependencies=[Depends(require_write_key)],
-)
+@router.patch("/{case_id}", response_model=TreatmentCaseOut)
 def update_treatment_case(
-    case_id: int, payload: TreatmentCaseUpdate, db: Session = Depends(get_db)
+    case_id: int,
+    payload: TreatmentCaseUpdate,
+    user: User = Depends(_writer),
+    db: Session = Depends(get_db),
 ):
     """Korrigiert einen Behandlungsfall; nur gesendete Felder ändern sich.
 
     patient_case_id=null löst die Verknüpfung zum geplanten Fall (der gilt
     dann wieder als offen). Wird nur patient_case_id gesetzt, übernimmt die
     API den Patienten vom Fall; sind patient_id und patient_case_id danach
-    nicht stimmig, antwortet sie mit 422 wie beim Anlegen."""
+    nicht stimmig, antwortet sie mit 422 wie beim Anlegen.
+
+    Jede Korrektur steht mit Vorher/Nachher im Audit-Log (GET /audit-log)."""
     existing = (
         db.execute(
-            text(f"select {_COLUMNS} from treatment_cases where id = :id"),
+            text(
+                f"select {_COLUMNS} from treatment_cases "
+                "where id = :id and deleted_at is null"
+            ),
             {"id": case_id},
         )
         .mappings()
@@ -189,7 +240,7 @@ def update_treatment_case(
         if field in changes and changes[field] is None:
             raise HTTPException(status_code=422, detail=f"{field} darf nicht null sein")
     if not changes:
-        return get_treatment_case(case_id, db)
+        return _load_case(case_id, db)
 
     merged = dict(existing)
     merged.update(changes)
@@ -210,20 +261,35 @@ def update_treatment_case(
         text(f"update treatment_cases set {set_clause} where id = :case_id"),
         {**changes, "case_id": case_id},
     )
+    after = (
+        db.execute(
+            text(f"select {_COLUMNS} from treatment_cases where id = :id"),
+            {"id": case_id},
+        )
+        .mappings()
+        .first()
+    )
+    audit.record(
+        db, user, "update", "treatment_case", case_id, before=existing, after=after
+    )
     db.commit()
-    return get_treatment_case(case_id, db)
+    return _load_case(case_id, db)
 
 
-@router.delete(
-    "/{case_id}",
-    status_code=204,
-    dependencies=[Depends(require_write_key)],
-)
-def delete_treatment_case(case_id: int, db: Session = Depends(get_db)):
-    """Löscht einen Behandlungsfall (z.B. eine Fehleingabe); der verknüpfte
-    geplante Fall gilt danach wieder als offen. 409, wenn Bewertungen oder
-    erworbene Kompetenzen auf die Behandlung verweisen."""
-    get_treatment_case(case_id, db)
+@router.delete("/{case_id}", status_code=204)
+def delete_treatment_case(
+    case_id: int,
+    reason: Annotated[str | None, Query(max_length=500)] = None,
+    user: User = Depends(_writer),
+    db: Session = Depends(get_db),
+):
+    """Löscht einen Behandlungsfall (z.B. eine Fehleingabe) per SOFT DELETE:
+    der Datensatz bleibt mit deleted_at/deleted_by/deletion_reason erhalten und
+    ist im Audit-Log nachvollziehbar, taucht aber in keiner Abfrage mehr auf.
+    Der verknüpfte geplante Fall gilt danach wieder als offen. Optional
+    ?reason= als Begründung. 409, wenn Bewertungen oder erworbene Kompetenzen
+    auf die Behandlung verweisen."""
+    _load_case(case_id, db)
     for table, column, label in (
         ("case_assessments", "treatment_case_id", "Bewertungen"),
         ("student_competencies", "treatment_cases_id", "erworbene Kompetenzen"),
@@ -236,6 +302,27 @@ def delete_treatment_case(case_id: int, db: Session = Depends(get_db)):
                 status_code=409,
                 detail=f"Behandlung hat noch {count} {label} und kann nicht gelöscht werden",
             )
-    db.execute(text("delete from treatment_cases where id = :id"), {"id": case_id})
+    before = (
+        db.execute(
+            text(f"select {_COLUMNS} from treatment_cases where id = :id"),
+            {"id": case_id},
+        )
+        .mappings()
+        .first()
+    )
+    db.execute(
+        text(
+            """
+            update treatment_cases
+            set deleted_at = current_timestamp, deleted_by = :by,
+                deletion_reason = :reason
+            where id = :id
+            """
+        ),
+        {"id": case_id, "by": user.username, "reason": reason},
+    )
+    audit.record(
+        db, user, "delete", "treatment_case", case_id, before=before, reason=reason
+    )
     db.commit()
     return Response(status_code=204)

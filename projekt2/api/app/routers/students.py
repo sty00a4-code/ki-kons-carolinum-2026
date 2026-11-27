@@ -1,33 +1,73 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..pagination import Page, fetch_page, page_params
 from ..schemas import (
     CategoryPointsOut,
+    CategoryPointsValue,
     CategoryProgress,
     ClassProgress,
     StudentOut,
     StudentOverview,
 )
+from ..security import (
+    User,
+    any_user,
+    ensure_student_access,
+    require_roles,
+    scoped_student_id,
+)
+from ..semester import SEMESTER_PATTERN
+from .categories import remove_category_points, upsert_category_points
 
 router = APIRouter(prefix="/students", tags=["students"])
 
+# Filter ?semester= wird wie im Body geprüft (422 bei falschem Format).
+SemesterFilter = Annotated[str | None, Query(pattern=SEMESTER_PATTERN)]
+SemesterPath = Annotated[str, Path(pattern=SEMESTER_PATTERN)]
+
 
 @router.get("", response_model=list[StudentOut])
-def list_students(db: Session = Depends(get_db)):
-    rows = db.execute(
-        text("select id, anon_code, enrollment_semester from students order by id")
-    ).mappings()
+def list_students(
+    response: Response,
+    page: Page = Depends(page_params),
+    user: User = Depends(any_user),
+    db: Session = Depends(get_db),
+):
+    """Studierende sehen nur sich selbst, Lehrende und Admins alle."""
+    only = scoped_student_id(user, None)
+    rows = fetch_page(
+        db,
+        response,
+        """
+        select id, anon_code, enrollment_semester from students
+        where (:only is null or id = :only)
+        order by id
+        """,
+        {"only": only},
+        page,
+    )
     return [StudentOut.model_validate(r) for r in rows]
 
 
 @router.get("/{student_id}/category-progress", response_model=list[CategoryProgress])
 def get_category_progress(
     student_id: int,
-    semester: str | None = None,
+    semester: SemesterFilter = None,
+    user: User = Depends(any_user),
     db: Session = Depends(get_db),
 ):
+    ensure_student_access(user, student_id)
+    return _category_progress(student_id, semester, db)
+
+
+def _category_progress(
+    student_id: int, semester: str | None, db: Session
+) -> list[CategoryProgress]:
     """Fortschritt pro Kategorie für einen Studenten.
 
     total_points ist die Summe aus zwei unabhängigen Quellen: den Punkten aus
@@ -68,6 +108,8 @@ def get_category_progress(
             :student_id as student_id,
             :semester as semester,
             coalesce(pcl.pts, 0) + coalesce(pca.pts, 0) as total_points,
+            coalesce(pcl.pts, 0) as class_points,
+            coalesce(pca.pts, 0) as direct_points,
             c.min_points as min,
             (coalesce(pcl.pts, 0) + coalesce(pca.pts, 0)) >= c.min_points as done,
             case
@@ -89,10 +131,15 @@ def get_category_progress(
 
 
 @router.get("/{student_id}/category-points", response_model=list[CategoryPointsOut])
-def get_direct_category_points(student_id: int, db: Session = Depends(get_db)):
+def get_direct_category_points(
+    student_id: int,
+    user: User = Depends(any_user),
+    db: Session = Depends(get_db),
+):
     """Nur die DIREKT an Kategorien vergebenen Punkte dieses Studenten
     (students_categories), ohne die über Klassen erreichten - zur Kontrolle,
     was pauschal statt über eine Unterkategorie eingetragen wurde."""
+    ensure_student_access(user, student_id)
     rows = db.execute(
         text(
             """
@@ -113,12 +160,57 @@ def get_direct_category_points(student_id: int, db: Session = Depends(get_db)):
     return [CategoryPointsOut.model_validate(r) for r in rows]
 
 
+@router.put(
+    "/{student_id}/categories/{category_id}/points/{semester}",
+    response_model=CategoryPointsOut,
+)
+def put_category_points(
+    student_id: int,
+    category_id: int,
+    semester: SemesterPath,
+    payload: CategoryPointsValue,
+    user: User = Depends(require_roles("teacher", "admin")),
+    db: Session = Depends(get_db),
+):
+    """Setzt die direkt vergebenen Punkte (Upsert, ersetzt, addiert nicht).
+    Student, Kategorie und Semester bilden zusammen die Identität der Ressource
+    und stehen deshalb alle in der URL. 404 bei unbekanntem Studenten oder
+    unbekannter Kategorie."""
+    return upsert_category_points(
+        db, user, student_id, category_id, semester, payload.points,
+        missing_student_status=404,
+    )
+
+
+@router.delete(
+    "/{student_id}/categories/{category_id}/points/{semester}", status_code=204
+)
+def delete_category_points_for_student(
+    student_id: int,
+    category_id: int,
+    semester: SemesterPath,
+    user: User = Depends(require_roles("teacher", "admin")),
+    db: Session = Depends(get_db),
+):
+    """Nimmt direkt vergebene Punkte zurück. 404, wenn es den Eintrag nicht gibt."""
+    remove_category_points(db, user, student_id, category_id, semester)
+    return Response(status_code=204)
+
+
 @router.get("/{student_id}/class-progress", response_model=list[ClassProgress])
 def get_class_progress(
     student_id: int,
-    semester: str | None = None,
+    semester: SemesterFilter = None,
+    user: User = Depends(any_user),
     db: Session = Depends(get_db),
 ):
+    ensure_student_access(user, student_id)
+    return _class_progress(student_id, semester, db)
+
+
+def _class_progress(
+    student_id: int, semester: str | None, db: Session
+) -> list[ClassProgress]:
     """Feingranulare Sicht: Fortschritt pro einzelner Klasse."""
     # Semester als Bind-Wert, gleicher Grund wie beim Kategorie-Fortschritt.
     query = text(
@@ -156,12 +248,21 @@ def get_class_progress(
     return [ClassProgress.model_validate(r) for r in rows]
 
 
-@router.get("/{student_id}/overview", response_model=StudentOverview)
-def get_student_overview(student_id: int, db: Session = Depends(get_db)):
-    """Alles Wesentliche zu einem Studenten in einem Aufruf: Kategorie-
-    Fortschritt (inkl. direkt vergebener Punkte), wie viele Kategorien/Klassen
-    erfüllt oder offen sind, Zahl der Behandlungen und zugeordnete Patienten.
+@router.get(
+    "/{student_id}/overview", response_model=StudentOverview, tags=["read-models"]
+)
+def get_student_overview(
+    student_id: int,
+    user: User = Depends(any_user),
+    db: Session = Depends(get_db),
+):
+    """READ MODEL für die UI, keine kanonische Ressource: eine auf die
+    Darstellung zugeschnittene Aggregation aus Kategorie-Fortschritt (inkl.
+    direkt vergebener Punkte), erfüllten/offenen Kategorien und Klassen, Zahl
+    der Behandlungen und zugeordneten Patienten. Die maßgeblichen Daten liegen
+    unter /students/{id}/category-progress, /class-progress usw.
     404 bei unbekannter student_id."""
+    ensure_student_access(user, student_id)
     student = (
         db.execute(
             text(
@@ -175,10 +276,13 @@ def get_student_overview(student_id: int, db: Session = Depends(get_db)):
     if student is None:
         raise HTTPException(status_code=404, detail="Student nicht gefunden")
 
-    categories = get_category_progress(student_id, None, db)
-    classes = get_class_progress(student_id, None, db)
+    categories = _category_progress(student_id, None, db)
+    classes = _class_progress(student_id, None, db)
     treatment_count = db.execute(
-        text("select count(*) from treatment_cases where student_id = :id"),
+        text(
+            "select count(*) from treatment_cases "
+            "where student_id = :id and deleted_at is null"
+        ),
         {"id": student_id},
     ).scalar()
     assigned = (

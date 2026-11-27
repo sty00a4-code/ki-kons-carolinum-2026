@@ -15,6 +15,15 @@ UI  <- HTTP/JSON ->  API  <- SQLAlchemy ->  DB
 - [Schnellstart](#schnellstart)
 - [Projektstruktur](#projektstruktur)
 - [Architektur-Entscheidungen](#architektur-entscheidungen)
+- [Neu in 0.2: Sicherheit, Verträge, Betrieb](#neu-in-02-sicherheit-verträge-betrieb)
+  - [Versionierung](#versionierung)
+  - [Anmeldung und Rollen](#anmeldung-und-rollen)
+  - [Fehlerformat](#fehlerformat)
+  - [Pagination, Sortierung, Suche](#pagination-sortierung-suche)
+  - [Soft Delete und Audit-Log](#soft-delete-und-audit-log)
+  - [Migrationen](#migrationen)
+  - [Asynchrone Analyse-Jobs](#asynchrone-analyse-jobs)
+  - [Konfiguration](#konfiguration)
 - [Endpunkte](#endpunkte)
   - [/students](#students)
   - [/categories](#categories)
@@ -46,14 +55,20 @@ pip install -r requirements.txt
 # 3. DB-Datei im api/-Ordner erreichbar machen (einmalig, nicht kopieren!)
 ln -s ../leistungen.db leistungen.db # Windows: DB stattdessen manuell reinkopieren
 
-# 4. Server starten
+# 4. Datenbank auf den aktuellen Stand bringen (in der Entwicklung macht das
+#    die API beim Start auch selbst) und einen ersten Admin anlegen
+python -m app.cli migrate
+python -m app.cli create-user admin admin
+
+# 5. Server starten; ohne PROJEKT2_JWT_SECRET läuft der offene Entwicklungsmodus
+export PROJEKT2_JWT_SECRET="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
 uvicorn app.main:app --reload --port 8000
 ```
 
 Danach im Browser öffnen:
-- **http://localhost:8000/docs:** interaktive Swagger-UI, jeder Endpunkt
-  direkt mit "Try it out" testbar
-- **http://localhost:8000/health:** sollte `{"status": "ok"}` zurückgeben
+- **http://localhost:8000/docs:** interaktive Swagger-UI (nur in der Entwicklung); mit "Authorize"
+  das Token aus `POST /api/v1/auth/login` eintragen
+- **http://localhost:8000/api/v1/health:** sollte `{"status": "ok"}` zurückgeben
 
 ## Projektstruktur
 
@@ -64,11 +79,19 @@ api/
 ├── leistungen.db                  (Symlink auf ../leistungen.db)
 ├── tests/                         pytest-Suite (frische Wegwerf-DB pro Test)
 └── app/
-    ├── main.py                    FastAPI-Einstiegspunkt: App-Objekt, CORS, bindet alle Router ein, ruft ensure_schema() beim Start
+    ├── main.py                    FastAPI-Einstiegspunkt: App, CORS, Fehler-Handler, Request-ID, /api/v1, Startprüfungen
+    ├── config.py                  Umgebungsvariablen, Startprüfung (fail closed in Produktion)
     ├── database.py                SQLAlchemy-Engine + get_db()-Dependency (eine Session pro Request)
-    ├── schema_updates.py          ensure_schema(): ergänzt fehlende Spalten und Tabellen in einer bestehenden DB
+    ├── migrations.py              nummerierte Schema-Migrationen (ersetzt schema_updates.py/ensure_schema)
+    ├── cli.py                     python -m app.cli migrate | status | create-user | list-users
     ├── schemas.py                 Pydantic-Modelle für Requests/Responses
-    ├── security.py                require_write_key(): X-API-Key-Prüfung für Schreib-Endpunkte
+    ├── security.py                JWT, get_current_user, require_roles, Zugriff auf eigene Daten
+    ├── passwords.py               scrypt-Hashing; throttle.py: Login-Bremse
+    ├── errors.py                  einheitliches Fehlerformat
+    ├── pagination.py              limit/offset, X-Total-Count, sort-Whitelist
+    ├── audit.py                   Änderungsprotokoll (audit_log), schreibt in die laufende Transaktion
+    ├── semester.py                Semester: Format, Parsen, Sortierschlüssel
+    ├── repositories/              DB-Zugriff für neue Teile (users.py, jobs.py)
     ├── routers/
     │   ├── students.py            /students - Studentenliste, Übersicht, Fortschritt pro Kategorie/Klasse
     │   ├── categories.py          /categories - Katalog, direkt vergebene Kategorie-Punkte
@@ -78,7 +101,10 @@ api/
     │   ├── assignments.py         /assignments, Zuordnung Patient zu Studierendem
     │   ├── treatment_cases.py     /treatment-cases - lesen, anlegen, korrigieren, löschen
     │   ├── osce.py                /osce - OSCE-Ergebnisse
-    │   └── analysis.py            /analysis - KI-Trigger/Job-Status, Patienten-Matching
+    │   ├── analysis.py            /analysis - asynchrone Jobs, Patienten-Matching
+    │   ├── auth.py                /auth/login, /me
+    │   ├── users.py               /users (Admin)
+    │   └── audit_log.py           /audit-log (Admin)
     └── services/
         └── assignment_service.py  Matching-Logik (Studenten-Defizite ↔ Patienten-Beiträge), von analysis.py aufgerufen
 ```
@@ -102,32 +128,192 @@ testbar bleibt.
 - **Response-Modelle mit `from_attributes=True`**: erlaubt `model_validate()`
   direkt auf SQLAlchemy-`RowMapping`-Objekten (die sich wie ein Mapping/Objekt
   mit Attributen verhalten), ohne die Zeilen erst manuell in Dicts umzubauen.
-- **Schema-Ergänzung beim Start**: `main.py` ruft in der Lifespan-Funktion
-  `ensure_schema(engine)` aus `schema_updates.py` auf. Die Funktion liest
-  `pragma table_info` und legt nur an, was fehlt: die Spalten
-  `classes.stretchable`, `classes.max_semesters`, `patients.pseudonym`,
-  `patients.age`, `patients.category`, `patient_cases.difficulty`,
-  `patient_cases.expected_dur_min`, die Tabelle `patient_assignments` und
-  den eindeutigen Index auf `patients.pseudonym`. Vorhandene Daten bleiben
-  unverändert, ein zweiter Start ändert nichts mehr. Frische Datenbanken
-  bekommen dieselben Definitionen über `leistungen.sql` (`build-db.py`);
-  beide Stellen müssen zusammenpassen.
-- **CORS offen (`allow_origins=["*"]`)**: für lokale Entwicklung, damit z.B.
-  eine separate UI auf einem anderen Port ohne CORS-Fehler zugreifen kann.
-  **Vor Produktivbetrieb auf die tatsächliche UI-Domain einschränken.**
-- **Keine Auth bisher**: `POST /treatment-cases` ist aktuell ungeschützt.
-  Die im Haupt-README skizzierten Rollen (Studierende/Lehrende/Admin) sind
-  noch nicht implementiert (siehe [Bekannte Lücken](#bekannte-lücken--offene-punkte)).
+- **Schema-Migrationen** statt implizitem `ensure_schema()`: siehe [Migrationen](#migrationen).
+  Migration 1 enthält den früheren Stand (Spalten `classes.stretchable`, `patients.pseudonym` ...,
+  Tabellen `patient_assignments`, `students_categories`); vorhandene Daten bleiben unverändert.
+- **CORS** kommt aus `PROJEKT2_CORS_ORIGINS`: in der Entwicklung ohne Angabe offen, in
+  Produktion ohne Angabe aus und mit `*` verboten (die API startet dann nicht).
+- **Auth und Rollen** sind umgesetzt (JWT, Rollen student/teacher/admin), siehe
+  [Anmeldung und Rollen](#anmeldung-und-rollen).
+
+## Neu in 0.2: Sicherheit, Verträge, Betrieb
+
+Die Beispiele in diesem Abschnitt nutzen die versionierten Pfade `/api/v1/...`.
+
+### Versionierung
+
+Alle Endpunkte stehen unter **`/api/v1`**. Die bisherigen unversionierten Pfade
+(`/students`, `/patients` ...) laufen als **veraltete Aliase** weiter, sind aber
+nicht mehr in `/docs` zu sehen und entfallen mit v2. Nur dort gibt es noch die
+alten Kategorie-Punkte-Routen (`PUT/DELETE /categories/{id}/points`); in v1 ersetzt
+sie `PUT/DELETE /api/v1/students/{student_id}/categories/{category_id}/points/{semester}`
+mit dem Body `{"points": 5}`. Student, Kategorie und Semester bilden die Identität
+der Ressource und stehen deshalb alle in der URL (unbekannter Student: 404 statt 422).
+
+`GET /students/{id}/overview` ist als **Read Model** gekennzeichnet (Tag
+`read-models`): eine für die UI zugeschnittene Aggregation, nicht die kanonische
+Ressource.
+
+### Anmeldung und Rollen
+
+```bash
+curl -X POST localhost:8000/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username": "lehrer", "password": "..."}'
+# -> {"access_token": "...", "token_type": "bearer", "expires_in": 3600, "user": {...}}
+
+curl localhost:8000/api/v1/me -H "Authorization: Bearer <token>"
+```
+
+Das Token (JWT, HS256) enthält nur die Benutzer-ID. Rolle und Aktiv-Status werden
+bei jeder Anfrage aus der Datenbank gelesen: Sperren und Rollenwechsel wirken sofort.
+Nach 5 Fehlversuchen in 15 Minuten (je Benutzername und Adresse) antwortet der Login
+mit 429 und `Retry-After`. Die Bremse liegt im Prozess; bei mehreren Workern zählt
+jeder für sich.
+
+| Rolle | darf |
+|---|---|
+| `student` | nur eigene Daten: eigener Fortschritt/Overview, eigene Behandlungen, OSCE-Ergebnisse, eigene Analyse-Jobs, Kataloge |
+| `teacher` | alles lesen, Behandlungen erfassen/korrigieren/löschen, Kategorie-Punkte setzen, Analysen starten |
+| `admin` | zusätzlich Katalog (`PATCH /classes`), Planung (Patienten, geplante Fälle, Zuordnungen), Benutzer, Audit-Log |
+
+Fehlt die Anmeldung, antwortet die API mit 401, fehlt die Rolle mit 403.
+
+Betriebsarten:
+
+- **`PROJEKT2_JWT_SECRET` gesetzt:** Anmeldung für alle Endpunkte außer `/health` und Login.
+- **nicht gesetzt, `PROJEKT2_ENV=development` (Standard):** Entwicklungsmodus, jede Anfrage
+  gilt als Admin (Warnung im Log). Ist `PROJEKT2_API_KEY` gesetzt, verlangen schreibende
+  Methoden den Header `X-API-Key` (bisheriges Verhalten).
+- **nicht gesetzt, `PROJEKT2_ENV=production`:** die API **startet nicht** (fail closed);
+  zusätzlich antwortet jede Anfrage mit 401, falls die Startprüfung umgangen wird.
+
+Der `X-API-Key` (falls konfiguriert) gilt in jeder Betriebsart als Dienst-Admin, etwa
+für Skripte. Passwörter werden mit scrypt gehasht (Standardbibliothek).
+
+Den ersten Admin legt man per CLI an (siehe [Migrationen](#migrationen)):
+
+```bash
+python -m app.cli create-user admin admin
+python -m app.cli create-user studi0 student --student-id 0
+```
+
+Benutzerverwaltung (Admin): `GET/POST /users`, `PATCH /users/{id}` (Rolle, sperren,
+Passwort zurücksetzen). Den eigenen Zugang kann man nicht sperren oder herabstufen (409).
+
+### Fehlerformat
+
+Jede Fehlerantwort hat dieselbe Form (angelehnt an RFC 7807, Content-Type
+`application/problem+json`):
+
+```json
+{
+  "type": "validation_error",
+  "title": "Unprocessable Entity",
+  "status": 422,
+  "detail": "semester: Ungültiges Semester ...",
+  "request_id": "9f1c...",
+  "errors": [{"location": "body", "field": "semester", "message": "..."}]
+}
+```
+
+`detail` ist immer ein String; `errors` gibt es nur bei Validierungsfehlern der
+Eingabe. `type` ist einer von `bad_request`, `unauthorized`, `forbidden`, `not_found`,
+`method_not_allowed`, `conflict`, `validation_error`, `too_many_requests`,
+`unavailable`, `internal_error`. Jede Antwort trägt den Header `X-Request-ID` (ein
+passender Wert des Clients wird übernommen), derselbe Wert steht im Log.
+
+### Pagination, Sortierung, Suche
+
+Listen (`/students`, `/patients`, `/patients/open-cases`, `/treatment-cases`,
+`/assignments`, `/users`, `/audit-log`) nehmen `?limit=` (1 bis 500, Standard 100) und
+`?offset=`. Der Body bleibt eine einfache Liste, die Gesamtzahl steht im Header
+**`X-Total-Count`**. **Achtung:** wer bisher alles ohne Parameter abgeholt hat, bekommt
+jetzt höchstens 100 Zeilen und muss Seiten abfragen.
+
+- `/patients`: `?search=` (Teilstring in Pseudonym/Name), `?sort=id|pseudonym|age|case_count`, `?order=asc|desc`
+- `/treatment-cases`: `?date_from=`, `?date_to=` (Behandlungsdatum, einschließlich),
+  `?sort=treatment_date|semester|student_id|id`, `?order=`
+- Ein unbekannter `sort`-Wert ergibt 422. `?semester=` wird geprüft (Format `JJJJSoSe`/`JJJJWiSe`).
+
+Semester ist ein eigenes Konzept (`app/semester.py`): Format, Jahresbereich (2000 bis 2100),
+Parsen, Weiterzählen und Sortierschlüssel stehen an einer Stelle.
+
+### Soft Delete und Audit-Log
+
+**Behandlungen werden nicht mehr physisch gelöscht.** `DELETE /treatment-cases/{id}?reason=...`
+setzt `deleted_at`, `deleted_by`, `deletion_reason`; der Datensatz bleibt, taucht aber in
+keiner Abfrage mehr auf, und der geplante Fall gilt wieder als offen. Bewertungen/Kompetenzen
+an der Behandlung verhindern das Löschen weiterhin (409). Ein Patient mit Behandlungen,
+auch soft-gelöschten, lässt sich nicht löschen (409), damit keine Historie verwaist.
+
+**`GET /audit-log`** (Admin; Filter `entity`, `entity_id`, `action`, `username`) zeigt
+wer wann was geändert hat, mit Zustand `before`/`after`. Protokolliert werden Behandlungen,
+Patienten, geplante Fälle, Zuordnungen, Kategorie-Punkte, Klassen-Planwerte, Benutzer
+(ohne Passwörter) und Analyse-Jobs. Der Eintrag entsteht in derselben Transaktion wie die
+Änderung. Korrekturen (`PATCH`) überschreiben so keine Historie: der alte Stand steht im Log.
+Beispiel: `?entity=treatment_case&entity_id=7`.
+
+**Zuordnungen:** `PUT /assignments/{patient_id}` behält beim Ersetzen `created_at`, setzt
+`updated_at` und legt die vorherige Fassung in der Historie ab: `GET /assignments/{patient_id}/history`
+(`change` ist `replaced` oder `removed`).
+
+### Migrationen
+
+Das frühere `ensure_schema()` ist durch nummerierte Migrationen (`app/migrations.py`,
+Tabelle `schema_migrations`) ersetzt. Der Stand von `ensure_schema` ist Migration 1.
+
+```bash
+python -m app.cli status     # Stand anzeigen
+python -m app.cli migrate    # ausstehende Schritte anwenden
+```
+
+- **Entwicklung:** die API wendet beim Start ausstehende Schritte selbst an.
+- **Produktion** (`PROJEKT2_AUTO_MIGRATE` aus): erst `migrate`, dann API starten.
+  Startet sie mit offenen Migrationen, bricht sie ab, statt das Schema zu verändern.
+
+Jeder Schritt ist idempotent; neue Schritte kommen unten an `MIGRATIONS`, bestehende werden
+nie geändert. `leistungen.sql` bleibt das Basisschema; alles Neue (users, audit_log,
+analysis_jobs, Soft-Delete-Spalten) kommt über Migrationen. Es ist bewusst **kein Alembic**:
+die Schritte nutzen SQLite-Syntax. Beim Umstieg auf PostgreSQL ist Alembic die richtige Wahl.
+
+### Asynchrone Analyse-Jobs
+
+```bash
+curl -X POST localhost:8000/api/v1/analysis/jobs -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer <token>" -d '{"student_id": 0}'
+# 202 -> {"job_id": "abc...", "status": "queued"}
+curl localhost:8000/api/v1/analysis/jobs/abc... -H "Authorization: Bearer <token>"
+# -> {"status": "running", "progress": 0.4, ...}  dann  {"status": "completed", "progress": 1, "result": {...}}
+```
+
+Status: `queued`, `running`, `completed`, `failed` (mit `error`). Jobs liegen in der Tabelle
+`analysis_jobs` und überleben einen Neustart als Datensatz. **Grenze:** die Ausführung läuft
+über FastAPI-`BackgroundTasks` im selben Prozess. Beim Start werden unfertige Jobs als
+`failed` markiert. Für mehrere Worker oder Ausfallsicherheit kommt später eine Task-Queue,
+der HTTP-Vertrag bleibt gleich. `POST /analysis/students/{id}/trigger` ist veraltet: läuft
+weiter synchron, liefert aber `completed`/`failed` statt `done`.
+
+### Konfiguration
+
+| Variable | Bedeutung |
+|---|---|
+| `PROJEKT2_ENV` | `development` (Standard) oder `production` |
+| `PROJEKT2_JWT_SECRET` | Signierschlüssel, in Produktion Pflicht, mind. 32 Zeichen |
+| `PROJEKT2_TOKEN_MINUTES` | Token-Gültigkeit, Standard 60 (kein Refresh-Token) |
+| `PROJEKT2_API_KEY` | optionaler Dienst-Schlüssel (`X-API-Key`), gilt als Admin |
+| `PROJEKT2_CORS_ORIGINS` | kommagetrennte UI-Origins. Ohne Angabe: Entwicklung offen, Produktion aus. In Produktion ist `*` verboten |
+| `PROJEKT2_AUTO_MIGRATE` | `1`/`0`, Standard: an in Entwicklung, aus in Produktion |
+| `PROJEKT2_DOCS` | `1`/`0`: Swagger-UI, Standard: an in Entwicklung, aus in Produktion |
+| `PROJEKT2_DB` | Pfad der SQLite-Datei |
 
 ## Endpunkte
 
 Alle Beispiele gehen von `http://localhost:8000` aus. Vollständige,
 interaktive Dokumentation immer unter `/docs`.
 
-Alle schreibenden Endpunkte (`POST`, `PATCH`, `PUT`, `DELETE`) verlangen den
-Header `X-API-Key`, sobald die Umgebungsvariable `PROJEKT2_API_KEY` gesetzt
-ist (`security.py`); ohne die Variable bleibt alles offen. Fehlt der
-Schlüssel oder stimmt er nicht, antwortet die API mit 401.
+Berechtigungen siehe [Anmeldung und Rollen](#anmeldung-und-rollen). In den Tabellen
+unten stehen die Pfade ohne Präfix; die aktuelle Form ist `/api/v1/...`.
 
 ### `/students`
 
@@ -148,7 +334,8 @@ der DB). Ohne den Parameter wird über alle Semester aggregiert.
 der Kategorie vergeben, siehe [/categories](#categories)) und vergleicht die
 Summe mit `categories.min_points`. Eine Kategorie mit ausschließlich direkt
 vergebenen Punkten - ganz ohne Klassen-Einträge - taucht hier genauso auf wie
-eine, die nur über Klassen befüllt ist. `done` ist `true`, sobald die Summe
+eine, die nur über Klassen befüllt ist. Die Herkunft der Summe steht getrennt in `class_points` und
+`direct_points` (`total_points` ist ihre Summe). `done` ist `true`, sobald die Summe
 das Minimum erreicht; `progress_pct` ist der Prozentsatz davon (kann über
 100 gehen).
 
@@ -169,8 +356,8 @@ curl "http://localhost:8000/students/0/class-progress?semester=2025SoSe"
 |---|---|---|
 | GET | `/categories` | Katalog aller Oberkategorien (`id`, `name`, `descr`, `min_points`) |
 | GET | `/categories/{category_id}/points` | Alle direkt an dieser Kategorie vergebenen Punkte, über alle Studierenden |
-| PUT | `/categories/{category_id}/points` | Direkte Punkte für einen Studenten/ein Semester setzen (`CategoryPointsIn`) |
-| DELETE | `/categories/{category_id}/points?student_id=&semester=` | Direkt vergebene Punkte zurücknehmen, 204; 404 ohne passenden Eintrag |
+| PUT | `/categories/{category_id}/points` | VERALTET, nur unversioniert; v1: `PUT /students/{id}/categories/{id}/points/{semester}` mit `{"points": 5}` |
+| DELETE | `/categories/{category_id}/points?student_id=&semester=` | VERALTET, nur unversioniert; v1: `DELETE /students/{id}/categories/{id}/points/{semester}` |
 
 Damit lässt sich eine Oberkategorie **pauschal bepunkten, ohne eine einzelne
 Klasse (Unterkategorie) darunter anzufassen** - z.B. für Bonuspunkte oder eine
@@ -289,7 +476,8 @@ Schlüssel in der Adresse.
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| GET | `/assignments` | Alle Zuordnungen (`AssignmentOut`) |
+| GET | `/assignments` | Alle Zuordnungen (`AssignmentOut`, mit `updated_at`) |
+| GET | `/assignments/{patient_id}/history` | Frühere Fassungen der Zuordnung |
 | PUT | `/assignments/{patient_id}` | Zuordnung anlegen oder ersetzen (`AssignmentIn`), 422 bei unbekannter `patient_id` oder `student_id` |
 | DELETE | `/assignments/{patient_id}` | Zuordnung aufheben, 204; 404 wenn keine besteht |
 
@@ -301,7 +489,7 @@ Schlüssel in der Adresse.
 `semester` ist optional und folgt dem Muster `JJJJSoSe`/`JJJJWiSe`.
 `AssignmentOut` enthält `patient_id`, `patient` (Pseudonym, sonst Name),
 `student_id`, `semester`, `note` und `created_at`. Ein `PUT` auf eine
-bestehende Zuordnung ersetzt sie vollständig, `created_at` wird neu gesetzt.
+bestehende Zuordnung ersetzt sie, `created_at` bleibt, `updated_at` wird gesetzt, die alte Fassung steht in der Historie.
 
 ### `/treatment-cases`
 
@@ -311,7 +499,7 @@ bestehende Zuordnung ersetzt sie vollständig, `created_at` wird neu gesetzt.
 | GET | `/treatment-cases/{case_id}` | Einzelner Behandlungsfall, 404 falls nicht gefunden |
 | POST | `/treatment-cases` | Neuen Behandlungsfall anlegen |
 | PATCH | `/treatment-cases/{case_id}` | Behandlungsfall korrigieren (`TreatmentCaseUpdate`), nur gesendete Felder ändern sich |
-| DELETE | `/treatment-cases/{case_id}` | Behandlungsfall löschen, 204 |
+| DELETE | `/treatment-cases/{case_id}?reason=` | Behandlungsfall per Soft Delete entfernen, 204 |
 
 **Geplanten Fall als behandelt tracken:** `TreatmentCaseIn` akzeptiert optional
 `patient_case_id` (verweist auf `patient_cases.id`). Wird es gesetzt, gilt der
@@ -343,10 +531,8 @@ Nur `student_id`, `class_id` und `semester` sind Pflichtfelder, alles
 andere optional. Antwort ist `201 Created` mit dem vollständigen,
 angereicherten Datensatz (inkl. aufgelöster Kategorie-/Klassen-/Patientennamen).
 
-**Wichtig:** Dieser Endpunkt ist aktuell **ungeschützt**. Jeder, der die API
-erreicht, kann Behandlungsfälle anlegen. Das ist als Platzhalter gedacht
-(siehe Haupt-README: "Lehrende: ... Behandlungsfälle anlegen/bewerten") und
-muss vor echtem Einsatz mit Auth abgesichert werden.
+Anlegen, korrigieren und löschen dürfen Lehrende und Admins; Studierende sehen
+nur ihre eigenen Behandlungen.
 
 **Korrigieren und löschen:** `PATCH` ändert nur die gesendeten Felder. Mit
 `patient_case_id: null` löst man die Verknüpfung, der geplante Fall gilt dann
@@ -377,8 +563,9 @@ Patienten-Zuweisung.
 
 | Methode | Pfad | Beschreibung |
 |---|---|---|
-| POST | `/analysis/students/{student_id}/trigger` | Startet die Lernverlaufsanalyse für einen Studenten |
-| GET | `/analysis/jobs/{job_id}` | Status/Ergebnis eines Analyse-Jobs |
+| POST | `/analysis/students/{student_id}/trigger` | VERALTET (synchron), stattdessen `POST /analysis/jobs` |
+| POST | `/analysis/jobs` | Analyse-Job anlegen, 202 mit `job_id` (siehe [Asynchrone Analyse-Jobs](#asynchrone-analyse-jobs)) |
+| GET | `/analysis/jobs/{job_id}` | Status, Fortschritt, Ergebnis eines Analyse-Jobs |
 | GET | `/analysis/students/{student_id}/patient-recommendations` | Patienten-Rangliste für einen Studenten |
 | GET | `/analysis/patient-matching` | Gesamtzuordnung aller Patienten zu Studenten |
 
@@ -498,18 +685,24 @@ Patienten, die für **keinen** Studenten mehr einen Nutzen bringen (weil
 ihre Fälle nur Klassen betreffen, die bei allen Studenten schon erfüllt
 sind), landen in `unmatched_patients`.
 
-Antwortformat:
+Antwortformat. `algorithm_version` (aktuell `class-match-v1`) benennt die Bewertungslogik;
+sie steht in der Gesamtantwort und je Empfehlung/Zuordnung und ändert sich bei jeder
+fachlichen Änderung am Score (z.B. Wechsel auf Kompetenzen). `matched_classes` erklärt
+das Ergebnis; `deficit_points_before`/`deficit_count_before` zeigen die Lücke vor diesem Patienten.
 ```json
 {
+  "algorithm_version": "class-match-v1",
   "assignments": [
     {
       "student_id": 4,
       "patient_id": 2,
       "patient_name": "Tim Keller",
       "score": 26.0,
+      "algorithm_version": "class-match-v1",
       "matched_classes": [
         {"class_id": 7, "class_name": "WK", "category": "Endodontologie",
-         "covered_points": 9.0, "covered_count": 1, "available_cases": 1}
+         "covered_points": 9.0, "covered_count": 1, "available_cases": 1,
+         "deficit_points_before": 12.0, "deficit_count_before": 1}
       ]
     }
   ],
@@ -521,13 +714,17 @@ Antwortformat:
 
 ## Bekannte Lücken / offene Punkte
 
-- **Keine Authentifizierung/Autorisierung.** Alle Endpunkte sind offen,
-  inklusive des schreibenden `POST /treatment-cases`. Die im Haupt-README
-  skizzierten Rollen (Studierende/Lehrende/Admin) sowie `routers/auth.py`
-  (`login`, `get_current_user`) sind noch nicht implementiert.
-- **`call_llm_for_insights` ist ein Platzhalter.** Kein echter LLM-API-Call.
-- **Job-Status nur in-memory.** Siehe oben. Für Mehrprozess-/Neustart-feste
-  Jobs auf eine DB-Tabelle oder Task-Queue umstellen.
+- **Kein Refresh-Token, keine Token-Sperrliste.** Ein Token gilt bis zum Ablauf (Standard 60 Minuten);
+  gesperrte Benutzer fliegen aber sofort raus, weil der Status bei jeder Anfrage geprüft wird.
+  Login-Bremse nur pro Prozess. Uni-SSO (Shibboleth/LDAP) ist nicht angebunden.
+- **Router greifen teils direkt per SQL auf die DB zu.** Die Repository-Schicht gibt es bisher nur
+  für Benutzer und Jobs (`repositories/`); die älteren Router sind nicht umgezogen.
+- **Kein Optimistic Locking/ETags.** Zwei gleichzeitige `PATCH` auf denselben Datensatz: der letzte gewinnt
+  (beide stehen im Audit-Log).
+- **Löschen von Patienten, geplanten Fällen und Zuordnungen ist weiterhin physisch** (mit Audit-Eintrag
+  und, bei Zuordnungen, Historie). Nur Behandlungen sind Soft Delete.
+- **`call_llm_for_insights` nutzt LLM_CLI, sonst Platzhalter.** Job-Ausführung im selben Prozess, siehe
+  [Asynchrone Analyse-Jobs](#asynchrone-analyse-jobs).
 - **Matching ist klassen- statt kompetenzbasiert**, weil `competencies` /
   `class_competencies` leer sind (siehe oben).
 - **Matching ist greedy, nicht global optimal.** Für die aktuelle
@@ -535,7 +732,11 @@ Antwortformat:
   auf `scipy.optimize.linear_sum_assignment` umstellen.
 - **Punkte werden nicht automatisch aus Behandlungen berechnet.** Eine
   erfasste Behandlung (`treatment_cases`) füllt `students_classes` nicht von
-  selbst; die aggregierten Punkte kommen weiterhin aus dem Import. Ob und wie
+  selbst; die aggregierten Punkte kommen weiterhin aus dem Import. Heute gilt:
+  `students_classes` = importierte Angaben, `treatment_cases` = Ereignisse,
+  `category-progress` = abgeleitet (mit `class_points`/`direct_points` getrennt
+  ausgewiesen). Eine einzige maßgebliche Quelle (Behandlung → Bewertung → Punkte →
+  Fortschritt) ist fachlich noch zu entscheiden. Ob und wie
   Bewertungen (`case_assessments`) in Klassenpunkte einfließen sollen, ist
   fachlich noch zu klären.
 - **`treatment_cases` und `student_osce_results` sind in der Testdatenbank
@@ -558,8 +759,9 @@ Jeder Test läuft gegen eine frische Kopie einer Datenbank, die aus
 `leistungen.sql` und `test.sql` im Projektordner aufgebaut wird; die echte
 `leistungen.db` wird nicht angefasst. Dafür überschreibt die Umgebungsvariable
 `PROJEKT2_DB` den Datenbankpfad (ohne sie gilt weiter `api/leistungen.db`).
-Die Suite deckt u.a. die direkt vergebenen Kategorie-Punkte, das Tracken und
-Korrigieren von Behandlungen, die 409/422-Fehlerfälle und den `X-API-Key`-Schutz ab.
+`tests/test_api.py` deckt die Kernfunktionen ab (Kategorie-Punkte, Behandlungen tracken
+und korrigieren, 409/422, `X-API-Key`); `tests/test_v1.py` Anmeldung und Rollen, Fehlerformat,
+Pagination, Soft Delete, Audit-Log, Zuordnungs-Historie, Jobs und Matching-Version.
 
 ## Typische Stolpersteine
 

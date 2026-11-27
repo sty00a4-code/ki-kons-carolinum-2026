@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from .. import audit
 from ..database import get_db
 from ..schemas import ClassOut, ClassUpdate
-from ..security import require_write_key
+from ..security import User, admin_only, any_user
 
 router = APIRouter(prefix="/classes", tags=["classes"])
 
@@ -29,7 +30,7 @@ _SELECT = """
 
 
 @router.get("", response_model=list[ClassOut])
-def list_classes(db: Session = Depends(get_db)):
+def list_classes(_: User = Depends(any_user), db: Session = Depends(get_db)):
     """Katalog für die UI, damit sie die class_ids nicht hart codieren muss."""
     query = text(_SELECT + " order by c.id, cl.id;")
     rows = db.execute(query).mappings()
@@ -44,21 +45,31 @@ def _load_class(class_id: int, db: Session) -> ClassOut:
     return ClassOut.model_validate(row)
 
 
-@router.patch(
-    "/{class_id}",
-    response_model=ClassOut,
-    dependencies=[Depends(require_write_key)],
-)
-def update_class(class_id: int, payload: ClassUpdate, db: Session = Depends(get_db)):
-    """Planungswerte einer Klasse ändern. Nur gesendete Felder werden
+@router.patch("/{class_id}", response_model=ClassOut)
+def update_class(
+    class_id: int,
+    payload: ClassUpdate,
+    user: User = Depends(admin_only),
+    db: Session = Depends(get_db),
+):
+    """Planungswerte einer Klasse ändern (Admin). Nur gesendete Felder werden
     geschrieben, ein gesendetes null löscht den Wert."""
-    _load_class(class_id, db)
+    before = _load_class(class_id, db)
     changes = payload.model_dump(exclude_unset=True)
     if changes:
         set_clause = ", ".join(f"{field} = :{field}" for field in changes)
         db.execute(
             text(f"update classes set {set_clause} where id = :class_id"),
             {**changes, "class_id": class_id},
+        )
+        audit.record(
+            db,
+            user,
+            "update",
+            "class",
+            class_id,
+            before={k: getattr(before, k) for k in changes},
+            after=changes,
         )
         db.commit()
     return _load_class(class_id, db)

@@ -2,8 +2,18 @@
 damit die API-Verträge stabil bleiben, auch wenn sich SQL im Hintergrund ändert."""
 
 from datetime import date
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
+
+from .semester import SEMESTER_PATTERN, validate_semester
+
+# Semester ist ein eigener Typ (Format JJJJSoSe/JJJJWiSe, Jahr 2000 bis 2100);
+# die Regeln stehen zentral in semester.py.
+Semester = Annotated[
+    str, Field(pattern=SEMESTER_PATTERN), AfterValidator(validate_semester)
+]
+Role = Literal["student", "teacher", "admin"]
 
 
 class CategoryProgress(BaseModel):
@@ -16,6 +26,10 @@ class CategoryProgress(BaseModel):
     # Summe aus students_classes (über die Klassen) PLUS students_categories
     # (direkt an der Kategorie gutgeschriebene Punkte).
     total_points: float
+    # Herkunft der Summe getrennt ausgewiesen: class_points stammt aus
+    # students_classes, direct_points aus students_categories.
+    class_points: float = 0
+    direct_points: float = 0
     min: float | None
     done: bool
     progress_pct: float | None
@@ -32,7 +46,14 @@ class CategoryOut(BaseModel):
 
 class CategoryPointsIn(BaseModel):
     student_id: int
-    semester: str = Field(pattern=r"^[0-9]{4}(SoSe|WiSe)$")
+    semester: Semester
+    points: float
+
+
+class CategoryPointsValue(BaseModel):
+    """Body für PUT /students/{id}/categories/{id}/points/{semester}: die
+    Identität (Student, Kategorie, Semester) steht in der URL."""
+
     points: float
 
 
@@ -204,7 +225,7 @@ class PatientCaseUpdate(BaseModel):
 
 class AssignmentIn(BaseModel):
     student_id: int
-    semester: str | None = Field(default=None, pattern=r"^[0-9]{4}(SoSe|WiSe)$")
+    semester: Semester | None = None
     note: str | None = None
 
 
@@ -218,6 +239,23 @@ class AssignmentOut(BaseModel):
     semester: str | None
     note: str | None
     created_at: str
+    # Zeitpunkt der letzten Änderung; solange nie geändert, gleich created_at.
+    updated_at: str | None = None
+
+
+class AssignmentHistoryOut(BaseModel):
+    """Eine frühere Fassung einer Zuordnung (ersetzt oder aufgehoben)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    patient_id: int
+    student_id: int | None
+    semester: str | None
+    note: str | None
+    valid_from: str | None
+    valid_to: str | None
+    change: str
+    changed_by: str | None
 
 
 class TreatmentCaseOut(BaseModel):
@@ -254,7 +292,7 @@ class TreatmentCaseIn(BaseModel):
     # Sind beide gesetzt, müssen sie zusammenpassen (422 sonst).
     patient_case_id: int | None = None
     case_category_id: int | None = None
-    semester: str = Field(pattern=r"^[0-9]{4}(SoSe|WiSe)$")
+    semester: Semester
     difficulty: float | None = Field(default=None, ge=1, le=3)
     expected_duration_min: int | None = Field(default=None, ge=1)
     actual_duration_min: int | None = Field(default=None, ge=1)
@@ -273,7 +311,7 @@ class TreatmentCaseUpdate(BaseModel):
     patient_id: int | None = None
     patient_case_id: int | None = None
     case_category_id: int | None = None
-    semester: str | None = Field(default=None, pattern=r"^[0-9]{4}(SoSe|WiSe)$")
+    semester: Semester | None = None
     difficulty: float | None = Field(default=None, ge=1, le=3)
     expected_duration_min: int | None = Field(default=None, ge=1)
     actual_duration_min: int | None = Field(default=None, ge=1)
@@ -330,3 +368,107 @@ class StudentOverview(BaseModel):
     classes_open: int
     treatment_count: int
     assigned_patients: list[str]
+
+
+# ------------------------------- Anmeldung & Benutzer -------------------------------
+
+
+class LoginIn(BaseModel):
+    username: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=1, max_length=200)
+
+
+class CurrentUserOut(BaseModel):
+    id: int
+    username: str
+    role: Role
+    student_id: int | None
+    # jwt | api-key | dev: wie die Anfrage authentifiziert wurde.
+    auth: str
+
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: Literal["bearer"] = "bearer"
+    expires_in: int
+    user: CurrentUserOut
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    role: Role
+    student_id: int | None
+    active: bool
+    created_at: str | None
+    last_login_at: str | None
+
+
+class UserCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    username: str = Field(min_length=3, max_length=100)
+    password: str = Field(min_length=10, max_length=200)
+    role: Role
+    student_id: int | None = None
+
+    @model_validator(mode="after")
+    def _student_needs_link(self):
+        if self.role == "student" and self.student_id is None:
+            raise ValueError("student_id ist für die Rolle student Pflicht")
+        if self.role != "student" and self.student_id is not None:
+            raise ValueError("student_id ist nur für die Rolle student erlaubt")
+        return self
+
+
+class UserUpdate(BaseModel):
+    # Nur gesendete Felder werden geändert; die Kombination aus Rolle und
+    # student_id prüft der Router gegen den Bestand.
+    role: Role | None = None
+    student_id: int | None = None
+    active: bool | None = None
+    password: str | None = Field(default=None, min_length=10, max_length=200)
+
+
+# ------------------------------------ Audit-Log ------------------------------------
+
+
+class AuditEntry(BaseModel):
+    id: int
+    ts: str
+    user_id: int | None
+    username: str | None
+    role: str | None
+    action: str
+    entity: str
+    entity_id: str | None
+    before: dict[str, Any] | None
+    after: dict[str, Any] | None
+    reason: str | None
+
+
+# ------------------------------------ Analyse-Jobs ------------------------------------
+
+
+class JobCreate(BaseModel):
+    student_id: int
+
+
+class JobCreated(BaseModel):
+    job_id: str
+    status: Literal["queued"] = "queued"
+
+
+class JobOut(BaseModel):
+    job_id: str
+    student_id: int | None
+    status: Literal["queued", "running", "completed", "failed"]
+    # 0.0 bis 1.0
+    progress: float
+    result: dict[str, Any] | None = None
+    error: str | None = None
+    created_at: str | None = None
+    started_at: str | None = None
+    finished_at: str | None = None

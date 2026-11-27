@@ -1,4 +1,4 @@
-#!/home/sty00a4/projects/jobs/ki-kons-carolinum-2026/projekt2/api/.venv/bin/python3
+#!/home/sty00a4/projects/jobs/ki-kons-carolinum-2026/projekt2/api/.venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys

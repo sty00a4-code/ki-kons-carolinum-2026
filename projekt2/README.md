@@ -48,7 +48,12 @@ Danach im Browser öffnen:
 
 ## Konfiguration (Umgebungsvariablen)
 
-- `PROJEKT2_API_KEY`: wenn gesetzt, verlangen Schreib-Endpunkte den Header `X-API-Key` mit genau diesem Wert. Ohne die Variable bleibt alles offen.
+- `PROJEKT2_ENV`: `development` (Standard) oder `production`. In Produktion startet die API nur mit gesetztem `PROJEKT2_JWT_SECRET` (mind. 32 Zeichen), ohne `*` in `PROJEKT2_CORS_ORIGINS` und ohne ausstehende Migrationen.
+- `PROJEKT2_JWT_SECRET`: Signierschlüssel für die Anmeldung (`POST /api/v1/auth/login`). Gesetzt: alle Endpunkte verlangen ein Bearer-Token mit Rolle student/teacher/admin. Nicht gesetzt (nur Entwicklung): offen, jede Anfrage gilt als Admin.
+- `PROJEKT2_API_KEY`: optionaler Dienst-Schlüssel im Header `X-API-Key`, gilt als Admin. Ohne JWT-Secret verlangen damit nur schreibende Methoden den Schlüssel.
+- `PROJEKT2_CORS_ORIGINS`, `PROJEKT2_AUTO_MIGRATE`, `PROJEKT2_DOCS`, `PROJEKT2_TOKEN_MINUTES`: siehe `api/API.md`.
+
+Benutzer und Migrationen: `python -m app.cli migrate`, `python -m app.cli create-user NAME ROLE`. Die API liegt jetzt unter `/api/v1`; Details in `api/API.md`.
 - `LLM_CLI`: Kommando des LLM-Clients für die KI-Analyse, als Pfad oder als Name im PATH. Ohne die Variable liefert die Analyse einen Platzhalter.
 - `LLM_MODEL`: Modell, das dem LLM-Client mitgegeben wird. Optional.
 
