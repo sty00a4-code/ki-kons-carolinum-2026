@@ -20,8 +20,9 @@ der HTTP-Vertrag bleibt dabei gleich.
 import json
 import os
 import subprocess
+from typing import Annotated
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -210,8 +211,16 @@ def get_patient_recommendations(
 
 
 @router.get("/patient-matching", dependencies=[Depends(staff)])
-def get_patient_matching(db: Session = Depends(get_db)):
-    """Zuordnung ALLER Patienten zu Studenten: jeder Patient wird höchstens
-    einem Studenten zugewiesen, gewählt danach, wo er den größten Beitrag zur
-    Deckung offener Anforderungen leistet (greedy, nicht global optimal)."""
-    return assignment_service.suggest_global_matching(db)
+def get_patient_matching(
+    strategy: Annotated[str, Query(pattern="^(hungarian|greedy)$")] = "hungarian",
+    max_per_student: Annotated[int | None, Query(ge=1, le=100)] = None,
+    db: Session = Depends(get_db),
+):
+    """Zuordnung ALLER Patienten zu Studenten, je nach größtem Beitrag zur
+    Deckung offener Anforderungen; jeder Patient geht an höchstens einen
+    Studenten. strategy=hungarian (Standard): rundenweise optimal. strategy=greedy:
+    früheres Verfahren, nur zum Vergleich. max_per_student begrenzt die
+    Gesamtzahl je Student."""
+    return assignment_service.suggest_global_matching(
+        db, strategy=strategy, max_per_student=max_per_student
+    )

@@ -19,9 +19,6 @@ def test_health(client):
     assert client.get("/health").json() == {"status": "ok"}
 
 
-# ------------------------- Kategorien direkt bepunkten -------------------------
-
-
 def test_category_points_add_to_class_points(client):
     category = client.get("/categories").json()[0]
     before = _category_points(client, STUDENT, category["name"]) or 0
@@ -49,7 +46,6 @@ def test_category_points_upsert_replaces_instead_of_adding(client):
 def test_category_without_any_class_rows_still_shows_up(client, db_session):
     from sqlalchemy import text
 
-    # Eigene Kategorie ohne jede Klasse, unabhängig von den Testdaten.
     db_session.execute(
         text(
             "insert into categories (id, name, min_points) values (900, 'Nur direkt', 10)"
@@ -127,9 +123,6 @@ def test_analysis_trajectory_counts_direct_category_points(client, db_session):
     assert after == before + 4
 
 
-# ------------------------------ Behandlungen tracken ------------------------------
-
-
 def test_treating_a_planned_case_marks_it_treated(client):
     case = _first_planned_case(client)
     assert case["treated"] is False
@@ -146,7 +139,7 @@ def test_treating_a_planned_case_marks_it_treated(client):
     )
     assert response.status_code == 201
     created = response.json()
-    assert created["patient_id"] == PATIENT  # automatisch vom Fall übernommen
+    assert created["patient_id"] == PATIENT
     assert created["patient_case_id"] == case["id"]
 
     after = next(
@@ -267,7 +260,7 @@ def test_patch_treatment_case_and_unlink(client):
     )
     assert patched.status_code == 200
     assert patched.json()["notes"] == "korrigiert"
-    assert patched.json()["patient_case_id"] == case["id"]  # unverändert
+    assert patched.json()["patient_case_id"] == case["id"]
 
     unlinked = client.patch(url, json={"patient_case_id": None})
     assert unlinked.status_code == 200
@@ -333,10 +326,7 @@ def test_treated_planned_case_cannot_be_deleted(client):
         },
     )
     response = client.delete(f"/patients/{PATIENT}/cases/{case['id']}")
-    assert response.status_code == 409  # kein 500 durch den Fremdschlüssel
-
-
-# ------------------------------- Übersicht & Schutz -------------------------------
+    assert response.status_code == 409
 
 
 def test_student_overview(client):
@@ -364,4 +354,4 @@ def test_write_endpoints_require_key_when_configured(client, monkeypatch):
     assert (
         client.put(url, json=body, headers={"X-API-Key": "geheim"}).status_code == 200
     )
-    assert client.get("/categories").status_code == 200  # Lesen bleibt offen
+    assert client.get("/categories").status_code == 200

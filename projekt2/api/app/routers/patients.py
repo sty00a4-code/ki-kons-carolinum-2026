@@ -26,11 +26,9 @@ from .treatment_cases import _SELECT as _SELECT_TREATMENT_CASES
 # nicht), ändern nur Admins (Planung).
 router = APIRouter(prefix="/patients", tags=["patients"], dependencies=[Depends(staff)])
 
-# Der Scalar-Subquery holt je patient_case die zeitlich letzte Behandlung
-# (nach treatment_date, dann id), falls es mehrere gibt. treated ist einfach
-# "gibt es überhaupt eine" - so lässt sich der Bearbeitungsstand jedes
-# geplanten Falls direkt mit ausliefern, ohne einen separaten Aufruf gegen
-# /treatment-cases nötig zu machen.
+# Scalar-Subquery holt je patient_case die zeitlich letzte Behandlung (falls
+# mehrere); treated = "gibt es überhaupt eine". So liefert diese Abfrage den
+# Bearbeitungsstand gleich mit, ohne separaten Aufruf gegen /treatment-cases.
 _SELECT_CASES = """
     select
         pc.id,

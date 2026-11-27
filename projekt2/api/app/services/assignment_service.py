@@ -2,15 +2,8 @@
 helfen, ihre offenen Anforderungen aus dem Leistungskatalog zu erfüllen.
 
 Basis ist classes.min_points / min_count vs. die Summe aus students_classes
-ÜBER ALLE SEMESTER (nicht pro Semester)
-
-Hinweis: Im README-Outline war ursprünglich `find_missing_competencies`
-vorgesehen (competency-basiertes Matching). Die Tabellen `competencies` /
-`class_competencies` sind in der aktuellen Datenbank aber leer, daher matcht
-diese Version auf Klassen-Ebene. Sobald Kompetenzdaten gepflegt sind, kann
-`find_missing_classes` 1:1 durch eine kompetenzbasierte Variante ersetzt
-werden, ohne dass sich an rank_patients_for_student / suggest_global_matching
-etwas ändern muss.
+über ALLE Semester (nicht pro Semester). Matcht auf Klassen-Ebene, nicht auf
+Kompetenzen - die Tabellen dafür sind noch leer.
 """
 
 from dataclasses import dataclass
@@ -18,10 +11,14 @@ from dataclasses import dataclass
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-# Kennung der Bewertungslogik. Jede fachliche Änderung am Score (z.B. der
-# Wechsel von Klassen auf Kompetenzen) bekommt eine neue Version, damit sich
-# gespeicherte oder angezeigte Empfehlungen zuordnen lassen.
+from .hungarian import solve_max
+
+# Kennung von Score-Logik + Zuordnungsverfahren, damit Empfehlungen sich
+# später zuordnen lassen. v1: Score je Klasse, greedy. v2: derselbe Score,
+# Zuordnung per Hungarian-Algorithmus.
 ALGORITHM_VERSION = "class-match-v1"
+HUNGARIAN_VERSION = "class-match-v2"
+STRATEGIES = ("hungarian", "greedy")
 
 
 @dataclass
@@ -214,32 +211,135 @@ def rank_patients_for_student(
     return results[:limit]
 
 
-def suggest_global_matching(db: Session) -> dict:
-    """Gemeinsame Zuordnung aller Studenten und Patienten: greedy, nicht
-    global optimal (geplant Hungarian-Algorithmus, braucht scipy) -
-    aber nachvollziehbar und für ~5 Studenten/~10 Patienten völlig
-    ausreichend. In jedem Schritt wird das aktuell beste (Student, Patient)-
-    Paar zugewiesen; danach werden die Defizite des Studenten um das reduziert,
-    was der Patient abdeckt, und der Patient steht nicht mehr zur Verfügung."""
+def suggest_global_matching(
+    db: Session, strategy: str = "hungarian", max_per_student: int | None = None
+) -> dict:
+    """Gesamtzuordnung aller Patienten zu Studenten.
+
+    strategy "hungarian" (Standard): rundenweise optimal, siehe
+    suggest_global_matching_hungarian. strategy "greedy": das frühere
+    Verfahren, nur noch zum Vergleich."""
+    if strategy == "greedy":
+        return suggest_global_matching_greedy(db, max_per_student)
+    if strategy == "hungarian":
+        return suggest_global_matching_hungarian(db, max_per_student)
+    raise ValueError(f"Unbekannte strategy: {strategy}")
+
+
+def _load_matching_inputs(db: Session):
     student_ids = (
         db.execute(text("select id from students order by id")).scalars().all()
     )
     deficits_by_student = {sid: find_missing_classes(sid, db) for sid in student_ids}
-
-    all_contributions = get_patient_contributions(db)
     contributions_by_patient: dict[int, list[PatientContribution]] = {}
     patient_names: dict[int, str] = {}
-    for c in all_contributions:
+    for c in get_patient_contributions(db):
         contributions_by_patient.setdefault(c.patient_id, []).append(c)
         patient_names[c.patient_id] = c.patient_name
+    return deficits_by_student, contributions_by_patient, patient_names
 
-    unassigned_patients = set(contributions_by_patient.keys())
+
+def _reduce_deficits(deficits: list[ClassDeficit], matched_classes: list[dict]):
+    """Zieht ab, was der zugewiesene Patient abdeckt; erledigte Lücken fallen weg."""
+    by_class = {d.class_id: d for d in deficits}
+    for m in matched_classes:
+        d = by_class.get(m["class_id"])
+        if d:
+            d.deficit_points = max(0.0, d.deficit_points - m["covered_points"])
+            d.deficit_count = max(0, d.deficit_count - m["covered_count"])
+    return [d for d in deficits if d.deficit_points > 0 or d.deficit_count > 0]
+
+
+def suggest_global_matching_hungarian(
+    db: Session, max_per_student: int | None = None
+) -> dict:
+    """Optimale Zuordnung per Hungarian-Algorithmus, rundenweise.
+
+    Jede Runde: Matrix Student x freier Patient (Score aus
+    score_patient_for_deficits), maximale Summe über alle Paare - anders als
+    Greedy, das sich am besten Einzelpaar verbaut. Da es mehr Patienten als
+    Studierende geben kann, läuft danach eine weitere Runde mit den
+    reduzierten Defiziten und den übrigen Patienten, bis kein Paar mehr einen
+    positiven Score hat. max_per_student begrenzt Zuweisungen je Student über
+    alle Runden (None = unbegrenzt); die Runde steht als "round" dabei.
+
+    Grenze: jede Runde ist optimal, die Abfolge der Runden nicht zwingend."""
+    deficits_by_student, contributions_by_patient, patient_names = _load_matching_inputs(db)
+    unassigned = set(contributions_by_patient)
+    assigned_count = {sid: 0 for sid in deficits_by_student}
+    assignments: list[dict] = []
+    round_no = 0
+
+    while unassigned:
+        students = [
+            sid
+            for sid, deficits in deficits_by_student.items()
+            if deficits and (max_per_student is None or assigned_count[sid] < max_per_student)
+        ]
+        patients = sorted(unassigned)
+        if not students or not patients:
+            break
+        matrix, details = [], {}
+        for r, sid in enumerate(students):
+            row = []
+            for c, pid in enumerate(patients):
+                score, matched = score_patient_for_deficits(
+                    contributions_by_patient[pid], deficits_by_student[sid]
+                )
+                row.append(score)
+                details[(r, c)] = matched
+            matrix.append(row)
+        pairs = solve_max(matrix)
+        if not pairs:
+            break
+        round_no += 1
+        for r, c in pairs:
+            sid, pid, matched = students[r], patients[c], details[(r, c)]
+            assignments.append(
+                {
+                    "student_id": sid,
+                    "patient_id": pid,
+                    "patient_name": patient_names[pid],
+                    "score": round(matrix[r][c], 2),
+                    "algorithm_version": HUNGARIAN_VERSION,
+                    "round": round_no,
+                    "matched_classes": matched,
+                }
+            )
+            unassigned.discard(pid)
+            assigned_count[sid] += 1
+            deficits_by_student[sid] = _reduce_deficits(deficits_by_student[sid], matched)
+
+    return {
+        "algorithm_version": HUNGARIAN_VERSION,
+        "strategy": "hungarian",
+        "total_score": round(sum(a["score"] for a in assignments), 2),
+        "assignments": assignments,
+        "unmatched_patients": [
+            {"patient_id": pid, "patient_name": patient_names[pid]}
+            for pid in sorted(unassigned)
+        ],
+    }
+
+
+def suggest_global_matching_greedy(
+    db: Session, max_per_student: int | None = None
+) -> dict:
+    """Früheres Verfahren (greedy, nicht global optimal): in jedem Schritt wird
+    das aktuell beste (Student, Patient)-Paar zugewiesen; danach werden die
+    Defizite des Studenten um das reduziert, was der Patient abdeckt, und der
+    Patient steht nicht mehr zur Verfügung."""
+    deficits_by_student, contributions_by_patient, patient_names = _load_matching_inputs(db)
+    unassigned_patients = set(contributions_by_patient)
+    assigned_count = {sid: 0 for sid in deficits_by_student}
     assignments = []
 
     while unassigned_patients:
         best = None  # (score, student_id, patient_id, matched_classes)
         for sid, deficits in deficits_by_student.items():
-            if not deficits:
+            if not deficits or (
+                max_per_student is not None and assigned_count[sid] >= max_per_student
+            ):
                 continue
             for pid in unassigned_patients:
                 score, matched_classes = score_patient_for_deficits(
@@ -265,24 +365,16 @@ def suggest_global_matching(db: Session) -> dict:
             }
         )
         unassigned_patients.remove(pid)
+        assigned_count[sid] += 1
+        deficits_by_student[sid] = _reduce_deficits(deficits_by_student[sid], matched_classes)
 
-        deficit_by_class = {d.class_id: d for d in deficits_by_student[sid]}
-        for m in matched_classes:
-            d = deficit_by_class.get(m["class_id"])
-            if d:
-                d.deficit_points = max(0.0, d.deficit_points - m["covered_points"])
-                d.deficit_count = max(0, d.deficit_count - m["covered_count"])
-        deficits_by_student[sid] = [
-            d
-            for d in deficits_by_student[sid]
-            if d.deficit_points > 0 or d.deficit_count > 0
-        ]
-
-    unmatched = sorted(unassigned_patients)
     return {
         "algorithm_version": ALGORITHM_VERSION,
+        "strategy": "greedy",
+        "total_score": round(sum(a["score"] for a in assignments), 2),
         "assignments": assignments,
         "unmatched_patients": [
-            {"patient_id": pid, "patient_name": patient_names[pid]} for pid in unmatched
+            {"patient_id": pid, "patient_name": patient_names[pid]}
+            for pid in sorted(unassigned_patients)
         ],
     }

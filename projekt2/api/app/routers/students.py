@@ -68,24 +68,13 @@ def get_category_progress(
 def _category_progress(
     student_id: int, semester: str | None, db: Session
 ) -> list[CategoryProgress]:
-    """Fortschritt pro Kategorie für einen Studenten.
-
-    total_points ist die Summe aus zwei unabhängigen Quellen: den Punkten aus
-    students_classes (über die Klassen/Unterkategorien) UND den Punkten aus
-    students_categories (direkt an der Kategorie vergeben, siehe
-    routers/categories.py). Eine Kategorie mit ausschließlich direkt
-    vergebenen Punkten - ganz ohne Klassen-Einträge - taucht hier genauso auf
-    wie eine, die nur über Klassen befüllt ist.
-    """
-    # Zwei getrennte Aggregate (per_class, per_category) statt eines direkten
-    # Joins beider Tabellen: ein Join von students_classes und
-    # students_categories über category_id würde die Zeilen der einen Seite
-    # mit denen der anderen multiplizieren (Kreuzprodukt) und die Summen
-    # verfälschen.
-    #
-    # Ohne Semester-Filter summiert die Query über alle Semester. Das Feld
-    # semester liefert deshalb den Filterwert oder null und nicht einen
-    # beliebigen Wert aus der Gruppe.
+    """Fortschritt pro Kategorie: total_points = students_classes (über die
+    Klassen) PLUS students_categories (direkt an der Kategorie vergeben, s.
+    routers/categories.py). Eine Kategorie zählt auch, wenn nur eine der
+    beiden Quellen Einträge hat."""
+    # per_class/per_category getrennt aggregiert, nicht direkt gejoint - ein
+    # Join über category_id würde die Zeilen der einen Seite mit denen der
+    # anderen multiplizieren und die Summen verfälschen.
     query = text(
         """
         with per_class as (

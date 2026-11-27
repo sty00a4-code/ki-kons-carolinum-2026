@@ -666,20 +666,50 @@ ist beabsichtigt, es ist eine reine Empfehlung, keine Zuteilung.
 
 ### 4b. Gesamtzuordnung (`suggest_global_matching`)
 
-Das ist die "matcht Studenten und Patienten so gut wie möglich
-zusammen"-Funktion: ein **greedy Algorithmus**, kein global optimaler
-(das wäre der Hungarian-Algorithmus / `scipy.optimize.linear_sum_assignment`,
-bewusst nicht verwendet, um keine zusätzliche Abhängigkeit einzuführen. Bei
-~5 Studenten/~10 Patienten ist der Unterschied praktisch vernachlässigbar).
+`GET /analysis/patient-matching?strategy=hungarian|greedy&max_per_student=N`
 
-Ablauf:
-1. Für jeden Studenten die aktuellen Defizite berechnen.
-2. In jeder Runde: über alle (Student, noch nicht zugewiesener Patient)
-   -Paare den höchsten Score finden.
-3. Dieses Paar zuweisen; den Patienten aus dem Pool entfernen; die Defizite
-   des Studenten um das reduzieren, was der Patient abdeckt (`matched_classes`).
-4. Wiederholen, bis entweder kein Patient mehr übrig ist oder kein
-   verbleibendes Paar noch einen positiven Score hat.
+**Standard: Hungarian-Algorithmus (`class-match-v2`)**, eigene Implementierung in
+`services/hungarian.py` (reines Python, kein scipy). Der Score je (Student, Patient) ist
+derselbe wie oben. Ablauf, rundenweise:
+
+1. Matrix aufbauen: Studierende mit offenen Defiziten x noch freie Patienten, Wert = Score.
+2. Per Hungarian-Algorithmus die Zuordnung mit der **größten Gesamtsumme** bestimmen. Jeder Student
+   bekommt in einer Runde höchstens einen Patienten, jeder Patient höchstens einen Studenten.
+   Paare mit Score 0 werden nicht zugeordnet.
+3. Defizite um das Zugewiesene verringern (der Score weiterer Patienten sinkt dadurch, Überschuss
+   zählt nicht), zugewiesene Patienten entfernen.
+4. Wiederholen, bis kein Paar mehr einen positiven Score hat oder `max_per_student` erreicht ist.
+
+Gegenüber dem greedy-Verfahren verbaut sich die Zuordnung nicht mit dem besten Einzelpaar:
+bei den Scores `[[10, 9], [9, 0]]` nähme greedy 10 und ließe den zweiten Studenten leer,
+Hungarian wählt 9 + 9 = 18. Außerdem verteilt es die Patienten gleichmäßiger, weil ein Student pro Runde
+nur einen bekommt. Jede Zuordnung nennt ihre `round`, die Antwort `total_score`.
+
+**Grenze:** Jede Runde ist optimal, die Folge der Runden insgesamt nicht zwingend. Eine frühe Runde kann
+Patienten verbrauchen, die später mehr gebracht hätten. Das wäre nur mit einem Modell lösbar, in dem
+ein Student mehrere Patienten gleichzeitig bekommt und die Überschneidung der Defizite mitrechnet
+(ganzzahlige Optimierung). Bei ~5 Studierenden/~10 Patienten ist der Unterschied klein.
+
+`strategy=greedy` (`class-match-v1`) liefert das frühere Verfahren zum Vergleich: in jedem Schritt das
+aktuell beste (Student, Patient)-Paar, ein Student kann mehrere Patienten hintereinander bekommen.
+`max_per_student` begrenzt in beiden Verfahren die Patientenzahl je Student.
+
+Antwortformat (`unmatched_patients` und `matched_classes` wie vorher):
+```json
+{
+  "algorithm_version": "class-match-v2",
+  "strategy": "hungarian",
+  "total_score": 26.0,
+  "assignments": [
+    {"student_id": 4, "patient_id": 2, "patient_name": "Tim Keller", "score": 26.0,
+     "algorithm_version": "class-match-v2", "round": 1,
+     "matched_classes": [{"class_id": 7, "class_name": "WK", "category": "Endodontologie",
+        "covered_points": 9.0, "covered_count": 1, "available_cases": 1,
+        "deficit_points_before": 12.0, "deficit_count_before": 1}]}
+  ],
+  "unmatched_patients": [{"patient_id": 3, "patient_name": "Elena Rodriguez"}]
+}
+```
 
 Patienten, die für **keinen** Studenten mehr einen Nutzen bringen (weil
 ihre Fälle nur Klassen betreffen, die bei allen Studenten schon erfüllt
@@ -727,9 +757,9 @@ das Ergebnis; `deficit_points_before`/`deficit_count_before` zeigen die Lücke v
   [Asynchrone Analyse-Jobs](#asynchrone-analyse-jobs).
 - **Matching ist klassen- statt kompetenzbasiert**, weil `competencies` /
   `class_competencies` leer sind (siehe oben).
-- **Matching ist greedy, nicht global optimal.** Für die aktuelle
-  Kohortengröße unkritisch, bei deutlich mehr Studierenden/Patienten ggf.
-  auf `scipy.optimize.linear_sum_assignment` umstellen.
+- **Matching ist rundenweise optimal, nicht insgesamt.** Der Hungarian-Algorithmus löst jede Runde
+  optimal; die Folge der Runden ist es nicht zwingend (siehe [4b](#4b-gesamtzuordnung-suggest_global_matching)).
+  Die Empfehlungsliste je Student (`patient-recommendations`) ist nicht-exklusiv und nutzt keine Zuordnung.
 - **Punkte werden nicht automatisch aus Behandlungen berechnet.** Eine
   erfasste Behandlung (`treatment_cases`) füllt `students_classes` nicht von
   selbst; die aggregierten Punkte kommen weiterhin aus dem Import. Heute gilt:
