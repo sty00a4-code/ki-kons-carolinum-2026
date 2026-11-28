@@ -200,6 +200,18 @@ def _m4_analysis_jobs(conn) -> None:
     )
 
 
+def _m5_unique_student_login(conn) -> None:
+    # Ein Student hat höchstens ein Konto. Schlägt fehl, wenn schon Duplikate
+    # existieren: dann erst die überzähligen Konten sperren/löschen.
+    _statements(
+        conn,
+        [
+            "create unique index if not exists idx_users_student_id "
+            "on users (student_id) where student_id is not null"
+        ],
+    )
+
+
 @dataclass(frozen=True)
 class Migration:
     version: int
@@ -212,6 +224,7 @@ MIGRATIONS: list[Migration] = [
     Migration(2, "users und audit_log", _m2_users_and_audit),
     Migration(3, "soft delete und Zuordnungs-Historie", _m3_history_and_soft_delete),
     Migration(4, "analysis_jobs", _m4_analysis_jobs),
+    Migration(5, "eindeutige student_id je Benutzer", _m5_unique_student_login),
 ]
 
 

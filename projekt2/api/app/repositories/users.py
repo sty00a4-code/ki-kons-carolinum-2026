@@ -96,3 +96,10 @@ def student_exists(db: Session, student_id: int) -> bool:
         ).first()
         is not None
     )
+
+
+def student_account_id(db: Session, student_id: int) -> int | None:
+    """ID des Benutzers, der schon mit diesem Studenten verknüpft ist, sonst None."""
+    return db.execute(
+        text("select id from users where student_id = :id"), {"id": student_id}
+    ).scalar()

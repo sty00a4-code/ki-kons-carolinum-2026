@@ -62,6 +62,10 @@ def _cmd_create_user(args) -> int:
             db, args.student_id
         ):
             raise SystemExit(f"Unbekannte student_id: {args.student_id}")
+        if args.student_id is not None and users_repo.student_account_id(
+            db, args.student_id
+        ):
+            raise SystemExit(f"student_id {args.student_id} hat schon ein Konto.")
         try:
             user_id = users_repo.create_user(
                 db, args.username, password, args.role, args.student_id

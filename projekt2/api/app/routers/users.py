@@ -40,7 +40,7 @@ def create_user(
     db: Session = Depends(get_db),
 ):
     """Legt einen Benutzer an. Rolle student braucht eine student_id (422 bei
-    unbekannter), der Benutzername ist eindeutig (409)."""
+    unbekannter), Benutzername und student_id sind eindeutig (409)."""
     if payload.student_id is not None and not users_repo.student_exists(
         db, payload.student_id
     ):
@@ -50,6 +50,13 @@ def create_user(
     if users_repo.get_by_username(db, payload.username) is not None:
         raise HTTPException(
             status_code=409, detail=f"Benutzername schon vergeben: {payload.username}"
+        )
+    if payload.student_id is not None and users_repo.student_account_id(
+        db, payload.student_id
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=f"student_id {payload.student_id} hat schon ein Konto",
         )
     try:
         new_id = users_repo.create_user(
@@ -101,6 +108,12 @@ def update_user(
             changes["student_id"] = None
     if student_id is not None and not users_repo.student_exists(db, student_id):
         raise HTTPException(status_code=422, detail=f"Unbekannte student_id: {student_id}")
+    if student_id is not None:
+        owner = users_repo.student_account_id(db, student_id)
+        if owner is not None and owner != user_id:
+            raise HTTPException(
+                status_code=409, detail=f"student_id {student_id} hat schon ein Konto"
+            )
 
     if user_id == user.id and (
         changes.get("active") is False or role != "admin"

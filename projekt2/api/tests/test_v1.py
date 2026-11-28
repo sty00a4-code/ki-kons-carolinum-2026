@@ -58,7 +58,7 @@ def test_requests_need_token_when_secret_is_set(client, db_session, monkeypatch)
     assert client.get(f"{V1}/students").status_code == 401
     assert client.get("/students").status_code == 401
     assert client.get(f"{V1}/health").status_code == 200
-    bad = client.get(f"{V1}/students", headers={"Authorization": "Bearer müll"})
+    bad = client.get(f"{V1}/students", headers={"Authorization": "Bearer nicht.gueltig.token"})
     assert bad.status_code == 401
 
 
@@ -224,6 +224,17 @@ def test_user_management_rules(client, db_session, monkeypatch):
         headers=admin,
     )
     assert dup.status_code == 409
+    second = client.post(
+        f"{V1}/users",
+        json={
+            "username": "zweit",
+            "password": "langes-passwort",
+            "role": "student",
+            "student_id": 1,
+        },
+        headers=admin,
+    )
+    assert second.status_code == 409
     no_link = client.post(
         f"{V1}/users",
         json={"username": "x1x", "password": "langes-passwort", "role": "student"},
